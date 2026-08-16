@@ -6,10 +6,10 @@
 
 새 프로젝트 상세 페이지를 만들 때는 아래 파일들을 먼저 확인한다.
 
-- `src/components/pages/project-detail/definitions/hippobox.ts`
-- `src/components/pages/project-detail/definitions/blueprint4agent.ts`
-- `src/components/pages/project-detail/definitions/today-in-tech.ts`
-- `src/components/pages/project-detail/definitions/say-it-ok.ts`
+- `src/components/pages/project-detail/definitions/heogeon-detail.ts` (공통 빌더 `buildHeoProjectDetail` + `HEO_PROJECT_DETAILS[slug]` 데이터)
+- `src/components/pages/project-detail/definitions/index.ts` (slug → 상세 정의 라우팅)
+- `src/components/pages/project-detail/definitions/types.ts`
+- `src/components/pages/project-detail/definitions/fallback.ts` (커스텀 정의 없는 slug 폴백)
 
 특히 다음 구조를 기준 패턴으로 삼는다.
 
@@ -30,8 +30,8 @@ Lessons Learned
 
 1. `src/i18n/dictionaries.ts`의 `projects`에 프로젝트 메타데이터를 추가한다.
 2. `src/components/pages/projects/canvas-definition.ts`에 프로젝트 메인 카드 배치를 추가한다.
-3. `src/components/pages/project-detail/definitions/{slug}.ts`를 추가한다.
-4. `src/components/pages/project-detail/definitions/index.ts`에서 slug와 상세 정의를 연결한다.
+3. `src/components/pages/project-detail/definitions/heogeon-detail.ts`의 `HEO_PROJECT_DETAILS`에 slug 상세 데이터를 추가한다(공통 `buildHeoProjectDetail` 빌더가 렌더).
+4. `src/components/pages/project-detail/definitions/index.ts`에서 slug를 빌더에 연결한다.
 5. 프로젝트 아이콘과 이미지 자산은 `public/` 하위에 둔다.
 6. `npm run typecheck` 또는 `npm run harness`로 정적 생성 가능 여부를 확인한다.
 
@@ -55,7 +55,7 @@ Lessons Learned
 - 설명 문구는 섹션 내부에 억지로 넣지 말고 필요하면 투명 노드로 주변 빈 공간에 배치한다.
 - 엣지는 가능한 한 좌→우 또는 상→하 흐름으로 유지한다.
 - 긴 대각선, 중복 교차, 섹션 밖으로 나가는 엣지는 피한다.
-- API, Backend, Deploy, Observability 같은 복합 구조는 `HippoBox`와 `Blueprint4Agent`의 아키텍처 구성을 먼저 참고한다.
+- 리치 아키텍처는 `ArchitectureDiagram`(고정 픽셀 좌표계 + `ARCH_SPECS[slug]`)로 표현하며, API·Backend·Data·External 같은 복합 구조는 `live-chat`, `haeyaji`의 다이어그램 구성을 먼저 참고한다.
 
 ## Features 섹션 규칙
 

@@ -28,7 +28,7 @@ type(scope): subject
 ## 예시
 
 ```text
-feat(projects): HippoBox 프로젝트 카드를 추가
+feat(projects): 라이브 커머스 채팅 서버 카드를 추가
 docs(harness): 프론트엔드 규칙을 문서화
 build: commitlint 설정을 추가
 ```
