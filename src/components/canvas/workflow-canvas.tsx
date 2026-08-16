@@ -1264,7 +1264,7 @@ function MarkdownNode({
               : node.image.frame === "outline"
                 ? "flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-transparent"
                 : node.image.frame === "soft"
-                  ? "overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-2)] shadow-[var(--shadow)]"
+                  ? "overflow-hidden rounded-2xl border-2 border-[var(--accent)] bg-[var(--card-2)] shadow-[var(--shadow)]"
                   : node.image.frame === "plain" || node.appearance === "transparent"
                     ? "overflow-hidden"
                     : "overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-2)] shadow-[var(--shadow-sm)]"
