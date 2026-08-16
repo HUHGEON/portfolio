@@ -1,0 +1,252 @@
+@import "tailwindcss";
+
+/* class-based dark mode (toggled via `.dark` on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Design tokens mirrored from the tech blog (huhgeon.github.io) ---- */
+/* Light is the base; dark is applied via `.dark` on <html>. */
+:root {
+  --bg: #fbfbfa;
+  --bg-2: #f3f4f1;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card-2: #f3f4f0;
+  --border: #e5e6e0;
+  --border-soft: #eeefe9;
+  --text: #1a1d22;
+  --dim: #5a626d;
+  --faint: #9aa1aa;
+  --accent: #4f7aa6;
+  --accent-2: #6a93bd;
+  --accent-deep: #3c6390;
+  --accent-soft: rgba(79, 122, 166, 0.1);
+  --accent-line: rgba(79, 122, 166, 0.22);
+  --c-cat: #4f7d5e;
+  --c-cat-soft: rgba(79, 125, 94, 0.1);
+  --c-tag: #3f6f97;
+  --c-tag-bg: rgba(63, 111, 151, 0.1);
+  --c-tag-line: rgba(63, 111, 151, 0.2);
+  --line: rgba(20, 24, 32, 0.05);
+  --glow: radial-gradient(
+    58% 70% at 50% -4%,
+    rgba(79, 122, 166, 0.05),
+    transparent 70%
+  );
+  --shadow: 0 22px 50px -26px rgba(30, 35, 45, 0.2);
+  --shadow-sm: 0 8px 22px -14px rgba(30, 35, 45, 0.16);
+  --radius: 15px;
+  --radius-lg: 20px;
+
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+:root.dark {
+  --bg: #0e1014;
+  --bg-2: #111419;
+  --surface: #14171d;
+  --card: #161a21;
+  --card-2: #1c212a;
+  --border: #232a33;
+  --border-soft: #181d24;
+  --text: #c9d1da;
+  --dim: #8b94a1;
+  --faint: #586271;
+  --accent: #7aa2c9;
+  --accent-2: #9bbbde;
+  --accent-deep: #5b82a8;
+  --accent-soft: rgba(122, 162, 201, 0.13);
+  --accent-line: rgba(122, 162, 201, 0.26);
+  --c-cat: #86ad8e;
+  --c-cat-soft: rgba(134, 173, 142, 0.14);
+  --c-tag: #7fb2d6;
+  --c-tag-bg: rgba(127, 178, 214, 0.14);
+  --c-tag-line: rgba(127, 178, 214, 0.26);
+  --line: rgba(255, 255, 255, 0.035);
+  --glow: radial-gradient(
+    58% 70% at 50% -4%,
+    rgba(122, 162, 201, 0.06),
+    transparent 70%
+  );
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    var(--font-sans), "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial,
+    Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.workflow-canvas {
+  background-color: var(--background);
+  min-height: 42rem;
+}
+
+.workflow-node {
+  animation: workflow-node-enter 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top left;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+  width: 100%;
+}
+
+.workflow-node:hover {
+  border-color: var(--accent-line);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 0 1px var(--accent-line);
+  transform: translate3d(0, -3px, 0);
+}
+
+.workflow-node[data-appearance="transparent"]:hover {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.workflow-node[data-appearance="section"]:hover {
+  border-color: var(--accent-line);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transform: none;
+}
+
+.workflow-node[data-appearance="technology"]:hover {
+  border-color: var(--accent-line);
+  box-shadow: var(--shadow-sm);
+  transform: translate3d(0, -2px, 0);
+}
+
+.workflow-node[data-selected="true"] {
+  border-color: var(--accent);
+  box-shadow:
+    var(--shadow),
+    0 0 0 2px var(--accent-line);
+}
+
+.workflow-node[data-appearance="transparent"][data-selected="true"] {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.workflow-node[data-appearance="section"][data-selected="true"] {
+  border-color: var(--accent-line);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.workflow-node[data-appearance="technology"][data-selected="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-line);
+}
+
+.workflow-node[data-appearance="technology"] h2,
+.workflow-node[data-appearance="technology"] h3,
+.workflow-node[data-appearance="technology"] p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* terminal-style blinking caret */
+.term-caret {
+  display: inline-block;
+  width: 0.56em;
+  height: 1em;
+  margin-left: 0.16em;
+  vertical-align: -0.12em;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: term-blink 1.05s steps(1, end) infinite;
+}
+
+@keyframes term-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.workflow-edge {
+  animation: workflow-edge-draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.workflow-edge-directed {
+  color: var(--accent);
+}
+
+.workflow-edge-undirected {
+  color: var(--c-tag);
+  stroke-dasharray: 0.035 0.025;
+}
+
+@media (min-width: 768px) {
+  .workflow-canvas {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .workflow-node {
+    position: absolute;
+  }
+}
+
+@media (max-width: 767px) {
+  .workflow-node {
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  .workflow-node[data-appearance="section"] {
+    min-height: 0 !important;
+  }
+}
+
+@keyframes workflow-node-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(-10px, -8px, 0) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes workflow-edge-draw {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
