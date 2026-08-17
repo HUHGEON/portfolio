@@ -1,10 +1,74 @@
 import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
-import { LivePrompt, Prompt, TermWindow } from "@/components/pages/terminal/terminal-ui";
+import {
+  LivePrompt,
+  Panel,
+  TermWindow,
+} from "@/components/pages/terminal/terminal-ui";
 import type { Dictionary } from "@/i18n/dictionaries";
+
+type ProjectItem = Dictionary["projects"][number];
 
 const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
 const stripMd = (s: string) => s.replace(/\*\*/g, "").replace(/\n/g, " ").trim();
+
+const HUES = [
+  "var(--hue-blue)",
+  "var(--hue-amber)",
+  "var(--hue-green)",
+  "var(--hue-teal)",
+  "var(--hue-purple)",
+  "var(--hue-rose)",
+];
+
+// derive a display category from the project type
+const categoryOf = (type: string) =>
+  type.includes("Team")
+    ? "팀 프로젝트"
+    : type.includes("Personal")
+      ? "개인 프로젝트"
+      : "사내 실무";
+const CATEGORY_ORDER = ["팀 프로젝트", "개인 프로젝트", "사내 실무"];
+
+function ProjectCard({ project, hue }: { project: ProjectItem; hue: string }) {
+  const award = HEO_PROJECT_DETAILS[project.slug]?.award;
+  return (
+    <Link
+      href={`/projects/${project.slug}`}
+      className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+    >
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 transition-transform duration-200 group-hover:scale-y-100"
+        style={{ background: hue }}
+      />
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <span style={{ color: hue }}>●</span>
+        <span
+          className="font-mono text-[13px] group-hover:underline"
+          style={{ color: hue }}
+        >
+          feat/{branchName(project.slug)}
+        </span>
+        {award ? (
+          <span className="ml-auto text-[12px] text-[var(--hue-amber)]">
+            ★ {award.replace("명지대 ", "").replace("코드잇 ", "")}
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-1.5 font-semibold text-[var(--text)]">{project.title}</p>
+      <p className="mt-1 line-clamp-2 text-[var(--dim)]">
+        {project.description}
+      </p>
+      <p className="mt-2.5 font-mono text-[11px] text-[var(--faint)]">
+        {project.stack.join("  ·  ")}
+      </p>
+      <span className="mt-2 font-mono text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
+        cd ./{branchName(project.slug)} →
+      </span>
+    </Link>
+  );
+}
 
 export function TerminalProjects({
   projects,
@@ -14,60 +78,55 @@ export function TerminalProjects({
   projectsPage: Dictionary["projectsPage"];
 }) {
   const featured = projects.filter((project) => project.featured);
+  // keep the original index → stable branch color per project (matches home)
+  const groups = CATEGORY_ORDER.map((cat) => ({
+    cat,
+    items: featured
+      .map((project, i) => ({ project, hue: HUES[i % HUES.length] }))
+      .filter(({ project }) => categoryOf(project.type) === cat),
+  })).filter((g) => g.items.length > 0);
 
   return (
-    <TermWindow title="~/heo-geon/projects — zsh">
-      <Prompt cmd="pwd" />
-      <p className="mt-1 text-[var(--dim)]">~/heo-geon/projects</p>
+    <TermWindow
+      title="~/heo-geon/projects — zsh"
+      status={`~/heo-geon/projects · ${featured.length} projects`}
+    >
+      <Panel cmd="cat .description" comment="프로젝트 소개" hue="var(--hue-blue)">
+        <p className="text-[18px] font-bold text-[var(--text)]">
+          {stripMd(projectsPage.title)}
+        </p>
+        <p className="mt-2 leading-relaxed text-[var(--dim)]">
+          {stripMd(projectsPage.description)}
+        </p>
+      </Panel>
 
-      <Prompt cmd="cat .description" comment="projects" />
-      <p className="mt-2 max-w-[80ch] text-[var(--text)]">
-        {stripMd(projectsPage.title)}
-      </p>
-      <p className="mt-1.5 max-w-[80ch] text-[var(--dim)]">
-        {stripMd(projectsPage.description)}
-      </p>
-
-      <Prompt cmd="git log --oneline --all" comment={`${featured.length} projects`} />
-      <div className="mt-2 divide-y divide-[var(--border-soft)]">
-        {featured.map((project) => {
-          const award = HEO_PROJECT_DETAILS[project.slug]?.award;
-          return (
-            <Link
-              key={project.slug}
-              href={`/projects/${project.slug}`}
-              className="group -mx-2 block rounded-md px-2 py-2.5 transition hover:bg-[var(--card-2)]"
-            >
-              <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className="text-[var(--c-cat)]">●</span>
-                <span className="text-[var(--accent)] group-hover:underline">
-                  feat/{branchName(project.slug)}
+      <Panel
+        cmd="git log --oneline --all"
+        comment={`프로젝트 · ${featured.length}개`}
+        hue="var(--hue-purple)"
+        className="mt-4"
+      >
+        <div className="space-y-6">
+          {groups.map(({ cat, items }) => (
+            <div key={cat}>
+              <div className="mb-2.5 flex items-baseline gap-2">
+                <span className="font-mono text-[13px] font-semibold text-[var(--text)]">
+                  {cat}
                 </span>
-                <span className="font-semibold text-[var(--text)]">
-                  {project.title}
+                <span className="font-mono text-[11px] text-[var(--faint)]">
+                  ({items.length})
                 </span>
-                {award ? (
-                  <span className="text-[12px] text-[#c39a4d]">
-                    ★ {award.replace("명지대 ", "").replace("코드잇 ", "")}
-                  </span>
-                ) : null}
-                <span className="text-[12px] text-[var(--faint)]">
-                  · {project.type}
-                </span>
-                <span className="ml-auto text-[12px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
-                  cd ./{branchName(project.slug)} →
-                </span>
+                <span className="ml-3 h-px flex-1 bg-[var(--border-soft)]" />
               </div>
-              <p className="mt-1 max-w-[80ch] pl-5 text-[var(--dim)]">
-                {project.description}
-              </p>
-              <p className="mt-1.5 pl-5 text-[12px] text-[var(--faint)]">
-                {project.stack.join("  ·  ")}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                {items.map(({ project, hue }) => (
+                  <ProjectCard key={project.slug} project={project} hue={hue} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
 
       <LivePrompt />
     </TermWindow>

@@ -218,7 +218,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
 
   return (
     <div
-      className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card-2)] shadow-[var(--shadow-sm)]"
+      className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[#f6f7f8] shadow-[var(--shadow-sm)] dark:bg-[var(--card-2)]"
       style={{ height: frameH, overflow: "hidden", position: "relative" }}
     >
       <div
@@ -235,7 +235,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
         {spec.container ? (
           <>
             <div
-              className="absolute rounded-[26px] border-2 border-dashed border-indigo-300/70 bg-slate-50/30 dark:bg-white/[0.03]"
+              className="absolute rounded-[26px] border-2 border-dashed border-slate-300/60 bg-black/[0.015] dark:border-white/10 dark:bg-white/[0.03]"
               style={{ left: 8, top: 66, width: WW - 16, height: HH - 74 }}
             />
             <div
@@ -1122,8 +1122,8 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         w: 340,
         items: [
           { label: "REST API", sub: "요청 · 업로드(Multer)", lucide: Globe },
-          { label: "미디어 전처리", sub: "fluent-ffmpeg", emoji: "🎬" },
-          { label: "추론 연동", sub: "axios · 오케스트레이션", lucide: Cog },
+          { label: "데이터 전처리", sub: "전처리 파이프라인", lucide: Cog },
+          { label: "외부 연동", sub: "axios · 오케스트레이션", lucide: Cog },
           { label: "저장 · 캐싱", sub: "결과 적재 · 캐시", lucide: Bell },
         ],
       },
@@ -1136,7 +1136,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         y: 165,
         w: 300,
         items: [
-          { label: "외부 AI 추론 서버", sub: "axios 연동 · 대외비", emoji: "🧠" },
+          { label: "외부 처리 서버", sub: "axios 연동 · 대외비", lucide: Globe },
         ],
       },
       {
@@ -1148,7 +1148,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         y: 355,
         w: 300,
         items: [
-          { label: "MongoDB", sub: "추론 결과 저장", logo: "mongodb" },
+          { label: "MongoDB", sub: "결과 저장", logo: "mongodb" },
           { label: "Redis", sub: "조회 캐시", logo: "redis" },
         ],
       },
@@ -1169,7 +1169,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         to: "inference",
         toSide: "left",
         flow: "external",
-        label: "추론 요청",
+        label: "외부 연동 요청",
       },
       {
         from: "server",
@@ -1184,7 +1184,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
     ],
     legend: [
       { flow: "req", label: "요청 / 업로드" },
-      { flow: "external", label: "외부 추론 연동" },
+      { flow: "external", label: "외부 연동" },
       { flow: "data", label: "저장 / 캐시" },
     ],
   },
@@ -1208,8 +1208,8 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
       },
       {
         id: "video",
-        title: "Video Server",
-        subtitle: "원본 영상 수집",
+        title: "Source Server",
+        subtitle: "원본 데이터 수집",
         color: "slate",
         lucide: Globe,
         x: 30,
@@ -1229,7 +1229,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
       {
         id: "backend",
         title: "Backend Server",
-        subtitle: "미디어 파이프라인 허브",
+        subtitle: "처리 파이프라인 허브",
         color: "green",
         logo: "nodejs",
         x: 510,
@@ -1237,20 +1237,20 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         w: 380,
         items: [
           { label: "REST API", sub: "요청 · 업로드(Multer)", lucide: Globe },
-          { label: "미디어 전처리", sub: "fluent-ffmpeg", emoji: "🎬" },
-          { label: "추론 연동", sub: "axios · 오케스트레이션", lucide: Cog },
+          { label: "데이터 전처리", sub: "전처리 파이프라인", lucide: Cog },
+          { label: "외부 연동", sub: "axios · 오케스트레이션", lucide: Cog },
           { label: "저장 · 캐싱", sub: "결과 적재 · 캐시", lucide: Bell },
         ],
       },
       {
         id: "inference",
-        title: "Inference Server",
+        title: "External Service",
         color: "purple",
         lucide: Globe,
         x: 1120,
         y: 340,
         w: 290,
-        items: [{ label: "외부 AI 추론", sub: "axios 연동 · 대외비", emoji: "🧠" }],
+        items: [{ label: "외부 처리", sub: "axios 연동 · 대외비", lucide: Globe }],
       },
       {
         id: "database",
@@ -1261,7 +1261,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         y: 550,
         w: 290,
         items: [
-          { label: "MongoDB", sub: "추론 결과 저장", logo: "mongodb" },
+          { label: "MongoDB", sub: "결과 저장", logo: "mongodb" },
           { label: "Redis", sub: "조회 캐시", logo: "redis" },
         ],
       },
@@ -1274,7 +1274,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         toItem: 0,
         toSide: "left",
         flow: "req",
-        label: "태그 정보",
+        label: "요청 정보",
         bi: true,
       },
       {
@@ -1303,7 +1303,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
         to: "inference",
         toSide: "left",
         flow: "external",
-        label: "영상 URL·결과",
+        label: "요청·결과",
         bi: true,
       },
       {
@@ -1320,7 +1320,7 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
     ],
     legend: [
       { flow: "req", label: "요청/응답" },
-      { flow: "external", label: "외부 추론" },
+      { flow: "external", label: "외부 연동" },
       { flow: "data", label: "저장/조회" },
     ],
   },

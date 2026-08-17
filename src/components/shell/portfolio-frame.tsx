@@ -13,7 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { GithubIcon } from "@/components/icons/github-icon";
-import { ThemeToggle } from "@/components/shell/theme-toggle";
+import { ThemeToggle, ThemeToggleRail } from "@/components/shell/theme-toggle";
 import { PortfolioViewportProvider } from "@/components/shell/viewport-context";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -65,7 +65,6 @@ export function PortfolioFrame({
           />
         </aside>
         <div className="min-w-0">{children}</div>
-        <ThemeToggle />
       </section>
     </PortfolioViewportProvider>
   );
@@ -187,6 +186,9 @@ function PortfolioSidebar({
             </Tooltip>
           );
         })}
+        <div className="mt-auto pt-2">
+          <ThemeToggleRail />
+        </div>
       </nav>
 
       <div
@@ -361,7 +363,9 @@ function PortfolioSidebar({
           })}
         </nav>
 
-        <div className="mt-auto" />
+        <div className="mt-auto border-t border-[var(--border-soft)] pt-3">
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

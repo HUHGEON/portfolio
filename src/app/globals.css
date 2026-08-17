@@ -6,16 +6,16 @@
 /* ---- Design tokens mirrored from the tech blog (huhgeon.github.io) ---- */
 /* Light is the base; dark is applied via `.dark` on <html>. */
 :root {
-  --bg: #fbfbfa;
-  --bg-2: #f3f4f1;
+  --bg: #f7f9fc;
+  --bg-2: #eef2f8;
   --surface: #ffffff;
   --card: #ffffff;
-  --card-2: #f3f4f0;
-  --border: #e5e6e0;
-  --border-soft: #eeefe9;
-  --text: #1a1d22;
-  --dim: #5a626d;
-  --faint: #9aa1aa;
+  --card-2: #eff3f9;
+  --border: #e0e6ef;
+  --border-soft: #eef2f8;
+  --text: #182029;
+  --dim: #566372;
+  --faint: #98a2b0;
   --accent: #4f7aa6;
   --accent-2: #6a93bd;
   --accent-deep: #3c6390;
@@ -26,6 +26,13 @@
   --c-tag: #3f6f97;
   --c-tag-bg: rgba(63, 111, 151, 0.1);
   --c-tag-line: rgba(63, 111, 151, 0.2);
+  /* categorical hues for section accents */
+  --hue-blue: #4f7aa6;
+  --hue-green: #4f8360;
+  --hue-teal: #2f8f86;
+  --hue-amber: #c0863c;
+  --hue-purple: #7a6bb0;
+  --hue-rose: #b0626f;
   --line: rgba(20, 24, 32, 0.05);
   --glow: radial-gradient(
     58% 70% at 50% -4%,
@@ -62,6 +69,12 @@
   --c-tag: #7fb2d6;
   --c-tag-bg: rgba(127, 178, 214, 0.14);
   --c-tag-line: rgba(127, 178, 214, 0.26);
+  --hue-blue: #7aa2c9;
+  --hue-green: #86ad8e;
+  --hue-teal: #5fb3a8;
+  --hue-amber: #d0a568;
+  --hue-purple: #a394d6;
+  --hue-rose: #cf9099;
   --line: rgba(255, 255, 255, 0.035);
   --glow: radial-gradient(
     58% 70% at 50% -4%,
@@ -90,6 +103,26 @@ body {
 ::selection {
   background: var(--accent-soft);
   color: var(--text);
+}
+
+/* subtle entrance rise */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-rise {
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise {
+    animation: none;
+  }
 }
 
 html {

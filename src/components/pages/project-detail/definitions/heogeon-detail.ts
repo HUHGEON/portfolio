@@ -1262,9 +1262,9 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     repoNote: "사내 · 비공개 저장소",
     works: [
       {
-        title: "미디어 추론 백엔드",
-        desc: "업로드된 미디어(오디오·영상)를 ffmpeg로 전처리하고 외부 AI 추론 서버와 연동해 결과를 저장·캐싱하는 파이프라인. 업로드·전처리·추론·저장을 서비스 레이어로 분리했습니다.",
-        stack: ["Node.js", "Express", "fluent-ffmpeg", "MongoDB", "Redis", "Docker"],
+        title: "백엔드 프로토타입 · 처리 파이프라인",
+        desc: "업로드된 데이터를 전처리하고 외부 처리 서버와 연동해 결과를 저장·캐싱하는 백엔드 파이프라인. 업로드·전처리·외부 연동·저장을 서비스 레이어로 분리했습니다.",
+        stack: ["Node.js", "Express", "MongoDB", "Redis", "Docker"],
       },
       {
         title: "데이터 분석·시각화 대시보드 ①",

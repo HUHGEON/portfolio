@@ -1,152 +1,298 @@
+import { Building2, GraduationCap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
-import { LivePrompt, Prompt, TermWindow } from "@/components/pages/terminal/terminal-ui";
+import {
+  LivePrompt,
+  Panel,
+  TermWindow,
+} from "@/components/pages/terminal/terminal-ui";
 import { assetPath } from "@/lib/asset-path";
 import type { Dictionary } from "@/i18n/dictionaries";
 
 const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
 
+const HUES = [
+  "var(--hue-blue)",
+  "var(--hue-amber)",
+  "var(--hue-green)",
+  "var(--hue-teal)",
+  "var(--hue-purple)",
+  "var(--hue-rose)",
+];
+
+const tint = (hue: string, pct: number) =>
+  `color-mix(in srgb, ${hue} ${pct}%, transparent)`;
+
+const ABOUT_HIGHLIGHTS = [
+  "API·DB 구조 설계",
+  "데이터 수집·가공 자동화",
+  "ERD·DB 모델링",
+  "데이터 파이프라인",
+  "실시간 서버",
+  "API 설계",
+];
+
+function highlightKeywords(text: string) {
+  const re = new RegExp(
+    `(${ABOUT_HIGHLIGHTS.map((k) =>
+      k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    ).join("|")})`,
+    "g",
+  );
+  return text.split(re).map((part, i) =>
+    ABOUT_HIGHLIGHTS.includes(part) ? (
+      <span key={i} className="font-semibold text-[var(--accent)]">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
   const { profile, home, about, skills } = dictionary;
   const featured = home.featuredProjects;
+  const awardCount = featured.filter(
+    (p) => HEO_PROJECT_DETAILS[p.slug]?.award,
+  ).length;
+
+  const stats = [
+    { value: String(featured.length), label: "프로젝트", hue: "var(--hue-blue)" },
+    { value: String(awardCount), label: "수상", hue: "var(--hue-amber)" },
+    { value: "6", label: "개월 실무 인턴", hue: "var(--hue-green)" },
+  ];
 
   return (
-    <TermWindow title="~/heo-geon — zsh — 96×40">
-      {/* whoami */}
-      <Prompt cmd="whoami" />
-      <div className="mt-2 flex items-start justify-between gap-6">
-        <div>
-          <p className="text-[19px] font-bold tracking-tight text-[var(--text)]">
-            {home.profileCard.koreanName}{" "}
-            <span className="text-[var(--accent)]">
-              {home.profileCard.englishName}
-            </span>
-          </p>
-          <p className="mt-0.5 text-[var(--dim)]">
-            Backend Developer · 백엔드 개발자
-          </p>
-          <div className="mt-2 space-y-0.5 text-[var(--dim)]">
-            {home.profileCard.experiences.map((exp) => (
-              <p key={exp.title}>
-                <span className="text-[var(--faint)]">#</span>{" "}
-                <span className="text-[var(--text)]">{exp.title}</span>{" "}
-                {exp.detail} · {exp.period}
+    <TermWindow
+      title="~/heo-geon — zsh — 96×40"
+      status={`~/heo-geon · ${featured.length} projects`}
+    >
+      {/* ── hero feature panel ── */}
+      <section className="anim-rise relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[var(--accent-soft)] to-transparent"
+        />
+        <div className="relative flex flex-col gap-5 p-5 sm:p-6">
+          <div className="flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div>
+              <p className="mb-2 font-mono text-[11px] text-[var(--faint)]">
+                <span className="text-[var(--c-cat)]">❯</span> whoami
               </p>
+              <p className="text-[30px] font-extrabold leading-none tracking-tight text-[var(--text)] sm:text-[40px]">
+                {home.profileCard.koreanName}{" "}
+                <span className="text-[var(--accent)]">
+                  {home.profileCard.englishName}
+                </span>
+              </p>
+              <p className="mt-2.5 text-[15px] font-medium text-[var(--dim)]">
+                Backend Developer{" "}
+                <span className="text-[var(--faint)]">·</span> 백엔드 개발자
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {home.profileCard.experiences.map((exp) => {
+                  const Icon = exp.icon === "school" ? GraduationCap : Building2;
+                  return (
+                    <span
+                      key={exp.title}
+                      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[12px]"
+                    >
+                      <Icon size={13} className="shrink-0 text-[var(--accent)]" />
+                      <span className="font-semibold text-[var(--text)]">
+                        {exp.title}
+                      </span>
+                      <span className="text-[var(--dim)]">{exp.detail}</span>
+                      <span className="text-[var(--faint)]">· {exp.period}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="relative shrink-0 self-start sm:self-auto">
+              <div
+                aria-hidden
+                className="absolute -inset-2.5 rounded-[26px] bg-[var(--accent)] opacity-[0.12] blur-2xl"
+              />
+              <Image
+                src={assetPath("/profile.png")}
+                alt={`${home.profileCard.koreanName} 프로필 사진`}
+                width={563}
+                height={744}
+                unoptimized
+                className="relative h-[150px] w-[116px] rounded-2xl object-cover shadow-[var(--shadow)] ring-1 ring-[var(--border)]"
+              />
+            </div>
+          </div>
+          {/* stats */}
+          <div className="grid grid-cols-3 gap-3 border-t border-[var(--border-soft)] pt-4">
+            {stats.map((s) => (
+              <div key={s.label}>
+                <p
+                  className="font-mono text-[26px] font-extrabold leading-none"
+                  style={{ color: s.hue }}
+                >
+                  {s.value}
+                </p>
+                <p className="mt-1.5 text-[12px] text-[var(--dim)]">{s.label}</p>
+              </div>
             ))}
           </div>
         </div>
-        <Image
-          src={assetPath("/profile.png")}
-          alt={`${home.profileCard.koreanName} 프로필 사진`}
-          width={563}
-          height={744}
-          unoptimized
-          className="hidden h-[104px] w-[80px] shrink-0 rounded-lg border-2 border-[var(--accent)] object-cover sm:block"
-        />
-      </div>
+      </section>
 
-      {/* cat about.md */}
-      <Prompt cmd="cat about.md" />
-      <p className="mt-2 text-[20px] font-bold leading-snug tracking-tight text-[var(--text)] sm:text-[23px]">
-        {home.title}
-      </p>
-      <div className="mt-2 space-y-1.5">
-        {about.paragraphs.map((p) => (
-          <p key={p} className="max-w-[64ch] text-[var(--dim)]">
-            {p}
+      {/* ── panel grid ── */}
+      <div
+        className="anim-rise mt-4 grid gap-4 sm:grid-cols-2"
+        style={{ animationDelay: "90ms" }}
+      >
+        <Panel
+          cmd="cat about.md"
+          comment="소개"
+          hue="var(--hue-blue)"
+          className="sm:col-span-2"
+        >
+          <p className="text-[19px] font-bold leading-snug tracking-tight text-[var(--text)] sm:text-[22px]">
+            {home.title}
           </p>
-        ))}
-      </div>
-
-      {/* focus */}
-      <Prompt cmd="cat ~/focus" comment="what I build" />
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-        {home.techFocus.buildItems.map((item) => (
-          <span key={item} className="text-[var(--text)]">
-            <span className="text-[var(--accent)]">▸</span> {item}
-          </span>
-        ))}
-      </div>
-
-      {/* stack */}
-      <Prompt cmd="ls ~/stack" />
-      <div className="mt-2 space-y-1">
-        {skills.groups.map((group) => (
-          <div key={group.title} className="flex flex-wrap gap-x-3">
-            <span className="w-[84px] shrink-0 text-[var(--accent)]">
-              {group.title.toLowerCase()}/
-            </span>
-            <span className="text-[var(--text)]">{group.items.join("  ")}</span>
+          <div className="mt-2.5 space-y-1.5 leading-relaxed">
+            {about.paragraphs.map((p) => (
+              <p key={p} className="text-[var(--dim)]">
+                {highlightKeywords(p)}
+              </p>
+            ))}
           </div>
-        ))}
-      </div>
+        </Panel>
 
-      {/* git log projects */}
-      <Prompt cmd="git log ./projects" comment={`${featured.length} commits`} />
-      <div className="mt-2 divide-y divide-[var(--border-soft)]">
-        {featured.map((project) => {
-          const award = HEO_PROJECT_DETAILS[project.slug]?.award;
-          return (
-            <Link
-              key={project.slug}
-              href={`/projects/${project.slug}`}
-              className="group relative -mx-3 block rounded-md px-3 py-2.5 transition hover:bg-[var(--card-2)]"
-            >
-              <span className="pointer-events-none absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-[var(--accent)] opacity-0 transition group-hover:opacity-100" />
-              <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className="text-[var(--c-cat)]">●</span>
-                <span className="text-[var(--accent)] group-hover:underline">
-                  feat/{branchName(project.slug)}
-                </span>
-                <span className="font-semibold text-[var(--text)]">
-                  {project.title}
-                </span>
-                {award ? (
-                  <span className="text-[12px] text-[#c39a4d]">
-                    ★ {award.replace("명지대 ", "").replace("코드잇 ", "")}
-                  </span>
-                ) : null}
-                <span className="ml-auto hidden text-[12px] text-[var(--faint)] transition group-hover:text-[var(--accent)] sm:inline">
-                  cd ./{branchName(project.slug)} →
-                </span>
+        <Panel cmd="cat ~/focus" comment="무엇을 만드는가" hue="var(--hue-teal)">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {home.techFocus.buildItems.map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card-2)] px-3.5 py-3 text-[14px] font-medium text-[var(--text)] transition hover:border-[var(--accent-line)] hover:bg-[var(--card)]"
+              >
+                <span className="text-[var(--hue-teal)]">▸</span> {item}
               </div>
-              <p className="mt-1 max-w-[74ch] pl-5 text-[var(--dim)]">
-                {project.description}
-              </p>
-              <p className="mt-1.5 pl-5 text-[12px] text-[var(--faint)]">
-                {project.stack.join("  ·  ")}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+            ))}
+          </div>
+        </Panel>
 
-      {/* contact */}
-      <Prompt cmd="cat ./contact" />
-      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1">
-        <a
-          href={profile.links.github}
-          target="_blank"
-          rel="noreferrer"
-          className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+        <Panel cmd="ls ~/stack" comment="기술 스택" hue="var(--hue-amber)">
+          <div className="space-y-2.5">
+            {skills.groups.map((group, gi) => {
+              const hue = HUES[gi % HUES.length];
+              return (
+                <div
+                  key={group.title}
+                  className="flex flex-wrap items-center gap-1.5"
+                >
+                  <span className="mr-1 w-[74px] shrink-0 font-mono text-[11px] text-[var(--faint)]">
+                    {group.title.toLowerCase()}/
+                  </span>
+                  {group.items.map((it) => (
+                    <span
+                      key={it}
+                      className="rounded-md border px-2 py-[3px] text-[12px] font-medium"
+                      style={{
+                        color: hue,
+                        borderColor: tint(hue, 34),
+                        background: tint(hue, 11),
+                      }}
+                    >
+                      {it}
+                    </span>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+
+        <Panel
+          cmd="git log ./projects"
+          comment={`프로젝트 · ${featured.length}개`}
+          hue="var(--hue-purple)"
+          className="sm:col-span-2"
         >
-          <span className="text-[var(--accent)]">→</span> github/HUHGEON
-        </a>
-        <a
-          href={profile.links.blog}
-          target="_blank"
-          rel="noreferrer"
-          className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            {featured.map((project, i) => {
+              const award = HEO_PROJECT_DETAILS[project.slug]?.award;
+              const hue = HUES[i % HUES.length];
+              return (
+                <Link
+                  key={project.slug}
+                  href={`/projects/${project.slug}`}
+                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 transition-transform duration-200 group-hover:scale-y-100"
+                    style={{ background: hue }}
+                  />
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <span style={{ color: hue }}>●</span>
+                    <span
+                      className="font-mono text-[13px] group-hover:underline"
+                      style={{ color: hue }}
+                    >
+                      feat/{branchName(project.slug)}
+                    </span>
+                    {award ? (
+                      <span className="ml-auto text-[12px] text-[var(--hue-amber)]">
+                        ★ {award.replace("명지대 ", "").replace("코드잇 ", "")}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1.5 font-semibold text-[var(--text)]">
+                    {project.title}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[var(--dim)]">
+                    {project.description}
+                  </p>
+                  <p className="mt-2.5 font-mono text-[11px] text-[var(--faint)]">
+                    {project.stack.join("  ·  ")}
+                  </p>
+                  <span className="mt-2 font-mono text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
+                    cd ./{branchName(project.slug)} →
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </Panel>
+
+        <Panel
+          cmd="cat ./contact"
+          comment="연락처"
+          hue="var(--hue-green)"
+          className="sm:col-span-2"
         >
-          <span className="text-[var(--accent)]">→</span> huhgeon.github.io
-        </a>
-        <a
-          href={`mailto:${profile.email}`}
-          className="text-[var(--dim)] transition hover:text-[var(--accent)]"
-        >
-          <span className="text-[var(--accent)]">→</span> {profile.email}
-        </a>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <a
+              href={profile.links.github}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+            >
+              <span className="text-[var(--accent)]">→</span> github/HUHGEON
+            </a>
+            <a
+              href={profile.links.blog}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+            >
+              <span className="text-[var(--accent)]">→</span> huhgeon.github.io
+            </a>
+            <a
+              href={`mailto:${profile.email}`}
+              className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+            >
+              <span className="text-[var(--accent)]">→</span> {profile.email}
+            </a>
+          </div>
+        </Panel>
       </div>
 
       <LivePrompt />
