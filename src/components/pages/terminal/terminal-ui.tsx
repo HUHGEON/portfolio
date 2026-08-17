@@ -2,13 +2,15 @@ import type { ReactNode } from "react";
 
 export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
   return (
-    <div className="flex flex-wrap items-baseline gap-x-2 pt-7 first:pt-0">
-      <span className="select-none text-[var(--faint)]">~</span>
-      <span className="select-none font-bold text-[var(--c-cat)]">❯</span>
-      <span className="font-medium text-[var(--text)]">{cmd}</span>
-      {comment ? (
-        <span className="text-[var(--faint)]"># {comment}</span>
-      ) : null}
+    <div className="mt-7 border-t border-[var(--border)] pt-6 first:mt-0 first:border-0 first:pt-0">
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <span className="select-none text-[var(--faint)]">~</span>
+        <span className="select-none font-bold text-[var(--c-cat)]">❯</span>
+        <span className="font-medium text-[var(--text)]">{cmd}</span>
+        {comment ? (
+          <span className="text-[var(--faint)]"># {comment}</span>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -17,17 +19,13 @@ export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
 export function TermWindow({
   title,
   children,
-  wide = false,
 }: {
   title: string;
   children: ReactNode;
-  wide?: boolean;
 }) {
   return (
     <div className="term min-h-[100dvh] bg-[var(--bg)] px-4 py-8 text-[13.5px] leading-relaxed text-[var(--dim)] sm:px-8 sm:py-12 lg:pl-[236px]">
-      <div
-        className={`mx-auto w-full ${wide ? "max-w-[1040px]" : "max-w-[820px]"}`}
-      >
+      <div className="mx-auto w-full max-w-[1600px]">
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
           <div className="flex items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">
             <span className="flex gap-1.5">

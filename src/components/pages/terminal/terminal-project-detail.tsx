@@ -94,7 +94,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
   }
 
   return (
-    <TermWindow title={`~/heo-geon/projects/${branch} — zsh`} wide>
+    <TermWindow title={`~/heo-geon/projects/${branch} — zsh`}>
       {/* checkout */}
       <Prompt cmd={`git checkout feat/${branch}`} />
       <p className="mt-1 text-[var(--faint)]">
