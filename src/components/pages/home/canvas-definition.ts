@@ -104,7 +104,7 @@ export function getHomeCanvasDefinition({
         y: 6,
         width: 7.5,
         image: {
-          src: "/profile.png",
+          src: "/profile.jpg",
           alt: `${home.profileCard.koreanName} 프로필 사진`,
           width: 563,
           height: 744,

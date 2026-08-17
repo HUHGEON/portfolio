@@ -2,9 +2,11 @@ import { Building2, GraduationCap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
+import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
   LivePrompt,
   Panel,
+  StackList,
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
 import { assetPath } from "@/lib/asset-path";
@@ -58,10 +60,15 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
     (p) => HEO_PROJECT_DETAILS[p.slug]?.award,
   ).length;
 
-  const stats = [
+  const stats: {
+    value: string;
+    unit?: string;
+    label: string;
+    hue: string;
+  }[] = [
     { value: String(featured.length), label: "프로젝트", hue: "var(--hue-blue)" },
     { value: String(awardCount), label: "수상", hue: "var(--hue-amber)" },
-    { value: "6", label: "개월 실무 인턴", hue: "var(--hue-green)" },
+    { value: "6", unit: "개월", label: "실무 인턴", hue: "var(--hue-green)" },
   ];
 
   return (
@@ -70,7 +77,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
       status={`~/heo-geon · ${featured.length} projects`}
     >
       {/* ── hero feature panel ── */}
-      <section className="anim-rise relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
+      <section className="reveal relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[var(--accent-soft)] to-transparent"
@@ -116,24 +123,28 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 className="absolute -inset-2.5 rounded-[26px] bg-[var(--accent)] opacity-[0.12] blur-2xl"
               />
               <Image
-                src={assetPath("/profile.png")}
+                src={assetPath("/profile.jpg")}
                 alt={`${home.profileCard.koreanName} 프로필 사진`}
-                width={563}
-                height={744}
+                width={348}
+                height={460}
+                priority
                 unoptimized
                 className="relative h-[150px] w-[116px] rounded-2xl object-cover shadow-[var(--shadow)] ring-1 ring-[var(--border)]"
               />
             </div>
           </div>
           {/* stats */}
-          <div className="grid grid-cols-3 gap-3 border-t border-[var(--border-soft)] pt-4">
-            {stats.map((s) => (
-              <div key={s.label}>
+          <div className="grid grid-cols-3 divide-x divide-[var(--border-soft)] border-t border-[var(--border-soft)] pt-4">
+            {stats.map((s, i) => (
+              <div key={s.label} className={i > 0 ? "pl-6" : ""}>
                 <p
                   className="font-mono text-[26px] font-extrabold leading-none"
                   style={{ color: s.hue }}
                 >
                   {s.value}
+                  {s.unit ? (
+                    <span className="ml-0.5 text-[15px] font-bold">{s.unit}</span>
+                  ) : null}
                 </p>
                 <p className="mt-1.5 text-[12px] text-[var(--dim)]">{s.label}</p>
               </div>
@@ -143,15 +154,12 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
       </section>
 
       {/* ── panel grid ── */}
-      <div
-        className="anim-rise mt-4 grid gap-4 sm:grid-cols-2"
-        style={{ animationDelay: "90ms" }}
-      >
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <Panel
           cmd="cat about.md"
           comment="소개"
           hue="var(--hue-blue)"
-          className="sm:col-span-2"
+          className="reveal sm:col-span-2"
         >
           <p className="text-[19px] font-bold leading-snug tracking-tight text-[var(--text)] sm:text-[22px]">
             {home.title}
@@ -165,7 +173,12 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           </div>
         </Panel>
 
-        <Panel cmd="cat ~/focus" comment="무엇을 만드는가" hue="var(--hue-teal)">
+        <Panel
+          cmd="cat ~/focus"
+          comment="무엇을 만드는가"
+          hue="var(--hue-teal)"
+          className="reveal"
+        >
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {home.techFocus.buildItems.map((item) => (
               <div
@@ -178,7 +191,12 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           </div>
         </Panel>
 
-        <Panel cmd="ls ~/stack" comment="기술 스택" hue="var(--hue-amber)">
+        <Panel
+          cmd="ls ~/stack"
+          comment="기술 스택"
+          hue="var(--hue-amber)"
+          className="reveal"
+        >
           <div className="space-y-2.5">
             {skills.groups.map((group, gi) => {
               const hue = HUES[gi % HUES.length];
@@ -213,7 +231,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           cmd="git log ./projects"
           comment={`프로젝트 · ${featured.length}개`}
           hue="var(--hue-purple)"
-          className="sm:col-span-2"
+          className="reveal sm:col-span-2"
         >
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {featured.map((project, i) => {
@@ -223,11 +241,11 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 <Link
                   key={project.slug}
                   href={`/projects/${project.slug}`}
-                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 pl-[18px] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
                 >
                   <span
                     aria-hidden
-                    className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 transition-transform duration-200 group-hover:scale-y-100"
+                    className="absolute inset-y-0 left-0 w-[3px] opacity-70 transition-opacity duration-200 group-hover:opacity-100"
                     style={{ background: hue }}
                   />
                   <div className="flex flex-wrap items-baseline gap-x-2">
@@ -250,9 +268,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                   <p className="mt-1 line-clamp-2 text-[var(--dim)]">
                     {project.description}
                   </p>
-                  <p className="mt-2.5 font-mono text-[11px] text-[var(--faint)]">
-                    {project.stack.join("  ·  ")}
-                  </p>
+                  <StackList items={project.stack} className="mt-2.5" />
                   <span className="mt-2 font-mono text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
                     cd ./{branchName(project.slug)} →
                   </span>
@@ -266,7 +282,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           cmd="cat ./contact"
           comment="연락처"
           hue="var(--hue-green)"
-          className="sm:col-span-2"
+          className="reveal sm:col-span-2"
         >
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <a
@@ -296,6 +312,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
       </div>
 
       <LivePrompt />
+      <ScrollReveal />
     </TermWindow>
   );
 }

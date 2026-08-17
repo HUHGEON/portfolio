@@ -19,10 +19,28 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
 });
 
+const SITE_URL = "https://huhgeon.github.io/portfolio/";
+const SITE_TITLE = "허건 | Backend Developer Portfolio";
+const SITE_DESC =
+  "안정적인 서버와 좋은 데이터 설계로 서비스의 뒷단을 만드는 백엔드 개발자 허건의 포트폴리오.";
+
 export const metadata: Metadata = {
-  title: "허건 | Backend Developer Portfolio",
-  description:
-    "안정적인 서버와 좋은 데이터 설계로 서비스의 뒷단을 만드는 백엔드 개발자 허건의 포트폴리오.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESC,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    url: SITE_URL,
+    siteName: "허건 Portfolio",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+  },
 };
 
 export default function RootLayout({
@@ -38,6 +56,10 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <noscript>
+          {/* reveal-on-scroll content stays visible without JS */}
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
       </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider>

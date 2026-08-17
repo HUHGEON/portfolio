@@ -1,5 +1,44 @@
 import type { ReactNode } from "react";
 
+/** Category colour for a tech token — matches the home "기술 스택" palette. */
+export function stackHue(tech: string): string {
+  const t = tech.toLowerCase();
+  if (/(gpt|ollama|exaone|openai|llm)/.test(t)) return "var(--hue-purple)";
+  if (/(javascript|typescript|java|python|kotlin)/.test(t))
+    return "var(--hue-green)";
+  if (/(mysql|mongo|redis|postgres|mariadb|sqlite)/.test(t))
+    return "var(--hue-amber)";
+  if (/(node|express|spring|fastapi|nest|webflux|websocket|flask|django)/.test(t))
+    return "var(--hue-blue)";
+  if (
+    /(docker|git|swagger|jest|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg)/.test(
+      t,
+    )
+  )
+    return "var(--hue-teal)";
+  return "var(--faint)";
+}
+
+/** A dot-separated tech list, each token coloured by its category. */
+export function StackList({
+  items,
+  className,
+}: {
+  items: string[];
+  className?: string;
+}) {
+  return (
+    <p className={`font-mono text-[11px] leading-relaxed ${className ?? ""}`}>
+      {items.map((t, i) => (
+        <span key={`${t}-${i}`}>
+          {i > 0 ? <span className="text-[var(--faint)]">{"  ·  "}</span> : null}
+          <span style={{ color: stackHue(t) }}>{t}</span>
+        </span>
+      ))}
+    </p>
+  );
+}
+
 export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
   return (
     <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-t border-[var(--border)] pt-4 first:mt-0 first:border-0 first:pt-0">
@@ -43,6 +82,7 @@ export function Panel({
     >
       <header className="flex items-center gap-2.5 border-b border-[var(--border-soft)] bg-[var(--card-2)] px-4 py-2.5 sm:px-5">
         <span
+          aria-hidden
           className="h-2.5 w-2.5 shrink-0 rounded-full"
           style={{ background: hue }}
         />
@@ -80,7 +120,7 @@ export function TermWindow({
       <div className="mx-auto flex h-full w-full max-w-[1240px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
         {/* pinned title bar */}
         <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">
-          <span className="flex gap-1.5">
+          <span aria-hidden className="flex gap-1.5">
             <span className="h-3 w-3 rounded-full bg-[#e06c5b]" />
             <span className="h-3 w-3 rounded-full bg-[#e0b23b]" />
             <span className="h-3 w-3 rounded-full bg-[#5bb865]" />
@@ -112,7 +152,7 @@ export function TermWindow({
 /** A live "$" prompt with a blinking block caret, used to close a session. */
 export function LivePrompt() {
   return (
-    <div className="flex items-center gap-2 pt-5">
+    <div aria-hidden className="flex items-center gap-2 pt-5">
       <span className="text-[var(--faint)]">~</span>
       <span className="font-bold text-[var(--c-cat)]">❯</span>
       <span className="term-block-caret" />

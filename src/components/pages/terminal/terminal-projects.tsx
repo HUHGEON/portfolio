@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
+import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
   LivePrompt,
   Panel,
+  StackList,
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -35,11 +37,11 @@ function ProjectCard({ project, hue }: { project: ProjectItem; hue: string }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
-      className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+      className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 pl-[18px] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
     >
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 transition-transform duration-200 group-hover:scale-y-100"
+        className="absolute inset-y-0 left-0 w-[3px] opacity-70 transition-opacity duration-200 group-hover:opacity-100"
         style={{ background: hue }}
       />
       <div className="flex flex-wrap items-baseline gap-x-2">
@@ -60,9 +62,7 @@ function ProjectCard({ project, hue }: { project: ProjectItem; hue: string }) {
       <p className="mt-1 line-clamp-2 text-[var(--dim)]">
         {project.description}
       </p>
-      <p className="mt-2.5 font-mono text-[11px] text-[var(--faint)]">
-        {project.stack.join("  ·  ")}
-      </p>
+      <StackList items={project.stack} className="mt-2.5" />
       <span className="mt-2 font-mono text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
         cd ./{branchName(project.slug)} →
       </span>
@@ -91,7 +91,12 @@ export function TerminalProjects({
       title="~/heo-geon/projects — zsh"
       status={`~/heo-geon/projects · ${featured.length} projects`}
     >
-      <Panel cmd="cat .description" comment="프로젝트 소개" hue="var(--hue-blue)">
+      <Panel
+        cmd="cat .description"
+        comment="프로젝트 소개"
+        hue="var(--hue-blue)"
+        className="reveal"
+      >
         <p className="text-[18px] font-bold text-[var(--text)]">
           {stripMd(projectsPage.title)}
         </p>
@@ -104,7 +109,7 @@ export function TerminalProjects({
         cmd="git log --oneline --all"
         comment={`프로젝트 · ${featured.length}개`}
         hue="var(--hue-purple)"
-        className="mt-4"
+        className="reveal mt-4"
       >
         <div className="space-y-6">
           {groups.map(({ cat, items }) => (
@@ -129,6 +134,7 @@ export function TerminalProjects({
       </Panel>
 
       <LivePrompt />
+      <ScrollReveal />
     </TermWindow>
   );
 }

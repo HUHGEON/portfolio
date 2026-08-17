@@ -54,6 +54,9 @@ export function PortfolioFrame({
   return (
     <PortfolioViewportProvider>
       <section className="relative min-h-screen bg-[var(--bg)] text-[var(--text)]">
+        <a href="#main-content" className="skip-link">
+          본문으로 건너뛰기
+        </a>
         <aside className="fixed bottom-3 left-3 top-3 z-30 hidden lg:block">
           <PortfolioSidebar
             collapsed={isSidebarCollapsed}
@@ -64,7 +67,13 @@ export function PortfolioFrame({
             onToggle={() => setIsSidebarCollapsed((value) => !value)}
           />
         </aside>
-        <div className="min-w-0">{children}</div>
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="min-w-0 focus:outline-none"
+        >
+          {children}
+        </div>
       </section>
     </PortfolioViewportProvider>
   );

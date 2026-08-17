@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   ARCH_SPECS,
   ArchitectureDiagram,
@@ -18,7 +19,13 @@ import {
   archFrameHeight,
 } from "@/components/pages/project-detail/arch-dimensions";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
-import { LivePrompt, TermWindow } from "@/components/pages/terminal/terminal-ui";
+import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
+import {
+  LivePrompt,
+  StackList,
+  stackHue,
+  TermWindow,
+} from "@/components/pages/terminal/terminal-ui";
 import type { ArchSpec } from "@/components/pages/project-detail/ArchitectureDiagram";
 import type { Project } from "@/types/project";
 
@@ -150,7 +157,7 @@ function ArchLightbox({
     drag.current = null;
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col bg-[var(--bg)]/92 backdrop-blur-md">
       {/* toolbar */}
       <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">
@@ -215,7 +222,8 @@ function ArchLightbox({
       <p className="border-t border-[var(--border)] bg-[var(--card-2)] py-2 text-center font-mono text-[11px] text-[var(--faint)]">
         스크롤 확대·축소 · 드래그로 이동 · ESC 닫기
       </p>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -327,9 +335,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 <p className="mt-1.5 leading-relaxed text-[var(--dim)]">
                   {w.desc}
                 </p>
-                <p className="mt-2.5 font-mono text-[11px] text-[var(--faint)]">
-                  {w.stack.join("  ·  ")}
-                </p>
+                <StackList items={w.stack} className="mt-2.5" />
               </div>
             ))}
           </div>
@@ -553,14 +559,22 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 stack
               </dt>
               <dd className="mt-1.5 flex flex-wrap gap-1.5">
-                {project.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-md border border-[var(--border)] bg-[var(--card-2)] px-2 py-[3px] font-mono text-[11px] text-[var(--dim)]"
-                  >
-                    {s}
-                  </span>
-                ))}
+                {project.stack.map((s) => {
+                  const hue = stackHue(s);
+                  return (
+                    <span
+                      key={s}
+                      className="rounded-md border px-2 py-[3px] font-mono text-[11px]"
+                      style={{
+                        color: hue,
+                        borderColor: `color-mix(in srgb, ${hue} 32%, transparent)`,
+                        background: `color-mix(in srgb, ${hue} 9%, transparent)`,
+                      }}
+                    >
+                      {s}
+                    </span>
+                  );
+                })}
               </dd>
             </div>
             {project.href ? (
@@ -654,14 +668,22 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               {d.role}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {project.stack.map((s) => (
-                <span
-                  key={s}
-                  className="rounded-md border border-[var(--border)] bg-[var(--card-2)] px-2 py-[3px] font-mono text-[11px] text-[var(--dim)]"
-                >
-                  {s}
-                </span>
-              ))}
+              {project.stack.map((s) => {
+                const hue = stackHue(s);
+                return (
+                  <span
+                    key={s}
+                    className="rounded-md border px-2 py-[3px] font-mono text-[11px]"
+                    style={{
+                      color: hue,
+                      borderColor: `color-mix(in srgb, ${hue} 32%, transparent)`,
+                      background: `color-mix(in srgb, ${hue} 9%, transparent)`,
+                    }}
+                  >
+                    {s}
+                  </span>
+                );
+              })}
             </div>
             {d.award ? (
               <p className="text-[13px] text-[var(--hue-amber)]">★ {d.award}</p>
@@ -681,7 +703,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           {/* sections */}
           <div className="mt-12 space-y-12">
             {sections.map((s, i) => (
-              <section key={s.id} id={s.id} className="scroll-mt-4">
+              <section key={s.id} id={s.id} className="reveal scroll-mt-4">
                 <SectionHead index={i + 1} label={s.label} cmd={s.cmd} />
                 {s.node}
               </section>
@@ -699,6 +721,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           <LivePrompt />
         </div>
       </div>
+      <ScrollReveal />
     </TermWindow>
   );
 }
