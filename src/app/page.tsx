@@ -1,4 +1,4 @@
-import { HomeCanvas } from "@/components/pages/home/home-canvas";
+import { TerminalHome } from "@/components/pages/terminal/terminal-home";
 import { defaultLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 
@@ -7,7 +7,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-      <HomeCanvas home={dictionary.home} profile={dictionary.profile} />
+      <TerminalHome dictionary={dictionary} />
     </main>
   );
 }

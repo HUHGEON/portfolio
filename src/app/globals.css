@@ -189,6 +189,44 @@ html {
   }
 }
 
+/* ---- terminal redesign: monospace shell ---- */
+.term {
+  font-family:
+    var(--font-mono), var(--font-sans), "Apple SD Gothic Neo", ui-monospace,
+    monospace;
+  font-variant-ligatures: none;
+  font-feature-settings: "calt" 0;
+}
+/* subtle CRT-ish top glow for the terminal window (theme-aware, very light) */
+.term-win {
+  background:
+    radial-gradient(120% 60% at 50% -10%, var(--accent-soft), transparent 60%),
+    var(--surface);
+}
+.term-line {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+@keyframes term-caret-solid {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+.term-block-caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  vertical-align: -0.18em;
+  background: var(--accent);
+  animation: term-caret-solid 1.05s steps(1, end) infinite;
+}
+
 .workflow-edge {
   animation: workflow-edge-draw 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   stroke-dasharray: 1;
