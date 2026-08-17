@@ -32,9 +32,9 @@
     rgba(79, 122, 166, 0.05),
     transparent 70%
   );
-  --shadow: 0 22px 50px -26px rgba(30, 35, 45, 0.2);
-  --shadow-sm: 0 8px 22px -14px rgba(30, 35, 45, 0.16);
-  --radius: 15px;
+  --shadow: 0 14px 40px -24px rgba(30, 35, 45, 0.14);
+  --shadow-sm: 0 4px 14px -10px rgba(30, 35, 45, 0.1);
+  --radius: 14px;
   --radius-lg: 20px;
 
   --background: var(--bg);
@@ -68,8 +68,8 @@
     rgba(122, 162, 201, 0.06),
     transparent 70%
   );
-  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
-  --shadow-sm: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow: 0 16px 44px -24px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 4px 16px -10px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {

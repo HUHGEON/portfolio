@@ -1602,8 +1602,8 @@ function getHeadingSize(
 ) {
   if (level === 1) {
     return appearance === "transparent" || appearance === "feature"
-      ? "text-3xl leading-tight md:text-4xl"
-      : "text-2xl leading-snug";
+      ? "text-[2rem] leading-[1.06] tracking-[-0.03em] md:text-[2.75rem]"
+      : "text-[1.7rem] leading-[1.12] tracking-[-0.025em] md:text-[2.1rem]";
   }
 
   if (level === 2) {
