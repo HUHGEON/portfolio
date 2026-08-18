@@ -6,13 +6,12 @@ import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
   LivePrompt,
   Panel,
+  serviceLabel,
   StackList,
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
 import { assetPath } from "@/lib/asset-path";
 import type { Dictionary } from "@/i18n/dictionaries";
-
-const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
 
 const HUES = [
   "var(--hue-blue)",
@@ -248,13 +247,12 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                     className="absolute inset-y-0 left-0 w-[3px] opacity-70 transition-opacity duration-200 group-hover:opacity-100"
                     style={{ background: hue }}
                   />
-                  <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span style={{ color: hue }}>●</span>
-                    <span
-                      className="font-mono text-[13px] group-hover:underline"
-                      style={{ color: hue }}
-                    >
-                      feat/{branchName(project.slug)}
+                  <div className="flex flex-wrap items-center gap-x-2">
+                    <span className="text-[10px]" style={{ color: hue }}>
+                      ●
+                    </span>
+                    <span className="font-semibold text-[15px] text-[var(--text)] transition group-hover:text-[var(--accent)]">
+                      {serviceLabel(project.slug, project.title)}
                     </span>
                     {award ? (
                       <span className="ml-auto text-[12px] text-[var(--hue-amber)]">
@@ -262,15 +260,12 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1.5 font-semibold text-[var(--text)]">
-                    {project.title}
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[var(--dim)]">
+                  <p className="mt-1.5 line-clamp-2 text-[var(--dim)]">
                     {project.description}
                   </p>
                   <StackList items={project.stack} className="mt-2.5" />
-                  <span className="mt-2 font-mono text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
-                    cd ./{branchName(project.slug)} →
+                  <span className="mt-2 text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
+                    자세히 보기 →
                   </span>
                 </Link>
               );

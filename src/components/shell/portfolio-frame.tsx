@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { GithubIcon } from "@/components/icons/github-icon";
+import { serviceLabel } from "@/components/pages/terminal/terminal-ui";
 import { ThemeToggle, ThemeToggleRail } from "@/components/shell/theme-toggle";
 import { PortfolioViewportProvider } from "@/components/shell/viewport-context";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -93,15 +94,12 @@ function PortfolioSidebar({
   onToggle,
 }: PortfolioSidebarProps) {
   const pathname = usePathname();
-  // git-flow-style branch names; the intern work reads better as feat/intern
-  const branchName = (slug: string) =>
-    slug === "media-inference" ? "intern" : slug;
   const projectChildren = projects
     .filter((project) => project.featured)
     .slice(0, sidebarProjectLimit)
     .map((project) => ({
       id: project.slug,
-      label: `feat/${branchName(project.slug)}`,
+      label: serviceLabel(project.slug, project.title),
       href: `/projects/${project.slug}`,
     }));
   const sections: SidebarSection[] = [
@@ -322,7 +320,7 @@ function PortfolioSidebar({
                               cactive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",
                             ].join(" ")}
                           />
-                          <span className="min-w-0 flex-1 truncate font-mono">
+                          <span className="min-w-0 flex-1 truncate text-[12.5px]">
                             {child.label}
                           </span>
                           {cactive ? (

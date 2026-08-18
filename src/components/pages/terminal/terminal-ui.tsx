@@ -1,5 +1,17 @@
 import type { ReactNode } from "react";
 
+/** Human Korean service label per project (shown instead of the git-style slug). */
+export const SERVICE_LABEL: Record<string, string> = {
+  "voice-kiosk": "음성인식 키오스크",
+  "live-chat": "라이브 채팅 서버",
+  haeyaji: "날씨 추천 앱",
+  zogakzip: "이미지 아카이브",
+  "blog-platform": "블로그 플랫폼",
+  "media-inference": "사내 실무 (인턴)",
+};
+export const serviceLabel = (slug: string, fallback: string) =>
+  SERVICE_LABEL[slug] ?? fallback;
+
 /** Category colour for a tech token — matches the home "기술 스택" palette. */
 export function stackHue(tech: string): string {
   const t = tech.toLowerCase();
