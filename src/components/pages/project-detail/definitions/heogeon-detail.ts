@@ -41,7 +41,15 @@ export type HeoProjectDetail = {
   role: string;
   period?: string; // 본인 커밋 기준 기간 (진행 중 포함)
   evidence?: { label: string; href: string }[]; // 주장 옆 공개 근거 링크
-  demo?: { title: string; gif: string; width: number; height: number; youtubeId: string }; // 시연 GIF + 원본 영상
+  demo?: {
+    title: string;
+    gif: string;
+    width: number;
+    height: number;
+    youtubeId: string;
+    caption?: string; // 무엇을 봐야 하는지
+    steps?: { say: string; result: string }[]; // GIF 속 발화 → 처리 결과
+  }; // 시연 GIF + 원본 영상
   award?: string;
   repoNote?: string;
   diagramKey?: string; // when set, render the rich ArchitectureDiagram instead of the grid
@@ -55,6 +63,7 @@ export type HeoProjectDetail = {
     causes: string[]; // 문제 원인
     solutions: string[]; // 해결 과정
     checks?: string[]; // 검증
+    links?: { label: string; href: string }[]; // 이 사례의 근거
     results: string[]; // 결과
   }[]; // 문제 해결 사례
   versions?: {
@@ -71,7 +80,7 @@ export type HeoProjectDetail = {
     caption: string;
     headers: string[];
     rows: { cells: string[]; highlight?: boolean }[];
-    bar?: { column: number; max: number; threshold: number; label: string }; // inline magnitude bar
+    bar?: { column: number; max: number; label: string }; // inline magnitude bar
     footnote?: string;
   }; // 측정 결과 표
   architecture: Architecture;
@@ -564,7 +573,20 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)·필터로 해석하고, 오케스트레이터로서 API 서버를 호출해 그\u00A0응답을 클라이언트에 돌려주는 2단 백엔드 구조입니다. 저는 NLP 서버를 맡았고, API 서버(추천·주문·장바구니·Swagger)는 팀원이 구현했습니다.",
     role: "NLP 서버 설계·주도 · API 연동",
     period: "2025.03 ~ 2025.06",
-    demo: { title: "음성인식 키오스크 시연 — 음성 주문 → 옵션 → 장바구니 → 결제 (4배속)", gif: "/demos/voice-kiosk.gif", width: 300, height: 536, youtubeId: "QMuGDGB1Jsw" },
+    demo: {
+      title: "음성인식 키오스크 시연 (4배속)",
+      gif: "/demos/voice-kiosk.gif",
+      width: 300,
+      height: 536,
+      youtubeId: "QMuGDGB1Jsw",
+      caption: "음성 발화가 NLP 서버에서 의도로 해석되어 추천 · 옵션 선택 · 장바구니 · 결제로 이어지는 흐름",
+      steps: [
+        { say: "“인기 메뉴 보여 줘”", result: "추천 의도 → 인기 메뉴 목록 표시" },
+        { say: "“아이스 아메리카노 미디움 사이즈로 주문해 줘”", result: "주문 의도 + 온도·크기 옵션 추출 → 장바구니 담기" },
+        { say: "“미디움으로 해 줘”", result: "사이즈를 묻는 안내에 답해 빠진 옵션을 채우고 장바구니에 추가 (멀티턴)" },
+        { say: "“결제해 줘”", result: "결제 의도 → 주문 완료" },
+      ],
+    },
     evidence: [
       { label: "NLP 서버 의도 해석 코드", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/app/services/openai_client.py" },
       { label: "NLP 서버 README", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/README.md" },
@@ -986,7 +1008,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     ],
     results: [
       "nlp 시나리오 자동 채점 59/80 통과 (2026-07-06 기준: 날씨·위치 19/20, 막연한 요청 17/20, 상세 추천 17/20, 도메인 밖 거절 6/20)",
-      "도메인 밖 거절 실패 14건(요리법·번역·운세 등 거절 미작동)을 확인해 규칙 선-라우팅을 보강했고, 7.8b 모델로는 작정한 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시",
+      "도메인 밖 거절 실패 14건(요리법·번역·운세 등 거절 미작동)을 확인해 규칙 선-라우팅을 보강했고, 7.8b 모델로는 작정한 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시 (보강 후 동일 평가셋 재측정 결과는 기록 없음)",
       "LLM·네트워크 없는 결정론 테스트(nlp 119개·be 36개)로 규칙·라우팅·폴백·날씨 변환·알림 멱등 회귀 검증",
     ],
     lessons:
@@ -1315,16 +1337,18 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     role: "조장 · 배치 · 검증 · 스키마 (5인 팀)",
     period: "2026.08 ~ 진행 중",
     evidence: [
-      { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
-      { label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" },
-      { label: "시드 생성기 실행 결과 (CLEAN · CORRUPT)", href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md" },
       { label: "시연 영상 (YouTube)", href: "https://youtu.be/hS4aFDgdmNM" },
     ],
     metrics: [
       {
-        value: "약 500 req/s",
-        label: "락 대기 1.0 도달 도착률",
-        note: "FOR UPDATE 400~450 req/s 대비",
+        value: "800 / 800",
+        label: "오염 데이터 기대 검출",
+        note: "700건 주입 → 기대 800행 · 누락 0 · 오탐 0",
+      },
+      {
+        value: "4/7 → 0/7",
+        label: "500 req/s 응답 붕괴 회차",
+        note: "7회 측정 중 성공 응답 중앙값이 1초를 넘은 횟수",
       },
       {
         value: "2,240 → 802ms",
@@ -1332,60 +1356,15 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         note: "성공 응답 기준 · 붕괴 회차 제외 · p95 2,160 → 641ms",
       },
       { value: "0건", label: "초과 발급", note: "105회차 전체" },
-      {
-        value: "800 / 800",
-        label: "오염 데이터 기대 검출",
-        note: "700건 주입 → 기대 800행 · 누락 0 · 오탐 0",
-      },
     ],
     cases: [
       {
         title:
-          "팀에서 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 전환해 500 req/s의 강한 경합(락 대기 1.0 초과)을 해소하고 성공 응답 p99를 2,240ms → 802ms로 개선",
-        causes: [
-          "재고 행이 회차당 하나라 모든 발급이 같은 잠금 구간을 한 줄로 통과, FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 구간이 김",
-          "450 req/s부터 발급당 락 대기 1.133으로 발급 1건당 평균 1회 이상 잠금을 기다리는 강한 경합 도달, 500 req/s에선 7회 중 4회 응답 붕괴(성공 응답 중앙값 1초 이상)",
-          "무너진 회차도 5xx 없이 지연으로만 나타나 가용성 지표만으로는 결함 미검출",
-        ],
-        solutions: [
-          "검사와 차감을 UPDATE … WHERE active_count < total_quantity 한 문장으로 합쳐 잠금을 UPDATE에서 시작, 영향 행 0이면 소진으로 판정",
-          "1인 1매는 UNIQUE(coupon_id, member_id)로 DB에서 최종 보장",
-          "이후 재고 판정은 Redis Lua 선점으로 옮기고 앞단에 적응형 대기열을 두는 구조로 확장 (아래 버전별 발전 과정)",
-        ],
-        checks: [
-          "같은 커밋에서 잠금 방식만 바꾼 이미지로 재고 1만 · 요청 2만, 300~500 req/s 도착률마다 7회씩 측정",
-          "k6 constant-arrival-rate로 도착률 고정, 회차마다 발급 · 이력 · 멱등 · Redis 키 롤백으로 같은 상태에서 출발",
-        ],
-        results: [
-          "락 대기 1.0 도달 도착률: 400~450 → 약 500 req/s",
-          "500 req/s 성공 응답 p99 2,240 → 802ms, p95 2,160 → 641ms(붕괴 회차는 지연 집계에서 제외), 응답 붕괴 4/7 → 0/7",
-          "105회차 전체 초과 발급 0건",
-        ],
-      },
-      {
-        title:
-          "용량 비교 기준을 '발급당 InnoDB 락 대기'로 정하고 측정 환경 오염을 걷어내 세 잠금 구현을 105회차 재측정",
-        causes: [
-          "성공 응답 med · p95 · p99는 도착률에 따라 오르내려 구현 간 용량 한계 교차점 판정 불가",
-          "첫 측정은 다른 프로젝트 컨테이너 6개가 함께 돈 환경이라 같은 FOR UPDATE 구현의 300 req/s p99가 6,873ms로 부풀려짐",
-        ],
-        solutions: [
-          "세 구현 모두에서 단조 증가하는 발급당 락 대기(Innodb_row_lock_waits 증가분 ÷ 발급 수)를 임계 지표로 선정, 1.0(발급 1건당 평균 1회 대기)을 강한 경합의 기준선으로 사용",
-          "외부 컨테이너 전부 제거, 회차마다 외부 컨테이너 수와 호스트 CPU 기록",
-          "세 이미지를 교차 실행해 시간대 편향 제거, 회차마다 예열 후 측정",
-        ],
-        checks: [
-          "105회차 전부 외부 컨테이너 0개 기록 확인",
-          "어느 도착률에서도 세 구현 간 락 대기 범위가 겹치지 않음 확인",
-        ],
-        results: [
-          "같은 조건 FOR UPDATE 300 req/s p99 6,873 → 222.72ms로 측정 오염 제거, 이전 수치 전부 폐기",
-          "락 대기 1.0 도달점을 FOR UPDATE 400~450 · 조건부 UPDATE 약 500 · Redis 분리 실험 500 초과 req/s로 구분",
-        ],
-      },
-      {
-        title:
           "오류 700건을 심은 오염 데이터셋으로 검증 배치가 실제로 오류를 찾는지 입증, 누락 0 · 오탐 0 확인",
+        links: [
+          { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
+          { label: "시드 생성기 실행 결과", href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md" },
+        ],
         causes: [
           "검증 배치 0건이 오류가 없어서인지 검증기가 못 찾아서인지 구분할 근거 부재",
           "검출 개수만 비교하면 400건 누락 + 400건 오탐도 합계 800으로 합격",
@@ -1405,6 +1384,51 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
           "CLEAN 생성 · 적재 199.7초, 제약 생성 81초",
         ],
       },
+      {
+        title:
+          "팀에서 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 전환해 500 req/s 응답 붕괴 4/7 → 0/7, 성공 응답 p99 2,240ms → 802ms",
+        links: [{ label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" }],
+        causes: [
+          "재고 행이 회차당 하나라 모든 발급이 같은 잠금 구간을 한 줄로 통과, FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 구간이 김",
+          "도착률을 올릴수록 잠금 대기 지수가 가파르게 늘었고(450 req/s 1.133, 500 req/s 1.588), 500 req/s에선 7회 중 4회 응답 붕괴(성공 응답 중앙값 1초 이상)",
+          "무너진 회차도 5xx 없이 지연으로만 나타나 가용성 지표만으로는 결함 미검출",
+        ],
+        solutions: [
+          "검사와 차감을 UPDATE … WHERE active_count < total_quantity 한 문장으로 합쳐 잠금을 UPDATE에서 시작, 영향 행 0이면 소진으로 판정",
+          "1인 1매는 UNIQUE(coupon_id, member_id)로 DB에서 최종 보장",
+          "이후 재고 판정은 Redis Lua 선점으로 옮기고 앞단에 적응형 대기열을 두는 구조로 확장 (아래 버전별 발전 과정)",
+        ],
+        checks: [
+          "같은 커밋에서 잠금 방식만 바꾼 이미지로 재고 1만 · 요청 2만, 300~500 req/s 도착률마다 7회씩 측정",
+          "k6 constant-arrival-rate로 도착률 고정, 회차마다 발급 · 이력 · 멱등 · Redis 키 롤백으로 같은 상태에서 출발",
+        ],
+        results: [
+          "같은 500 req/s에서 잠금 대기 지수 1.588 → 1.010 (상대값)",
+          "500 req/s 성공 응답 p99 2,240 → 802ms, p95 2,160 → 641ms(붕괴 회차는 지연 집계에서 제외), 응답 붕괴 4/7 → 0/7",
+          "105회차 전체 초과 발급 0건",
+        ],
+      },
+      {
+        title:
+          "응답 지연 대신 잠금 대기 지수로 세 잠금 구현을 비교하고, 측정 환경 오염을 걷어내 105회차 재측정",
+        causes: [
+          "성공 응답 med · p95 · p99는 도착률에 따라 오르내려 구현 간 용량 한계 교차점 판정 불가",
+          "첫 측정은 다른 프로젝트 컨테이너 6개가 함께 돈 환경이라 같은 FOR UPDATE 구현의 300 req/s p99가 6,873ms로 부풀려짐",
+        ],
+        solutions: [
+          "도착률에 따라 세 구현 모두 단조 증가하는 잠금 대기 지수(Innodb_row_lock_waits 증가분 ÷ 발급 수)를 경합 비교 지표로 선정",
+          "외부 컨테이너 전부 제거, 회차마다 외부 컨테이너 수와 호스트 CPU 기록",
+          "세 이미지를 교차 실행해 시간대 편향 제거, 회차마다 예열 후 측정",
+        ],
+        checks: [
+          "105회차 전부 외부 컨테이너 0개 기록 확인",
+          "어느 도착률에서도 세 구현 간 잠금 대기 지수 범위가 겹치지 않음 확인",
+        ],
+        results: [
+          "같은 조건 FOR UPDATE 300 req/s p99 6,873 → 222.72ms로 측정 오염 제거, 이전 수치 전부 폐기",
+          "500 req/s 잠금 대기 지수를 FOR UPDATE 1.588 · 조건부 UPDATE 1.010 · Redis 분리 실험 0.472로 순서대로 구분",
+        ],
+      },
     ],
     versions: [
       {
@@ -1418,7 +1442,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "모든 발급이 같은 잠금 구간을 한 줄로 통과하고 INSERT까지 임계구간에 포함돼 커넥션 풀을 늘려도 대기가 줄지 않음",
         metric:
-          "300 req/s 발급당 락 시간 4.5ms · 450 req/s부터 락 대기 1.133(1.0 초과) · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 붕괴 4/7",
+          "300 req/s 발급당 락 시간 4.5ms · 450 req/s 잠금 대기 지수 1.133 · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 붕괴 4/7",
         next: "잠금 구간이 길어 포화 지점이 400~450 req/s에 머묾",
       },
       {
@@ -1432,7 +1456,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "단일 재고 행 경쟁 구조와 요청별 동기 DB 트랜잭션은 그대로 남음",
         metric:
-          "락 대기 1.0 도달 약 500 req/s (500 req/s 락 대기 1.010) · 500 req/s 성공 p95 641ms · p99 802ms · 붕괴 0/7",
+          "500 req/s 잠금 대기 지수 1.010 · 500 req/s 성공 p95 641ms · p99 802ms · 붕괴 0/7",
         next: "경합 지점이 여전히 DB 안의 재고 행 하나라 재고 계수를 DB 밖으로 이전",
       },
       {
@@ -1446,7 +1470,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "저장소가 둘로 나뉘어 선점 직후 중단 시 Redis가 DB보다 앞섬. 요청 토큰으로 보상, Redis 유실 시 DB 기준 재구성, Redis↔DB 격차 관제 지표 추가",
         metric:
-          "재고 UPDATE를 별도 트랜잭션으로 뗀 실험(v2-split): 500 req/s 락 대기 0.472로 1.0 미도달 · 락 대기 63~73% 감소 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
+          "재고 UPDATE를 별도 트랜잭션으로 뗀 실험(v2-split): 500 req/s 잠금 대기 지수 0.472 · 300~500 req/s 전 구간 잠금 대기 지수 FOR UPDATE 대비 63~73% 감소 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
         next: "DB 경합은 줄었으나 순간 유입 자체와 건별 영속화는 그대로 남음",
       },
       {
@@ -1511,8 +1535,8 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     benchmark: {
       caption:
         "같은 커밋에서 재고 잠금 방식만 바꿔 재고 10,000 · 요청 20,000 조건으로 도착률마다 7회씩 측정했습니다. 각 지표는 7회 중앙값이며, p95 · p99는 성공 응답 지연(ms)입니다.",
-      headers: ["도착률", "구현", "락 대기", "p95", "p99", "붕괴"],
-      bar: { column: 2, max: 2, threshold: 1, label: "발급당 락 대기" },
+      headers: ["도착률", "구현", "잠금 대기 지수", "p95", "p99", "붕괴"],
+      bar: { column: 2, max: 2, label: "잠금 대기 지수" },
       rows: [
         { cells: ["300/s", "v1.1 FOR UPDATE", "0.254", "50.10", "222.72", "0/7"] },
         { cells: ["", "v1.2 조건부", "0.180", "28.12", "158.64", "0/7"], highlight: true },
@@ -1524,7 +1548,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { cells: ["", "v1.2 조건부", "1.010", "640.92", "802.16", "0/7"], highlight: true },
       ],
       footnote:
-        "발급당 락 대기 = 측정 구간의 Innodb_row_lock_waits 증가분 ÷ 발급 수. 1.0은 발급 1건당 평균 1회 이상 행 잠금을 기다렸다는 뜻으로, 모든 요청이 대기했다는 증명이 아니라 강한 경합을 가르는 관측 기준으로 썼습니다. 막대 세로선이 1.0(눈금 끝 2.0)입니다. k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 붕괴 = 성공 응답 중앙값 1,000ms 이상이며, 붕괴 회차는 지연 집계에서 제외해 FOR UPDATE 450 · 500 req/s의 p95 · p99는 버틴 회차만의 값입니다(실제 꼬리 지연은 더 나쁨).",
+        "잠금 대기 지수 = 측정 동안 MySQL이 센 행 잠금 대기 총횟수(Innodb_row_lock_waits 증가분) ÷ 발급한 쿠폰 수. 클수록 잠금 경합이 심하다는 상대 비교용 값이며, 특정 숫자(예: 1.0)에 정해진 의미는 없습니다. 막대 눈금 끝은 2.0입니다. k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 붕괴 = 성공 응답 중앙값 1,000ms 이상이며, 붕괴 회차는 지연 집계에서 제외해 FOR UPDATE 450 · 500 req/s의 p95 · p99는 버틴 회차만의 값입니다(실제 꼬리 지연은 더 나쁨).",
     },
     results: [],
     lessons:

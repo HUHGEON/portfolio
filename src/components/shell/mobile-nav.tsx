@@ -24,7 +24,7 @@ export function MobileNav() {
   );
 
   return (
-    <div className="relative shrink-0 border-b border-[var(--border)] bg-[var(--card-2)] lg:hidden">
+    <div className="relative shrink-0 border-b border-[var(--border)] bg-[var(--card-2)] xl:hidden">
       <div className="flex h-12 items-center gap-2 px-3">
         <Link
           href="/"

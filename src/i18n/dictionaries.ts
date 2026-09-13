@@ -169,7 +169,7 @@ const heogeon: Dictionary = {
         projects: ["coupon-yaho"],
       },
       {
-        text: "Spring WebFlux와 Redis Pub/Sub으로 인스턴스를 수평 확장해도 모든 사용자에게 메시지가 닿는 실시간 서버를 구현할 수 있습니다.",
+        text: "Spring WebFlux와 Redis Pub/Sub으로 여러 인스턴스에 연결된 사용자 사이에 메시지를 중계하는 실시간 서버를 구현할 수 있습니다.",
         projects: ["live-chat"],
       },
       {
@@ -244,8 +244,8 @@ const heogeon: Dictionary = {
         description:
           "통신사 브랜드데이 선착순 쿠폰 발급 시스템입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 구조를 발전시켰고, 발급 결과는 이력 재생 배치로 검증합니다.",
         highlights: [
-          "팀에서 재고 잠금을 조건부 원자 UPDATE로 전환해 500 req/s 성공 응답 p99 2,240ms → 802ms 단축 (성공 응답 기준)",
-          "이력 534만 행 재생 검증 배치로, 오류 700건을 심은 데이터의 기대 검출 800행을 누락 0 · 오탐 0으로 탐지",
+          "이력 534만 행을 재생하는 검증 배치를 설계·구현해 오류 700건을 심은 데이터의 기대 검출 800행을 누락 0 · 오탐 0으로 확인",
+          "팀의 잠금 방식 개선 과정에서 부하 시험 결과를 DB와 대조해 500 req/s 응답 붕괴 4/7 → 0/7을 검증",
         ],
         stack: ["Java 21", "Spring Boot", "Spring Batch", "MySQL", "Redis", "Kafka"],
         iconSrc: "",
@@ -270,7 +270,7 @@ const heogeon: Dictionary = {
         description:
           "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 다른 Pod의 시청자에게 전달되도록 Redis Pub/Sub으로 중계합니다.",
         highlights: [
-          "Redis Pub/Sub 패턴 구독으로 Pod 간 메시지 중계, 한 JVM에서 Pod 2개를 모사한 통합 테스트로 전달 확인",
+          "다른 서버에 연결된 시청자 사이의 채팅을 Redis Pub/Sub 전달 파이프라인으로 중계",
           "권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리",
         ],
         stack: ["Spring", "WebFlux", "WebSocket", "Redis", "MongoDB"],
@@ -327,7 +327,7 @@ const heogeon: Dictionary = {
     paragraphs: [
       "Node.js·Spring 백엔드를 중심으로 API 설계, ERD·DB 모델링, 실시간 서버, 데이터 파이프라인을 만듭니다.",
       "엠트리센 백엔드 인턴으로 API·DB 구조 설계와 데이터 수집·가공 자동화를 맡았고, 팀·개인 프로젝트에서는 서비스 뒷단을 실제 동작하는 구조로 만드는 데 집중했습니다.",
-      "포트폴리오는 화려한 효과보다 프로젝트별 문제 정의·역할·기술 선택·결과를 빠르게 파악하는 구성을 우선합니다.",
+      "구현한 결과를 믿을 수 있도록 부하 시험과 데이터 대조로 확인하는 개발을 지향합니다.",
     ],
   },
   skills: {

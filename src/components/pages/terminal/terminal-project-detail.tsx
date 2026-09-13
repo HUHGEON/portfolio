@@ -266,9 +266,15 @@ function TechChip({ name, className }: { name: string; className?: string }) {
   );
 }
 
-function EvidenceLinks({ items }: { items: { label: string; href: string }[] }) {
+function EvidenceLinks({
+  items,
+  inline = false,
+}: {
+  items: { label: string; href: string }[];
+  inline?: boolean;
+}) {
   return (
-    <ul className="space-y-1">
+    <ul className={inline ? "flex flex-wrap gap-x-4 gap-y-1" : "space-y-1"}>
       {items.map((item) => (
         <li key={item.href}>
           <a
@@ -319,7 +325,7 @@ function SectionHead({
       <span className="font-mono text-[14px] font-semibold text-[var(--accent)]">
         {String(index).padStart(2, "0")}
       </span>
-      <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
+      <h2 className="text-[20px] font-bold tracking-tight text-[var(--heading)]">
         {label}
       </h2>
       <span className="ml-auto hidden font-mono text-[12px] text-[var(--faint)] sm:inline">
@@ -364,10 +370,14 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     const demo = d.demo;
     sections.push({
       id: "demo",
-      label: "시연",
+      label: "시연 · 음성 한 문장이 주문이 되기까지",
       cmd: "open demo.gif",
       node: (
         <div>
+          {demo.caption ? (
+            <p className="mb-4 leading-[1.75] text-[var(--dim)]">{demo.caption}</p>
+          ) : null}
+          <div className={demo.steps ? "grid items-start gap-6 md:grid-cols-[300px_minmax(0,1fr)]" : ""}>
           {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, static export */}
           <img
             src={assetPath(demo.gif)}
@@ -379,6 +389,22 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               demo.height > demo.width ? "mx-auto w-full max-w-[300px]" : "w-full"
             }`}
           />
+          {demo.steps ? (
+            <ol className="space-y-4">
+              {demo.steps.map((step, i) => (
+                <li key={step.say} className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--accent-line)] font-mono text-[12px] font-semibold text-[var(--accent)]">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[var(--heading)]">{step.say}</p>
+                    <p className="mt-0.5 leading-[1.7] text-[var(--dim)]">{step.result}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+          </div>
           <a
             href={`https://www.youtube.com/watch?v=${demo.youtubeId}`}
             target="_blank"
@@ -409,6 +435,11 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               <h3 className="mt-1 text-balance text-[17px] font-bold leading-snug text-[var(--text)]">
                 {c.title}
               </h3>
+              {c.links && c.links.length > 0 ? (
+                <div className="mt-2">
+                  <EvidenceLinks items={c.links} inline />
+                </div>
+              ) : null}
               <div className="mt-4 space-y-4">
                 {(
                   [
@@ -642,7 +673,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                             <span className="inline-flex flex-col items-end gap-1">
                               <span>{cell}</span>
                               <span
-                                title={`${row.cells[1]} · ${b.bar.label} ${cell} (세로선 ${b.bar.threshold.toFixed(1)} = 발급당 평균 1회 대기)`}
+                                title={`${row.cells[1]} · ${b.bar.label} ${cell} (상대값, 눈금 끝 ${b.bar.max.toFixed(1)})`}
                                 className="relative block h-1.5 w-14 rounded-full bg-[var(--border-soft)]"
                               >
                                 <span
@@ -651,11 +682,6 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                                   style={{
                                     width: `${Math.min(100, (Number(cell) / b.bar.max) * 100)}%`,
                                   }}
-                                />
-                                <span
-                                  aria-hidden
-                                  className="absolute -inset-y-0.5 w-px bg-[var(--dim)]"
-                                  style={{ left: `${(b.bar.threshold / b.bar.max) * 100}%` }}
                                 />
                               </span>
                             </span>
@@ -799,41 +825,37 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
       <div className="md:grid md:grid-cols-[minmax(0,1fr)_212px] md:gap-8 lg:grid-cols-[minmax(0,1fr)_232px] lg:gap-10">
         {/* ── sticky meta rail (tablet+ , right) — pinned & self-scrolling ── */}
         <aside className="hidden md:sticky md:top-0 md:col-start-2 md:row-start-1 md:block md:self-start md:border-l md:border-[var(--border)] md:py-1 md:pl-5 lg:pl-6">
-          <dl className="space-y-3">
-            <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-                role
-              </dt>
-              <dd className="mt-1 text-[14px] leading-snug text-[var(--text)]">
-                {d.role}
-              </dd>
-            </div>
-            {d.period ? (
-              <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-                  period
-                </dt>
-                <dd className="mt-1 text-[14px] text-[var(--text)]">{d.period}</dd>
-              </div>
-            ) : null}
-            <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-                type
-              </dt>
-              <dd className="mt-1 text-[14px] text-[var(--dim)]">
-                {project.type}
-              </dd>
-            </div>
-            {d.award ? (
-              <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-                  award
-                </dt>
-                <dd className="mt-1 text-[14px] text-[var(--hue-amber)]">
-                  ★ {d.award}
-                </dd>
-              </div>
-            ) : null}
+          {/* section nav / TOC */}
+          <nav>
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
+              on this page
+            </p>
+            <ul>
+              {sections.map((s, i) => {
+                const active = activeId === s.id;
+                return (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo(s.id)}
+                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[13.5px] transition ${
+                        active
+                          ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                          : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      <span className="font-mono text-[12px] text-[var(--faint)]">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {s.label}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <dl className="mt-5 space-y-3 border-t border-[var(--border)] pt-4">
             <div>
               <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                 stack
@@ -880,47 +902,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 </dd>
               </div>
             ) : null}
-            {d.evidence && d.evidence.length > 0 ? (
-              <div>
-                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-                  evidence
-                </dt>
-                <dd className="mt-1">
-                  <EvidenceLinks items={d.evidence} />
-                </dd>
-              </div>
-            ) : null}
           </dl>
-
-          {/* section nav / TOC */}
-          <nav className="mt-4 border-t border-[var(--border)] pt-4">
-            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
-              on this page
-            </p>
-            <ul>
-              {sections.map((s, i) => {
-                const active = activeId === s.id;
-                return (
-                  <li key={s.id}>
-                    <button
-                      type="button"
-                      onClick={() => scrollTo(s.id)}
-                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[13.5px] transition ${
-                        active
-                          ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                          : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]"
-                      }`}
-                    >
-                      <span className="font-mono text-[12px] text-[var(--faint)]">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      {s.label}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
         </aside>
 
         {/* ── content column ── */}
@@ -936,12 +918,51 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             <span className="text-[var(--c-cat)]">❯</span>{" "}
             <span data-type>{`git checkout feat/${branch}`}</span>
           </p>
-          <h1 className="mt-3 text-[30px] font-extrabold leading-[1.1] tracking-tight text-[var(--text)] sm:text-[40px]">
+          <h1 className="mt-3 text-[30px] font-extrabold leading-[1.1] tracking-tight text-[var(--heading)] sm:text-[40px]">
             {project.title}
           </h1>
           <p className="mt-4 text-balance text-[17px] font-medium leading-snug text-[var(--accent)]">
             {d.hook}
           </p>
+          <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-[var(--dim)]">
+            <span className="font-semibold text-[var(--text)]">{d.role}</span>
+            {d.period ? (
+              <>
+                <span aria-hidden className="text-[var(--faint)]">·</span>
+                <span>{d.period}</span>
+              </>
+            ) : null}
+            <span aria-hidden className="text-[var(--faint)]">·</span>
+            <span>{project.type}</span>
+            {d.award ? (
+              <>
+                <span aria-hidden className="text-[var(--faint)]">·</span>
+                <span>
+                  <span className="text-[var(--hue-amber)]">★</span> {d.award}
+                </span>
+              </>
+            ) : null}
+          </p>
+          {/* phone TOC: the right rail is hidden below md, keep a sticky section strip */}
+          <nav
+            aria-label="이 페이지 목차"
+            className="sticky -top-5 z-20 -mx-4 mt-5 flex gap-2 overflow-x-auto border-b border-[var(--border-soft)] bg-[var(--surface)] px-4 py-2 md:hidden"
+          >
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => scrollTo(s.id)}
+                className={`shrink-0 rounded-full border px-3 py-1 text-[13px] transition ${
+                  activeId === s.id
+                    ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                    : "border-[var(--border)] text-[var(--dim)]"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </nav>
           <p className="mt-4 text-[16px] leading-[1.75] text-[var(--dim)]">
             {emphasize(d.description)}
           </p>
@@ -972,20 +993,15 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             </dl>
           ) : null}
 
+          {d.evidence && d.evidence.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="text-[13px] font-semibold text-[var(--faint)]">근거</span>
+              <EvidenceLinks items={d.evidence} inline />
+            </div>
+          ) : null}
+
           {/* mobile meta */}
           <div className="mt-5 space-y-3 border-y border-[var(--border)] py-4 md:hidden">
-            <p className="text-[14px] text-[var(--text)]">
-              <span className="font-mono text-[12px] text-[var(--faint)]">
-                role:{" "}
-              </span>
-              {d.role}
-            </p>
-            {d.period ? (
-              <p className="text-[14px] text-[var(--text)]">
-                <span className="font-mono text-[12px] text-[var(--faint)]">period: </span>
-                {d.period}
-              </p>
-            ) : null}
             <div className="flex flex-wrap gap-2">
               {project.stack.map((s) => (
                 <span
@@ -1001,9 +1017,6 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 </span>
               ))}
             </div>
-            {d.award ? (
-              <p className="text-[14px] text-[var(--hue-amber)]">★ {d.award}</p>
-            ) : null}
             {project.href ? (
               <a
                 href={project.href}
@@ -1014,29 +1027,8 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 → {project.href.replace("https://", "")}
               </a>
             ) : null}
-            {d.evidence && d.evidence.length > 0 ? <EvidenceLinks items={d.evidence} /> : null}
           </div>
 
-          {/* phone TOC: the right rail is hidden below md, keep a sticky section strip */}
-          <nav
-            aria-label="이 페이지 목차"
-            className="sticky -top-5 z-20 -mx-4 mt-8 flex gap-2 overflow-x-auto border-b border-[var(--border-soft)] bg-[var(--surface)] px-4 py-2 md:hidden"
-          >
-            {sections.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => scrollTo(s.id)}
-                className={`shrink-0 rounded-full border px-3 py-1 text-[13px] transition ${
-                  activeId === s.id
-                    ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent)]"
-                    : "border-[var(--border)] text-[var(--dim)]"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </nav>
 
           {/* sections */}
           <div className="mt-8 space-y-12 md:mt-12">

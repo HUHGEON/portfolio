@@ -97,13 +97,13 @@ const COLOR_DARK: Record<
   ColorKey,
   { border: string; head: string; soft: string; text: string }
 > = {
-  blue: { border: "rgba(96,165,250,.35)", head: "#60a5fa", soft: "rgba(96,165,250,.10)", text: "#93c5fd" },
-  green: { border: "rgba(74,222,128,.32)", head: "#4ade80", soft: "rgba(74,222,128,.09)", text: "#86efac" },
-  teal: { border: "rgba(45,212,191,.32)", head: "#2dd4bf", soft: "rgba(45,212,191,.09)", text: "#5eead4" },
-  indigo: { border: "rgba(129,140,248,.38)", head: "#818cf8", soft: "rgba(129,140,248,.11)", text: "#a5b4fc" },
-  purple: { border: "rgba(192,132,252,.35)", head: "#c084fc", soft: "rgba(192,132,252,.10)", text: "#d8b4fe" },
-  amber: { border: "rgba(251,191,36,.32)", head: "#fbbf24", soft: "rgba(251,191,36,.09)", text: "#fcd34d" },
-  slate: { border: "rgba(148,163,184,.32)", head: "#94a3b8", soft: "rgba(148,163,184,.08)", text: "#cbd5e1" },
+  blue: { border: "rgba(255,255,255,.10)", head: "#60a5fa", soft: "rgba(255,255,255,.035)", text: "#93c5fd" },
+  green: { border: "rgba(255,255,255,.10)", head: "#4ade80", soft: "rgba(255,255,255,.035)", text: "#86efac" },
+  teal: { border: "rgba(255,255,255,.10)", head: "#2dd4bf", soft: "rgba(255,255,255,.035)", text: "#5eead4" },
+  indigo: { border: "rgba(255,255,255,.10)", head: "#818cf8", soft: "rgba(255,255,255,.035)", text: "#a5b4fc" },
+  purple: { border: "rgba(255,255,255,.10)", head: "#c084fc", soft: "rgba(255,255,255,.035)", text: "#d8b4fe" },
+  amber: { border: "rgba(255,255,255,.10)", head: "#fbbf24", soft: "rgba(255,255,255,.035)", text: "#fcd34d" },
+  slate: { border: "rgba(255,255,255,.10)", head: "#94a3b8", soft: "rgba(255,255,255,.035)", text: "#cbd5e1" },
 };
 
 // arrow colors — bright on the dark canvas, medium/dark on the light canvas
@@ -400,7 +400,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
           return (
             <div
               key={z.id}
-              className="absolute rounded-2xl border-2 bg-white shadow-lg shadow-black/30 dark:bg-[var(--card)]"
+              className="absolute rounded-2xl border bg-white shadow-sm dark:bg-[var(--card)] dark:shadow-none"
               style={{
                 left: z.x,
                 top: z.y,

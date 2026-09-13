@@ -63,7 +63,7 @@ export function PortfolioFrame({
         <a href="#main-content" className="skip-link">
           본문으로 건너뛰기
         </a>
-        <aside className="fixed bottom-3 left-3 top-3 z-30 hidden lg:block">
+        <aside className="fixed bottom-3 left-3 top-3 z-30 hidden xl:block">
           <PortfolioSidebar
             collapsed={isSidebarCollapsed}
             navigation={navigation}

@@ -149,7 +149,7 @@ export function Panel({
           </span>
         ) : null}
         {comment ? (
-          <h2 className="whitespace-nowrap text-[15px] font-bold tracking-tight text-[var(--text)]">
+          <h2 className="whitespace-nowrap text-[18px] font-bold tracking-tight text-[var(--heading)]">
             {comment}
           </h2>
         ) : null}
@@ -178,11 +178,11 @@ export function TermWindow({
   children: ReactNode;
 }) {
   return (
-    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] p-2 text-[15px] leading-relaxed text-[var(--dim)] sm:p-3 lg:pl-[232px]">
+    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] p-2 text-[15px] leading-relaxed text-[var(--dim)] sm:p-3 xl:pl-[232px]">
       <div className="mx-auto flex h-full w-full max-w-[1240px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
         <MobileNav />
         {/* pinned title bar (desktop; phones get the MobileNav bar instead) */}
-        <div className="hidden shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3 lg:flex">
+        <div className="hidden shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3 xl:flex">
           <span aria-hidden className="flex gap-2">
             <span className="h-3 w-3 rounded-full bg-[#e06c5b]" />
             <span className="h-3 w-3 rounded-full bg-[#e0b23b]" />
