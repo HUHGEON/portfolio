@@ -533,7 +533,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     diagramKey: "voice-kiosk",
     hook: "자유발화 한 문장을 여러 개의 실행으로 나눠 처리하는 음성 주문 백엔드입니다.",
     description:
-      "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)·필터로 해석한 뒤, 오케스트레이터로서 API 서버를 호출하고 그 응답을 클라이언트에 되돌려주는 2단 백엔드 구조입니다.",
+      "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)·필터로 해석한 뒤, 오케스트레이터로서 API 서버를 호출하고 그\u00A0응답을 클라이언트에 되돌려주는 2단 백엔드 구조입니다.",
     role: "NLP 서버 설계·주도 · API 연동",
     award: "명지대 캡스톤디자인 금상",
     goals: [
@@ -565,7 +565,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         emoji: "📄",
         title: "API 명세 자동화",
-        desc: "menus·query·recommend·order·cart를 Swagger로 문서화해 연동 규격을 공유합니다.",
+        desc: "menus·​query·​recommend·​order·​cart를 Swagger로 문서화해 연동 규격을 공유합니다.",
       },
     ],
     architecture: {
@@ -645,7 +645,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "intents가 있으면 query.sequence로 묶어 API 서버가 for-loop로 순차 실행하고, 중첩 응답은 results만 펼쳐(flatten) 하나로 합쳤습니다.",
       "옵션이 빠지면 pending 상태로 세션에 보관하고, 후속 발화(옵션만)가 오면 남은 옵션을 계산해 완성 시 장바구니에 담았습니다.",
       "추천은 MongoDB aggregation으로 주문↔메뉴를 $lookup·인기순 집계하고, 이미 추천한 항목은 $nin으로 제외해 재추천 중복을 막았습니다.",
-      "menus·query·recommend·order·cart API를 Swagger(swagger-jsdoc)로 문서화해 프론트·NLP 연동 규격을 명세화했습니다.",
+      "menus·​query·​recommend·​order·​cart API를 Swagger(swagger-jsdoc)로 문서화해 프론트·NLP 연동 규격을 명세화했습니다.",
     ],
     results: [
       "발화 한 건으로 추천 → 주문 담기 → 옵션 선택(멀티턴) → 장바구니 수정 → 결제까지 도는 키오스크 백엔드를 구현했습니다.",

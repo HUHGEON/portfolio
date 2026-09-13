@@ -67,7 +67,7 @@ function ArchViewer({
           type="button"
           onClick={() => setOpen(true)}
           aria-label="아키텍처 확대"
-          className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)]/90 px-2.5 py-1.5 font-mono text-[11px] text-[var(--dim)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:border-[var(--accent-line)] hover:text-[var(--accent)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+          className="absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)]/90 px-2.5 py-1.5 font-mono text-[12px] text-[var(--dim)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:border-[var(--accent-line)] hover:text-[var(--accent)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         >
           <Maximize2 size={12} /> 확대
         </button>
@@ -161,7 +161,7 @@ function ArchLightbox({
     <div className="fixed inset-0 z-[100] flex flex-col bg-[var(--bg)]/92 backdrop-blur-md">
       {/* toolbar */}
       <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">
-        <span className="flex items-center gap-2 font-mono text-[12px] text-[var(--dim)]">
+        <span className="flex items-center gap-2 font-mono text-[13px] text-[var(--dim)]">
           <span className="text-[var(--c-cat)]">❯</span> architecture.svg —{" "}
           <span className="text-[var(--text)]">{label}</span>
         </span>
@@ -185,7 +185,7 @@ function ArchLightbox({
               <Icon size={15} />
             </button>
           ))}
-          <span className="mx-1 w-11 text-center font-mono text-[12px] text-[var(--faint)]">
+          <span className="mx-1 w-11 text-center font-mono text-[13px] text-[var(--faint)]">
             {Math.round(zoom * 100)}%
           </span>
           <button
@@ -219,7 +219,7 @@ function ArchLightbox({
           </div>
         </div>
       </div>
-      <p className="border-t border-[var(--border)] bg-[var(--card-2)] py-2 text-center font-mono text-[11px] text-[var(--faint)]">
+      <p className="border-t border-[var(--border)] bg-[var(--card-2)] py-2 text-center font-mono text-[12px] text-[var(--faint)]">
         스크롤 확대·축소 · 드래그로 이동 · ESC 닫기
       </p>
     </div>,
@@ -263,13 +263,13 @@ function SectionHead({
 }) {
   return (
     <div className="mb-4 flex items-baseline gap-3 border-b border-[var(--border)] pb-2.5">
-      <span className="font-mono text-[13px] font-semibold text-[var(--accent)]">
+      <span className="font-mono text-[14px] font-semibold text-[var(--accent)]">
         {String(index).padStart(2, "0")}
       </span>
       <h2 className="text-[18px] font-bold tracking-tight text-[var(--text)]">
         {label}
       </h2>
-      <span className="ml-auto hidden font-mono text-[11px] text-[var(--faint)] sm:inline">
+      <span className="ml-auto hidden font-mono text-[12px] text-[var(--faint)] sm:inline">
         ❯ {cmd}
       </span>
     </div>
@@ -306,7 +306,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
         <ol className="relative ml-[11px] border-l border-[var(--border)]">
           {d.architecture.steps.map((step, i) => (
             <li key={step} className="relative flex gap-4 pb-6 pl-6 last:pb-0">
-              <span className="absolute -left-[11px] top-0 z-10 flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[var(--accent-line)] bg-[var(--card-2)] font-mono text-[11px] font-semibold text-[var(--accent)]">
+              <span className="absolute -left-[11px] top-0 z-10 flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[var(--accent-line)] bg-[var(--card-2)] font-mono text-[12px] font-semibold text-[var(--accent)]">
                 {i + 1}
               </span>
               <span className="pt-0.5 leading-relaxed text-[var(--dim)]">
@@ -348,7 +348,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               ))}
             </div>
           ) : null}
-          <p className="mt-4 font-mono text-[11px] text-[var(--faint)]">
+          <p className="mt-4 font-mono text-[12px] text-[var(--faint)]">
             ※ 도메인·세부 기능·정량 성과는 대외비로, 사용 기술과 구조만 기재.
           </p>
         </>
@@ -376,7 +376,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:bg-[var(--card-2)]"
               >
                 <p className="flex items-center gap-2 font-semibold text-[var(--text)]">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[var(--accent-soft)] text-[12px] text-[var(--accent)]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[var(--accent-soft)] text-[13px] text-[var(--accent)]">
                     ▸
                   </span>
                   {f.title}
@@ -397,7 +397,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {d.problems.length > 0 ? (
               <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-                <p className="font-semibold text-[var(--hue-rose)]">
+                <p className="font-semibold text-[var(--text)]">
                   # 문제 — {d.problemTitle}
                 </p>
                 <Bullets items={d.problems} />
@@ -405,11 +405,11 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             ) : null}
             {d.solutions.length > 0 ? (
               <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-                <p className="font-semibold text-[var(--c-cat)]"># 해결 과정</p>
+                <p className="font-semibold text-[var(--text)]"># 해결 과정</p>
                 <Bullets items={d.solutions} />
                 {d.progress && d.progress.length > 0 ? (
                   <div className="mt-3 border-t border-[var(--border-soft)] pt-3">
-                    <p className="font-mono text-[12px] text-[var(--faint)]">
+                    <p className="font-mono text-[13px] text-[var(--faint)]">
                       {d.progressTitle ?? "현재 진행"}
                     </p>
                     <Bullets items={d.progress} />
@@ -462,7 +462,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 key={t.name}
                 className="grid gap-1 px-4 py-3 transition hover:bg-[var(--card-2)] sm:grid-cols-[170px_1fr] sm:gap-6"
               >
-                <span className="font-mono text-[13px] font-semibold text-[var(--accent)]">
+                <span className="font-mono text-[14px] font-semibold text-[var(--accent)]">
                   {t.name}
                 </span>
                 <span className="leading-relaxed text-[var(--dim)]">
@@ -529,57 +529,54 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
         <aside className="hidden md:sticky md:top-0 md:col-start-2 md:row-start-1 md:block md:self-start md:border-l md:border-[var(--border)] md:py-1 md:pl-5 lg:pl-6">
           <dl className="space-y-2.5">
             <div>
-              <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                 role
               </dt>
-              <dd className="mt-1 text-[13px] leading-snug text-[var(--text)]">
+              <dd className="mt-1 text-[14px] leading-snug text-[var(--text)]">
                 {d.role}
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                 type
               </dt>
-              <dd className="mt-1 text-[13px] text-[var(--dim)]">
+              <dd className="mt-1 text-[14px] text-[var(--dim)]">
                 {project.type}
               </dd>
             </div>
             {d.award ? (
               <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                   award
                 </dt>
-                <dd className="mt-1 text-[13px] text-[var(--hue-amber)]">
+                <dd className="mt-1 text-[14px] text-[var(--hue-amber)]">
                   ★ {d.award}
                 </dd>
               </div>
             ) : null}
             <div>
-              <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                 stack
               </dt>
               <dd className="mt-1.5 flex flex-wrap gap-1.5">
-                {project.stack.map((s) => {
-                  const hue = stackHue(s);
-                  return (
-                    <span
-                      key={s}
-                      className="rounded-md border px-2 py-[3px] font-mono text-[11px]"
-                      style={{
-                        color: hue,
-                        borderColor: `color-mix(in srgb, ${hue} 32%, transparent)`,
-                        background: `color-mix(in srgb, ${hue} 9%, transparent)`,
-                      }}
-                    >
-                      {s}
-                    </span>
-                  );
-                })}
+                {project.stack.map((s) => (
+                  <span
+                    key={s}
+                    className="rounded-md border px-2 py-[3px] font-mono text-[12px]"
+                    style={{
+                      color: stackHue(s),
+                      borderColor: `color-mix(in srgb, ${stackHue(s)} 32%, transparent)`,
+                      background: `color-mix(in srgb, ${stackHue(s)} 9%, transparent)`,
+                    }}
+                  >
+                    {s}
+                  </span>
+                ))}
               </dd>
             </div>
             {project.href ? (
               <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                   repo
                 </dt>
                 <dd className="mt-1">
@@ -587,7 +584,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                     href={project.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-mono text-[12px] text-[var(--dim)] transition hover:text-[var(--accent)]"
+                    className="font-mono text-[13px] text-[var(--dim)] transition hover:text-[var(--accent)]"
                   >
                     → {project.href.replace("https://", "")}
                   </a>
@@ -595,10 +592,10 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               </div>
             ) : d.repoNote ? (
               <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                   repo
                 </dt>
-                <dd className="mt-1 font-mono text-[12px] text-[var(--faint)]">
+                <dd className="mt-1 font-mono text-[13px] text-[var(--faint)]">
                   {d.repoNote}
                 </dd>
               </div>
@@ -607,7 +604,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
 
           {/* section nav / TOC */}
           <nav className="mt-4 border-t border-[var(--border)] pt-3.5">
-            <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--faint)]">
+            <p className="mb-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
               on this page
             </p>
             <ul>
@@ -618,13 +615,13 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                     <button
                       type="button"
                       onClick={() => scrollTo(s.id)}
-                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[12.5px] transition ${
+                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[13.5px] transition ${
                         active
                           ? "bg-[var(--accent-soft)] text-[var(--accent)]"
                           : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]"
                       }`}
                     >
-                      <span className="font-mono text-[11px] text-[var(--faint)]">
+                      <span className="font-mono text-[12px] text-[var(--faint)]">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {s.label}
@@ -641,59 +638,56 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           {/* hero */}
           <Link
             href="/"
-            className="mb-5 inline-flex items-center gap-1.5 font-mono text-[12px] text-[var(--dim)] transition hover:text-[var(--accent)] md:hidden"
+            className="mb-5 inline-flex items-center gap-1.5 font-mono text-[13px] text-[var(--dim)] transition hover:text-[var(--accent)] md:hidden"
           >
             <span className="text-[var(--accent)]">←</span> cd ~/heo-geon
           </Link>
-          <p className="font-mono text-[12px] text-[var(--faint)]">
+          <p className="font-mono text-[13px] text-[var(--faint)]">
             <span className="text-[var(--c-cat)]">❯</span> git checkout feat/
             {branch}
           </p>
           <h1 className="mt-3 text-[30px] font-extrabold leading-[1.1] tracking-tight text-[var(--text)] sm:text-[40px]">
             {project.title}
           </h1>
-          <p className="mt-4 max-w-[60ch] border-l-2 border-[var(--accent)] pl-4 text-[17px] font-medium leading-snug text-[var(--accent)]">
+          <p className="mt-4 text-[17px] font-medium leading-snug text-[var(--accent)]">
             {d.hook}
           </p>
-          <p className="mt-4 max-w-[70ch] text-[15px] leading-relaxed text-[var(--dim)]">
+          <p className="mt-4 text-[16px] leading-relaxed text-[var(--dim)]">
             {d.description}
           </p>
 
           {/* mobile meta */}
           <div className="mt-5 space-y-3 border-y border-[var(--border)] py-4 md:hidden">
-            <p className="text-[13px] text-[var(--text)]">
-              <span className="font-mono text-[11px] text-[var(--faint)]">
+            <p className="text-[14px] text-[var(--text)]">
+              <span className="font-mono text-[12px] text-[var(--faint)]">
                 role:{" "}
               </span>
               {d.role}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {project.stack.map((s) => {
-                const hue = stackHue(s);
-                return (
-                  <span
-                    key={s}
-                    className="rounded-md border px-2 py-[3px] font-mono text-[11px]"
+              {project.stack.map((s) => (
+                <span
+                  key={s}
+                  className="rounded-md border px-2 py-[3px] font-mono text-[12px]"
                     style={{
-                      color: hue,
-                      borderColor: `color-mix(in srgb, ${hue} 32%, transparent)`,
-                      background: `color-mix(in srgb, ${hue} 9%, transparent)`,
+                      color: stackHue(s),
+                      borderColor: `color-mix(in srgb, ${stackHue(s)} 32%, transparent)`,
+                      background: `color-mix(in srgb, ${stackHue(s)} 9%, transparent)`,
                     }}
-                  >
-                    {s}
-                  </span>
-                );
-              })}
+                >
+                  {s}
+                </span>
+              ))}
             </div>
             {d.award ? (
-              <p className="text-[13px] text-[var(--hue-amber)]">★ {d.award}</p>
+              <p className="text-[14px] text-[var(--hue-amber)]">★ {d.award}</p>
             ) : null}
             {project.href ? (
               <a
                 href={project.href}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-block font-mono text-[12px] text-[var(--dim)] transition hover:text-[var(--accent)]"
+                className="inline-block font-mono text-[13px] text-[var(--dim)] transition hover:text-[var(--accent)]"
               >
                 → {project.href.replace("https://", "")}
               </a>
@@ -713,7 +707,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           <div className="mt-12 border-t border-[var(--border)] pt-5">
             <Link
               href="/"
-              className="inline-block font-mono text-[13px] text-[var(--dim)] transition hover:text-[var(--accent)]"
+              className="inline-block font-mono text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
             >
               <span className="text-[var(--accent)]">←</span> cd ~/heo-geon
             </Link>

@@ -36,14 +36,14 @@ const ABOUT_HIGHLIGHTS = [
 
 function highlightKeywords(text: string) {
   const re = new RegExp(
-    `(${ABOUT_HIGHLIGHTS.map((k) =>
-      k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-    ).join("|")})`,
+    `(${ABOUT_HIGHLIGHTS.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(
+      "|",
+    )})`,
     "g",
   );
   return text.split(re).map((part, i) =>
     ABOUT_HIGHLIGHTS.includes(part) ? (
-      <span key={i} className="font-semibold text-[var(--accent)]">
+      <span key={i} className="font-semibold text-[var(--text)]">
         {part}
       </span>
     ) : (
@@ -55,19 +55,16 @@ function highlightKeywords(text: string) {
 export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
   const { profile, home, about, skills } = dictionary;
   const featured = home.featuredProjects;
-  const awardCount = featured.filter(
-    (p) => HEO_PROJECT_DETAILS[p.slug]?.award,
-  ).length;
+  const awardCount = featured.filter((p) => HEO_PROJECT_DETAILS[p.slug]?.award).length;
 
   const stats: {
     value: string;
     unit?: string;
     label: string;
-    hue: string;
   }[] = [
-    { value: String(featured.length), label: "프로젝트", hue: "var(--hue-blue)" },
-    { value: String(awardCount), label: "수상", hue: "var(--hue-amber)" },
-    { value: "6", unit: "개월", label: "실무 인턴", hue: "var(--hue-green)" },
+    { value: String(featured.length), label: "프로젝트" },
+    { value: String(awardCount), label: "수상" },
+    { value: "6", unit: "개월", label: "실무 인턴" },
   ];
 
   return (
@@ -77,14 +74,10 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
     >
       {/* ── hero feature panel ── */}
       <section className="reveal relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[var(--accent-soft)] to-transparent"
-        />
         <div className="relative flex flex-col gap-5 p-5 sm:p-6">
           <div className="flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
             <div>
-              <p className="mb-2 font-mono text-[11px] text-[var(--faint)]">
+              <p className="mb-2 font-mono text-[12px] text-[var(--faint)]">
                 <span className="text-[var(--c-cat)]">❯</span> whoami
               </p>
               <p className="text-[30px] font-extrabold leading-none tracking-tight text-[var(--text)] sm:text-[40px]">
@@ -93,9 +86,9 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                   {home.profileCard.englishName}
                 </span>
               </p>
-              <p className="mt-2.5 text-[15px] font-medium text-[var(--dim)]">
-                Backend Developer{" "}
-                <span className="text-[var(--faint)]">·</span> 백엔드 개발자
+              <p className="mt-2.5 text-[16px] font-medium text-[var(--dim)]">
+                Backend Developer <span className="text-[var(--faint)]">·</span> 백엔드
+                개발자
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {home.profileCard.experiences.map((exp) => {
@@ -103,7 +96,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                   return (
                     <span
                       key={exp.title}
-                      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[12px]"
+                      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px]"
                     >
                       <Icon size={13} className="shrink-0 text-[var(--accent)]" />
                       <span className="font-semibold text-[var(--text)]">
@@ -117,10 +110,6 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
               </div>
             </div>
             <div className="relative shrink-0 self-start sm:self-auto">
-              <div
-                aria-hidden
-                className="absolute -inset-2.5 rounded-[26px] bg-[var(--accent)] opacity-[0.12] blur-2xl"
-              />
               <Image
                 src={assetPath("/profile.jpg")}
                 alt={`${home.profileCard.koreanName} 프로필 사진`}
@@ -137,15 +126,14 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
             {stats.map((s, i) => (
               <div key={s.label} className={i > 0 ? "pl-6" : ""}>
                 <p
-                  className="font-mono text-[26px] font-extrabold leading-none"
-                  style={{ color: s.hue }}
+                  className="font-mono text-[26px] font-extrabold leading-none text-[var(--text)]"
                 >
                   {s.value}
                   {s.unit ? (
-                    <span className="ml-0.5 text-[15px] font-bold">{s.unit}</span>
+                    <span className="ml-0.5 text-[16px] font-bold">{s.unit}</span>
                   ) : null}
                 </p>
-                <p className="mt-1.5 text-[12px] text-[var(--dim)]">{s.label}</p>
+                <p className="mt-1.5 text-[13px] text-[var(--dim)]">{s.label}</p>
               </div>
             ))}
           </div>
@@ -157,7 +145,6 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <Panel
           cmd="cat about.md"
           comment="소개"
-          hue="var(--hue-blue)"
           className="reveal sm:col-span-2"
         >
           <p className="text-[19px] font-bold leading-snug tracking-tight text-[var(--text)] sm:text-[22px]">
@@ -175,16 +162,15 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <Panel
           cmd="cat ~/focus"
           comment="무엇을 만드는가"
-          hue="var(--hue-teal)"
           className="reveal"
         >
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {home.techFocus.buildItems.map((item) => (
               <div
                 key={item}
-                className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card-2)] px-3.5 py-3 text-[14px] font-medium text-[var(--text)] transition hover:border-[var(--accent-line)] hover:bg-[var(--card)]"
+                className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card-2)] px-3.5 py-3 text-[15px] font-medium text-[var(--text)] transition hover:border-[var(--accent-line)] hover:bg-[var(--card)]"
               >
-                <span className="text-[var(--hue-teal)]">▸</span> {item}
+                <span className="text-[var(--faint)]">▸</span> {item}
               </div>
             ))}
           </div>
@@ -193,24 +179,20 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <Panel
           cmd="ls ~/stack"
           comment="기술 스택"
-          hue="var(--hue-amber)"
           className="reveal"
         >
           <div className="space-y-2.5">
             {skills.groups.map((group, gi) => {
               const hue = HUES[gi % HUES.length];
               return (
-                <div
-                  key={group.title}
-                  className="flex flex-wrap items-center gap-1.5"
-                >
-                  <span className="mr-1 w-[74px] shrink-0 font-mono text-[11px] text-[var(--faint)]">
+                <div key={group.title} className="flex flex-wrap items-center gap-1.5">
+                  <span className="mr-1 w-[74px] shrink-0 font-mono text-[12px] text-[var(--faint)]">
                     {group.title.toLowerCase()}/
                   </span>
                   {group.items.map((it) => (
                     <span
                       key={it}
-                      className="rounded-md border px-2 py-[3px] text-[12px] font-medium"
+                      className="rounded-md border px-2 py-[3px] text-[13px] font-medium"
                       style={{
                         color: hue,
                         borderColor: tint(hue, 34),
@@ -229,33 +211,23 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <Panel
           cmd="git log ./projects"
           comment={`프로젝트 · ${featured.length}개`}
-          hue="var(--hue-purple)"
           className="reveal sm:col-span-2"
         >
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {featured.map((project, i) => {
+            {featured.map((project) => {
               const award = HEO_PROJECT_DETAILS[project.slug]?.award;
-              const hue = HUES[i % HUES.length];
               return (
                 <Link
                   key={project.slug}
                   href={`/projects/${project.slug}`}
-                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 pl-[18px] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
                 >
-                  <span
-                    aria-hidden
-                    className="absolute inset-y-0 left-0 w-[3px] opacity-70 transition-opacity duration-200 group-hover:opacity-100"
-                    style={{ background: hue }}
-                  />
                   <div className="flex flex-wrap items-center gap-x-2">
-                    <span className="text-[10px]" style={{ color: hue }}>
-                      ●
-                    </span>
-                    <span className="font-semibold text-[15px] text-[var(--text)] transition group-hover:text-[var(--accent)]">
+                    <span className="font-semibold text-[16px] text-[var(--text)] transition group-hover:text-[var(--accent)]">
                       {serviceLabel(project.slug, project.title)}
                     </span>
                     {award ? (
-                      <span className="ml-auto text-[12px] text-[var(--hue-amber)]">
+                      <span className="ml-auto text-[13px] text-[var(--hue-amber)]">
                         ★ {award.replace("명지대 ", "").replace("코드잇 ", "")}
                       </span>
                     ) : null}
@@ -264,7 +236,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                     {project.description}
                   </p>
                   <StackList items={project.stack} className="mt-2.5" />
-                  <span className="mt-2 text-[11px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
+                  <span className="mt-2 text-[12px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
                     자세히 보기 →
                   </span>
                 </Link>
@@ -276,7 +248,6 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <Panel
           cmd="cat ./contact"
           comment="연락처"
-          hue="var(--hue-green)"
           className="reveal sm:col-span-2"
         >
           <div className="flex flex-wrap gap-x-6 gap-y-2">

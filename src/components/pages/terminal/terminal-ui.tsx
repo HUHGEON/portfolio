@@ -31,7 +31,7 @@ export function stackHue(tech: string): string {
   return "var(--faint)";
 }
 
-/** A dot-separated tech list, each token coloured by its category. */
+/** A gap-separated tech list, each token coloured by its category. */
 export function StackList({
   items,
   className,
@@ -40,11 +40,16 @@ export function StackList({
   className?: string;
 }) {
   return (
-    <p className={`font-mono text-[11px] leading-relaxed ${className ?? ""}`}>
+    <p
+      className={`flex flex-wrap gap-x-3 font-mono text-[12.5px] leading-relaxed ${className ?? ""}`}
+    >
       {items.map((t, i) => (
-        <span key={`${t}-${i}`}>
-          {i > 0 ? <span className="text-[var(--faint)]">{"  ·  "}</span> : null}
-          <span style={{ color: stackHue(t) }}>{t}</span>
+        <span
+          key={`${t}-${i}`}
+          className="whitespace-nowrap"
+          style={{ color: stackHue(t) }}
+        >
+          {t}
         </span>
       ))}
     </p>
@@ -72,18 +77,16 @@ export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
 }
 
 /** A titled panel — a section rendered as a distinct "tool output" card with a
- * colored dot, a bold Korean topic, and a monospace shell-command label. */
+ * bold Korean topic and a monospace shell-command label. */
 export function Panel({
   cmd,
   comment,
-  hue = "var(--hue-blue)",
   className,
   bodyClassName,
   children,
 }: {
   cmd: string;
   comment?: string;
-  hue?: string;
   className?: string;
   bodyClassName?: string;
   children: ReactNode;
@@ -93,13 +96,8 @@ export function Panel({
       className={`overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)] ${className ?? ""}`}
     >
       <header className="flex items-center gap-2.5 border-b border-[var(--border-soft)] bg-[var(--card-2)] px-4 py-2.5 sm:px-5">
-        <span
-          aria-hidden
-          className="h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ background: hue }}
-        />
         {comment ? (
-          <h2 className="whitespace-nowrap text-[14px] font-bold tracking-tight text-[var(--text)]">
+          <h2 className="whitespace-nowrap text-[15px] font-bold tracking-tight text-[var(--text)]">
             {comment}
           </h2>
         ) : null}
@@ -128,7 +126,7 @@ export function TermWindow({
   children: ReactNode;
 }) {
   return (
-    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] px-3 py-3 text-[13.5px] leading-relaxed text-[var(--dim)] sm:px-4 lg:pl-[232px]">
+    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] px-3 py-3 text-[15px] leading-relaxed text-[var(--dim)] sm:px-4 lg:pl-[232px]">
       <div className="mx-auto flex h-full w-full max-w-[1240px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
         {/* pinned title bar */}
         <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">

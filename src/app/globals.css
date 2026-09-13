@@ -6,16 +6,16 @@
 /* ---- Design tokens mirrored from the tech blog (huhgeon.github.io) ---- */
 /* Light is the base; dark is applied via `.dark` on <html>. */
 :root {
-  --bg: #e8ecf3;
-  --bg-2: #dee4ed;
-  --surface: #f5f7fb;
+  --bg: #fbfbfa;
+  --bg-2: #f3f4f1;
+  --surface: #ffffff;
   --card: #ffffff;
-  --card-2: #eef1f7;
-  --border: #d8dfea;
-  --border-soft: #e5e9f1;
-  --text: #172029;
-  --dim: #515e6d;
-  --faint: #939cab;
+  --card-2: #f3f4f0;
+  --border: #e5e6e0;
+  --border-soft: #eeefe9;
+  --text: #1a1d22;
+  --dim: #5a626d;
+  --faint: #9aa1aa;
   --accent: #4f7aa6;
   --accent-2: #6a93bd;
   --accent-deep: #3c6390;
@@ -33,14 +33,14 @@
   --hue-amber: #c0863c;
   --hue-purple: #7a6bb0;
   --hue-rose: #b0626f;
-  --line: rgba(20, 24, 32, 0.05);
+  --line: rgba(20, 24, 32, 0.022);
   --glow: radial-gradient(
     58% 70% at 50% -4%,
     rgba(79, 122, 166, 0.05),
     transparent 70%
   );
-  --shadow: 0 18px 44px -22px rgba(28, 40, 64, 0.2);
-  --shadow-sm: 0 4px 14px -8px rgba(28, 40, 64, 0.12);
+  --shadow: 0 22px 50px -26px rgba(30, 35, 45, 0.2);
+  --shadow-sm: 0 8px 22px -14px rgba(30, 35, 45, 0.16);
   --radius: 14px;
   --radius-lg: 20px;
 
@@ -98,6 +98,17 @@ body {
   font-family:
     var(--font-sans), "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial,
     Helvetica, sans-serif;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+p,
+li,
+dd,
+h1,
+h2,
+h3 {
+  text-wrap: pretty;
 }
 
 ::selection {
@@ -270,8 +281,7 @@ html {
 /* ---- terminal redesign: monospace shell ---- */
 .term {
   font-family:
-    var(--font-mono), var(--font-sans), "Apple SD Gothic Neo", ui-monospace,
-    monospace;
+    var(--font-mono), var(--font-sans), "Apple SD Gothic Neo", ui-monospace, monospace;
   font-variant-ligatures: none;
   font-feature-settings: "calt" 0;
 }
@@ -280,6 +290,13 @@ html {
   background:
     radial-gradient(120% 60% at 50% -10%, var(--accent-soft), transparent 60%),
     var(--surface);
+}
+/* light: the blog's faint 46px terminal grid */
+:root:not(.dark) .term-win {
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px) -1px -1px / 46px 46px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) -1px -1px / 46px 46px,
+    var(--bg);
 }
 .term-line {
   display: block;
