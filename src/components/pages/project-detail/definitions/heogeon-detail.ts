@@ -1390,7 +1390,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         links: [{ label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" }],
         causes: [
           "재고 행이 회차당 하나라 모든 발급이 같은 잠금 구간을 한 줄로 통과, FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 구간이 김",
-          "도착률을 올릴수록 잠금 대기 지수가 가파르게 늘었고(450 req/s 1.133, 500 req/s 1.588), 500 req/s에선 7회 중 4회 응답 붕괴(성공 응답 중앙값 1초 이상)",
+          "도착률을 올리자 450 req/s부터 응답 붕괴가 나타났고(1/7), 500 req/s에선 7회 중 4회 붕괴(성공 응답 중앙값 1초 이상)",
           "무너진 회차도 5xx 없이 지연으로만 나타나 가용성 지표만으로는 결함 미검출",
         ],
         solutions: [
@@ -1403,30 +1403,27 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
           "k6 constant-arrival-rate로 도착률 고정, 회차마다 발급 · 이력 · 멱등 · Redis 키 롤백으로 같은 상태에서 출발",
         ],
         results: [
-          "같은 500 req/s에서 잠금 대기 지수 1.588 → 1.010 (상대값)",
           "500 req/s 성공 응답 p99 2,240 → 802ms, p95 2,160 → 641ms(붕괴 회차는 지연 집계에서 제외), 응답 붕괴 4/7 → 0/7",
           "105회차 전체 초과 발급 0건",
         ],
       },
       {
         title:
-          "응답 지연 대신 잠금 대기 지수로 세 잠금 구현을 비교하고, 측정 환경 오염을 걷어내 105회차 재측정",
+          "측정 환경 오염을 발견해 이전 수치를 전부 폐기하고, 외부 요인을 통제한 환경에서 세 잠금 구현을 105회차 재측정",
         causes: [
-          "성공 응답 med · p95 · p99는 도착률에 따라 오르내려 구현 간 용량 한계 교차점 판정 불가",
           "첫 측정은 다른 프로젝트 컨테이너 6개가 함께 돈 환경이라 같은 FOR UPDATE 구현의 300 req/s p99가 6,873ms로 부풀려짐",
         ],
         solutions: [
-          "도착률에 따라 세 구현 모두 단조 증가하는 잠금 대기 지수(Innodb_row_lock_waits 증가분 ÷ 발급 수)를 경합 비교 지표로 선정",
           "외부 컨테이너 전부 제거, 회차마다 외부 컨테이너 수와 호스트 CPU 기록",
           "세 이미지를 교차 실행해 시간대 편향 제거, 회차마다 예열 후 측정",
         ],
         checks: [
           "105회차 전부 외부 컨테이너 0개 기록 확인",
-          "어느 도착률에서도 세 구현 간 잠금 대기 지수 범위가 겹치지 않음 확인",
+          "k6 constant-arrival-rate로 도착률을 고정해 구현만 바꾼 비교가 되도록 요청 수 2만 유지",
         ],
         results: [
           "같은 조건 FOR UPDATE 300 req/s p99 6,873 → 222.72ms로 측정 오염 제거, 이전 수치 전부 폐기",
-          "500 req/s 잠금 대기 지수를 FOR UPDATE 1.588 · 조건부 UPDATE 1.010 · Redis 분리 실험 0.472로 순서대로 구분",
+          "500 req/s 응답 붕괴: FOR UPDATE 4/7 · 조건부 UPDATE 0/7 · Redis 분리 실험 0/7",
         ],
       },
     ],
@@ -1442,7 +1439,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "모든 발급이 같은 잠금 구간을 한 줄로 통과하고 INSERT까지 임계구간에 포함돼 커넥션 풀을 늘려도 대기가 줄지 않음",
         metric:
-          "300 req/s 발급당 락 시간 4.5ms · 450 req/s 잠금 대기 지수 1.133 · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 붕괴 4/7",
+          "450 req/s 붕괴 1/7 · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 붕괴 4/7",
         next: "잠금 구간이 길어 포화 지점이 400~450 req/s에 머묾",
       },
       {
@@ -1456,7 +1453,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "단일 재고 행 경쟁 구조와 요청별 동기 DB 트랜잭션은 그대로 남음",
         metric:
-          "500 req/s 잠금 대기 지수 1.010 · 500 req/s 성공 p95 641ms · p99 802ms · 붕괴 0/7",
+          "500 req/s 성공 p95 641ms · p99 802ms · 붕괴 0/7",
         next: "경합 지점이 여전히 DB 안의 재고 행 하나라 재고 계수를 DB 밖으로 이전",
       },
       {
@@ -1470,7 +1467,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "저장소가 둘로 나뉘어 선점 직후 중단 시 Redis가 DB보다 앞섬. 요청 토큰으로 보상, Redis 유실 시 DB 기준 재구성, Redis↔DB 격차 관제 지표 추가",
         metric:
-          "재고 UPDATE를 별도 트랜잭션으로 뗀 실험(v2-split): 500 req/s 잠금 대기 지수 0.472 · 300~500 req/s 전 구간 잠금 대기 지수 FOR UPDATE 대비 63~73% 감소 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
+          "재고 UPDATE를 별도 트랜잭션으로 뗀 실험(v2-split): 500 req/s 성공 p95 562ms · p99 748ms · 붕괴 0/7 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
         next: "DB 경합은 줄었으나 순간 유입 자체와 건별 영속화는 그대로 남음",
       },
       {
@@ -1535,20 +1532,19 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     benchmark: {
       caption:
         "같은 커밋에서 재고 잠금 방식만 바꿔 재고 10,000 · 요청 20,000 조건으로 도착률마다 7회씩 측정했습니다. 각 지표는 7회 중앙값이며, p95 · p99는 성공 응답 지연(ms)입니다.",
-      headers: ["도착률", "구현", "잠금 대기 지수", "p95", "p99", "붕괴"],
-      bar: { column: 2, max: 2, label: "잠금 대기 지수" },
+      headers: ["도착률", "구현", "p95", "p99", "붕괴"],
       rows: [
-        { cells: ["300/s", "v1.1 FOR UPDATE", "0.254", "50.10", "222.72", "0/7"] },
-        { cells: ["", "v1.2 조건부", "0.180", "28.12", "158.64", "0/7"], highlight: true },
-        { cells: ["400/s", "v1.1 FOR UPDATE", "0.703", "409.35", "481.83", "0/7"] },
-        { cells: ["", "v1.2 조건부", "0.499", "190.41", "264.03", "0/7"], highlight: true },
-        { cells: ["450/s", "v1.1 FOR UPDATE", "1.133", "562.01", "648.15", "1/7"] },
-        { cells: ["", "v1.2 조건부", "0.546", "368.66", "575.49", "0/7"], highlight: true },
-        { cells: ["500/s", "v1.1 FOR UPDATE", "1.588", "2,159.79", "2,239.89", "4/7"] },
-        { cells: ["", "v1.2 조건부", "1.010", "640.92", "802.16", "0/7"], highlight: true },
+        { cells: ["300/s", "v1.1 FOR UPDATE", "50.10", "222.72", "0/7"] },
+        { cells: ["", "v1.2 조건부", "28.12", "158.64", "0/7"], highlight: true },
+        { cells: ["400/s", "v1.1 FOR UPDATE", "409.35", "481.83", "0/7"] },
+        { cells: ["", "v1.2 조건부", "190.41", "264.03", "0/7"], highlight: true },
+        { cells: ["450/s", "v1.1 FOR UPDATE", "562.01", "648.15", "1/7"] },
+        { cells: ["", "v1.2 조건부", "368.66", "575.49", "0/7"], highlight: true },
+        { cells: ["500/s", "v1.1 FOR UPDATE", "2,159.79", "2,239.89", "4/7"] },
+        { cells: ["", "v1.2 조건부", "640.92", "802.16", "0/7"], highlight: true },
       ],
       footnote:
-        "잠금 대기 지수 = 측정 동안 MySQL이 센 행 잠금 대기 총횟수(Innodb_row_lock_waits 증가분) ÷ 발급한 쿠폰 수. 클수록 잠금 경합이 심하다는 상대 비교용 값이며, 특정 숫자(예: 1.0)에 정해진 의미는 없습니다. 막대 눈금 끝은 2.0입니다. k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 붕괴 = 성공 응답 중앙값 1,000ms 이상이며, 붕괴 회차는 지연 집계에서 제외해 FOR UPDATE 450 · 500 req/s의 p95 · p99는 버틴 회차만의 값입니다(실제 꼬리 지연은 더 나쁨).",
+        "k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 붕괴 = 성공 응답 중앙값 1,000ms 이상이며, 붕괴 회차는 지연 집계에서 제외해 FOR UPDATE 450 · 500 req/s의 p95 · p99는 버틴 회차만의 값입니다(실제 꼬리 지연은 더 나쁨).",
     },
     results: [],
     lessons:
