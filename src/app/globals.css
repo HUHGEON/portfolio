@@ -15,7 +15,7 @@
   --border-soft: #f0f0f0;
   --text: #171717;
   --dim: #474747;
-  --faint: #8a8a8a;
+  --faint: #707070;
   --accent: #4f7aa6;
   --accent-2: #6a93bd;
   --accent-deep: #3c6390;
@@ -30,7 +30,7 @@
   --hue-blue: #4f7aa6;
   --hue-green: #4f8360;
   --hue-teal: #2f8f86;
-  --hue-amber: #c0863c;
+  --hue-amber: #96671c;
   --hue-purple: #7a6bb0;
   --hue-rose: #b0626f;
   --line: rgba(0, 0, 0, 0.03);
@@ -59,8 +59,8 @@
   --border: #232a33;
   --border-soft: #181d24;
   --text: #c9d1da;
-  --dim: #8b94a1;
-  --faint: #586271;
+  --dim: #a0a8b4;
+  --faint: #808997;
   --accent: #7aa2c9;
   --accent-2: #9bbbde;
   --accent-deep: #5b82a8;
@@ -339,9 +339,10 @@ html {
 }
 
 /* ---- terminal redesign: monospace shell ---- */
+/* prose reads in Pretendard; commands, code, chips and tables opt into font-mono */
 .term {
   font-family:
-    var(--font-mono), var(--font-sans), "Apple SD Gothic Neo", ui-monospace, monospace;
+    var(--font-sans), "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
   font-variant-ligatures: none;
   font-feature-settings: "calt" 0;
 }

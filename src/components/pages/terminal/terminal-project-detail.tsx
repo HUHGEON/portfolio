@@ -265,6 +265,25 @@ function TechChip({ name, className }: { name: string; className?: string }) {
   );
 }
 
+function EvidenceLinks({ items }: { items: { label: string; href: string }[] }) {
+  return (
+    <ul className="space-y-1">
+      {items.map((item) => (
+        <li key={item.href}>
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[13px] leading-snug text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)] hover:decoration-[var(--accent-line)]"
+          >
+            {item.label} ↗
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function FlowSteps({ steps }: { steps: string[] }) {
   return (
     <div className="mt-6">
@@ -338,6 +357,40 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
       label: "동작 흐름",
       cmd: "cat FLOW.md",
       node: <FlowSteps steps={d.architecture.steps} />,
+    });
+  }
+  if (d.demo) {
+    const demo = d.demo;
+    sections.push({
+      id: "demo",
+      label: "시연 영상",
+      cmd: "open demo.mp4",
+      node: (
+        <div>
+          <div
+            className={`overflow-hidden rounded-lg border border-[var(--border)] bg-black ${
+              demo.vertical ? "mx-auto aspect-[9/16] w-full max-w-[320px]" : "aspect-video w-full"
+            }`}
+          >
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${demo.youtubeId}`}
+              title={demo.title}
+              loading="lazy"
+              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full border-0"
+            />
+          </div>
+          <a
+            href={`https://www.youtube.com/watch?v=${demo.youtubeId}`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
+          >
+            {demo.title} · YouTube에서 보기 ↗
+          </a>
+        </div>
+      ),
     });
   }
   if (d.cases && d.cases.length > 0) {
@@ -591,7 +644,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                             <span className="inline-flex flex-col items-end gap-1">
                               <span>{cell}</span>
                               <span
-                                title={`${row.cells[1]} · ${b.bar.label} ${cell} (세로선 ${b.bar.threshold.toFixed(1)} = 완전 직렬화)`}
+                                title={`${row.cells[1]} · ${b.bar.label} ${cell} (세로선 ${b.bar.threshold.toFixed(1)} = 발급당 평균 1회 대기)`}
                                 className="relative block h-1.5 w-14 rounded-full bg-[var(--border-soft)]"
                               >
                                 <span
@@ -684,6 +737,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
   if (d?.cases && d.cases.length > 0) {
     const order = [
       "architecture",
+      "demo",
       "cases",
       "versions",
       "benchmark",
@@ -756,6 +810,14 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 {d.role}
               </dd>
             </div>
+            {d.period ? (
+              <div>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
+                  period
+                </dt>
+                <dd className="mt-1 text-[14px] text-[var(--text)]">{d.period}</dd>
+              </div>
+            ) : null}
             <div>
               <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
                 type
@@ -820,6 +882,16 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 </dd>
               </div>
             ) : null}
+            {d.evidence && d.evidence.length > 0 ? (
+              <div>
+                <dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--faint)]">
+                  evidence
+                </dt>
+                <dd className="mt-1">
+                  <EvidenceLinks items={d.evidence} />
+                </dd>
+              </div>
+            ) : null}
           </dl>
 
           {/* section nav / TOC */}
@@ -860,7 +932,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             href="/"
             className="mb-5 inline-flex items-center gap-2 font-mono text-[13px] text-[var(--dim)] transition hover:text-[var(--accent)] md:hidden"
           >
-            <span className="text-[var(--accent)]">←</span> cd ~/heo-geon
+            <span className="text-[var(--accent)]">←</span> 홈으로
           </Link>
           <p className="font-mono text-[13px] text-[var(--faint)]">
             <span className="text-[var(--c-cat)]">❯</span>{" "}
@@ -910,6 +982,12 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               </span>
               {d.role}
             </p>
+            {d.period ? (
+              <p className="text-[14px] text-[var(--text)]">
+                <span className="font-mono text-[12px] text-[var(--faint)]">period: </span>
+                {d.period}
+              </p>
+            ) : null}
             <div className="flex flex-wrap gap-2">
               {project.stack.map((s) => (
                 <span
@@ -938,10 +1016,32 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 → {project.href.replace("https://", "")}
               </a>
             ) : null}
+            {d.evidence && d.evidence.length > 0 ? <EvidenceLinks items={d.evidence} /> : null}
           </div>
 
+          {/* phone TOC: the right rail is hidden below md, keep a sticky section strip */}
+          <nav
+            aria-label="이 페이지 목차"
+            className="sticky -top-5 z-20 -mx-4 mt-8 flex gap-2 overflow-x-auto border-b border-[var(--border-soft)] bg-[var(--surface)] px-4 py-2 md:hidden"
+          >
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => scrollTo(s.id)}
+                className={`shrink-0 rounded-full border px-3 py-1 text-[13px] transition ${
+                  activeId === s.id
+                    ? "border-[var(--accent-line)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                    : "border-[var(--border)] text-[var(--dim)]"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </nav>
+
           {/* sections */}
-          <div className="mt-12 space-y-12">
+          <div className="mt-8 space-y-12 md:mt-12">
             {sections.map((s, i) => (
               <section key={s.id} id={s.id} className="reveal scroll-mt-4">
                 <SectionHead index={i + 1} label={s.label} cmd={s.cmd} />
@@ -955,7 +1055,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               href="/"
               className="inline-block font-mono text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
             >
-              <span className="text-[var(--accent)]">←</span> cd ~/heo-geon
+              <span className="text-[var(--accent)]">←</span> 홈으로
             </Link>
           </div>
           <LivePrompt />

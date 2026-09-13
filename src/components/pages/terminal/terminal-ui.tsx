@@ -1,24 +1,18 @@
 import { Fragment, type ReactNode } from "react";
+import { MobileNav } from "@/components/shell/mobile-nav";
 
-// ---- scan-reading emphasis: numbers with units and tech names read first ----
-const EMPHASIS_TECH = [
-  "SELECT … FOR UPDATE", "Spring Batch", "Spring WebFlux", "Spring Boot", "Redis Pub/Sub",
-  "FOR UPDATE", "SKIP LOCKED", "WebFlux", "WebSocket", "Pub/Sub", "Redis", "MySQL", "MongoDB",
-  "Kafka", "Lua", "FastAPI", "Express", "Node.js", "Ollama", "EXAONE", "gpt-4o-mini", "JWT",
-  "Multer", "k6", "Prometheus", "Flyway", "Streamlit", "pandas", "Swagger", "TestContainers",
-  "Testcontainers", "ArchUnit", "Aho-Corasick", "mecab-ya", "QueryDSL", "InnoDB", "RAG", "LLM",
-];
+// ---- scan-reading emphasis: numbers with units read first (results, not tool names) ----
 const EMPHASIS_UNIT = "(?:ms|req\\/s|%|건|회차|회|만|행|시간|초|개|종|배|명|vCPU|MB|GB)";
 const EMPHASIS_NUM = `(?<![\\w.\\-/~])(?:\\d+\\/\\d+|(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?(?:\\s?${EMPHASIS_UNIT})?)(?![\\w])`;
 const EMPHASIS_RE = new RegExp(
-  `(${EMPHASIS_TECH.map((t) => t.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")).join("|")}|${EMPHASIS_NUM})`,
+  `(${EMPHASIS_NUM})`,
   "g",
 );
 // a bare single digit ("1인 1매") stays plain; units, separators or 2+ digits are emphasized
 const isMeaningfulNumber = (part: string) =>
   /[,./]/.test(part) || /\d\s?\D/.test(part) || /^\d{2,}/.test(part);
 
-/** Bolds numbers-with-units and tech names inside a sentence so it can be scanned. */
+/** Bolds numbers-with-units inside a sentence so results can be scanned. */
 export function emphasize(text: string): ReactNode {
   return text.split(EMPHASIS_RE).map((part, i) => {
     if (i % 2 === 0 || (/^\d/.test(part) && !isMeaningfulNumber(part))) {
@@ -184,16 +178,17 @@ export function TermWindow({
   children: ReactNode;
 }) {
   return (
-    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] px-3 py-3 text-[15px] leading-relaxed text-[var(--dim)] sm:px-4 lg:pl-[232px]">
+    <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] p-2 text-[15px] leading-relaxed text-[var(--dim)] sm:p-3 lg:pl-[232px]">
       <div className="mx-auto flex h-full w-full max-w-[1240px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
-        {/* pinned title bar */}
-        <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3">
+        <MobileNav />
+        {/* pinned title bar (desktop; phones get the MobileNav bar instead) */}
+        <div className="hidden shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3 lg:flex">
           <span aria-hidden className="flex gap-2">
             <span className="h-3 w-3 rounded-full bg-[#e06c5b]" />
             <span className="h-3 w-3 rounded-full bg-[#e0b23b]" />
             <span className="h-3 w-3 rounded-full bg-[#5bb865]" />
           </span>
-          <span className="flex-1 truncate text-center text-[12px] text-[var(--dim)]">
+          <span className="flex-1 truncate text-center font-mono text-[12px] text-[var(--dim)]">
             {title}
           </span>
           <span className="w-[46px]" />
@@ -203,7 +198,7 @@ export function TermWindow({
           {children}
         </div>
         {/* tmux-style status bar */}
-        <div className="flex shrink-0 items-center gap-3 border-t border-[var(--border)] bg-[var(--card-2)] px-4 py-2 font-mono text-[11px] text-[var(--faint)]">
+        <div className="hidden shrink-0 items-center gap-3 border-t border-[var(--border)] bg-[var(--card-2)] sm:flex px-4 py-2 font-mono text-[11px] text-[var(--faint)]">
           <span className="flex items-center gap-2 rounded bg-[var(--c-cat-soft)] px-2 py-0.5 font-semibold text-[var(--c-cat)]">
             <span aria-hidden>⎇</span> {branch}
           </span>

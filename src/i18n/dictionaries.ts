@@ -173,7 +173,7 @@ const heogeon: Dictionary = {
         projects: ["live-chat"],
       },
       {
-        text: "LLM 출력을 규칙 라우팅 · RAG · 스키마 강제로 감싸 환각·장애에도 결정론적인 의도 해석 · 추천 서버를 설계할 수 있습니다.",
+        text: "LLM 출력을 규칙 라우팅 · RAG · 스키마 강제로 감싸 없는 장소 추천·깨진 출력·LLM 장애를 규칙 폴백으로 흡수하는 의도 해석 · 추천 서버를 설계할 수 있습니다.",
         projects: ["haeyaji", "voice-kiosk"],
       },
       {
@@ -244,7 +244,7 @@ const heogeon: Dictionary = {
         description:
           "통신사 브랜드데이 선착순 쿠폰 발급 시스템입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 구조를 발전시켰고, 발급 결과는 이력 재생 배치로 검증합니다.",
         highlights: [
-          "재고 잠금을 조건부 원자 UPDATE로 바꿔 500 req/s 성공 응답 p99 2,240ms → 802ms 단축",
+          "팀에서 재고 잠금을 조건부 원자 UPDATE로 전환해 500 req/s 성공 응답 p99 2,240ms → 802ms 단축 (성공 응답 기준)",
           "이력 534만 행 재생 검증 배치로, 오류 700건을 심은 데이터의 기대 검출 800행을 누락 0 · 오탐 0으로 탐지",
         ],
         stack: ["Java 21", "Spring Boot", "Spring Batch", "MySQL", "Redis", "Kafka"],
@@ -257,8 +257,8 @@ const heogeon: Dictionary = {
         description:
           "음성·터치 메뉴 주문·추천 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 gpt-4o-mini로 의도(intents) 해석하고, 오케스트레이터로 API 서버를 호출해 주문 로직에 연결합니다.",
         highlights: [
-          "NLP 서버를 LLM으로 intents 추출 후 API 서버를 호출하는 오케스트레이터로 설계",
-          "옵션 누락 시 pending 상태로 세션에 보관, 후속 발화로 완성하는 멀티턴 구현",
+          "LLM으로 intents를 추출해 API 서버를 호출하는 오케스트레이터로 NLP 서버 설계",
+          "LLM 출력을 intents 9종·filters 스키마로 규칙화해 한 문장 속 여러 요청을 순차 실행으로 변환",
         ],
         stack: ["FastAPI", "gpt-4o-mini", "Express", "MongoDB", "Swagger"],
         iconSrc: "/logos/voice-kiosk.png",
@@ -268,9 +268,9 @@ const heogeon: Dictionary = {
         slug: "live-chat",
         title: "라이브 커머스 채팅 서버",
         description:
-          "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 모든 시청자에게 닿도록 Redis Pub/Sub으로 중계합니다.",
+          "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 다른 Pod의 시청자에게 전달되도록 Redis Pub/Sub으로 중계합니다.",
         highlights: [
-          "Redis Pub/Sub 방별 채널로 Pod 간 메시지 중계, 수평 확장 시에도 전체 전파 보장",
+          "Redis Pub/Sub 패턴 구독으로 Pod 간 메시지 중계, 한 JVM에서 Pod 2개를 모사한 통합 테스트로 전달 확인",
           "권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리",
         ],
         stack: ["Spring", "WebFlux", "WebSocket", "Redis", "MongoDB"],
@@ -283,7 +283,7 @@ const heogeon: Dictionary = {
         description:
           "날씨·시간대·위치 기반으로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP 서버)를 단독 개발하고 백엔드 날씨·추천·개인화·알림 도메인을 맡았습니다.",
         highlights: [
-          "로컬 LLM(EXAONE)의 오분류·환각을 규칙 라우팅·RAG·스키마 강제로 감싸 결정론적 추천 품질 확보",
+          "로컬 LLM(EXAONE)의 오분류·없는 장소 추천을 규칙 라우팅·RAG·스키마 강제로 줄이고, 시나리오 채점 59/80으로 한계까지 확인",
           "느린 LLM 호출의 커넥션풀 고갈을 막는 추천 게이트웨이 트랜잭션 분리, 맥락별 개인화 가중치 학습",
         ],
         stack: ["FastAPI", "Ollama · EXAONE", "Spring Boot", "MySQL", "Redis"],
@@ -399,8 +399,8 @@ const heogeon: Dictionary = {
       title: "라이브 커머스 채팅 서버",
       type: "Team Project",
       description:
-        "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 모든 시청자에게 닿도록 Redis Pub/Sub으로 중계하며, 권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리했습니다.",
-      href: "https://github.com/sago-panda/sapari-be",
+        "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 다른 Pod의 시청자에게 전달되도록 Redis Pub/Sub으로 중계하며(best-effort), 권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리했습니다.",
+      href: "https://github.com/sago-panda/sapari-be/tree/feature/SPR-16",
       stack: ["Java 21", "Spring WebFlux", "WebSocket", "Redis", "MongoDB"],
       featured: true,
     },

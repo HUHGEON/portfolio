@@ -92,6 +92,20 @@ const COLOR: Record<
   slate: { border: "#e2e8f0", head: "#475569", soft: "#f8fafc", text: "#334155" },
 };
 
+// dark canvas: same hues as translucent tints so zones sit on the page instead of glowing white
+const COLOR_DARK: Record<
+  ColorKey,
+  { border: string; head: string; soft: string; text: string }
+> = {
+  blue: { border: "rgba(96,165,250,.35)", head: "#60a5fa", soft: "rgba(96,165,250,.10)", text: "#93c5fd" },
+  green: { border: "rgba(74,222,128,.32)", head: "#4ade80", soft: "rgba(74,222,128,.09)", text: "#86efac" },
+  teal: { border: "rgba(45,212,191,.32)", head: "#2dd4bf", soft: "rgba(45,212,191,.09)", text: "#5eead4" },
+  indigo: { border: "rgba(129,140,248,.38)", head: "#818cf8", soft: "rgba(129,140,248,.11)", text: "#a5b4fc" },
+  purple: { border: "rgba(192,132,252,.35)", head: "#c084fc", soft: "rgba(192,132,252,.10)", text: "#d8b4fe" },
+  amber: { border: "rgba(251,191,36,.32)", head: "#fbbf24", soft: "rgba(251,191,36,.09)", text: "#fcd34d" },
+  slate: { border: "rgba(148,163,184,.32)", head: "#94a3b8", soft: "rgba(148,163,184,.08)", text: "#cbd5e1" },
+};
+
 // arrow colors — bright on the dark canvas, medium/dark on the light canvas
 const FLOW_DARK: Record<Flow, string> = {
   req: "#a1a1aa",
@@ -362,7 +376,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
 
         {/* zones */}
         {spec.zones.map((z) => {
-          const c = COLOR[z.color];
+          const c = (isDark ? COLOR_DARK : COLOR)[z.color];
           const ZI = z.lucide;
           const h = zoneHeight(z);
           if (z.layout === "plain") {
@@ -386,7 +400,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
           return (
             <div
               key={z.id}
-              className="absolute rounded-2xl border-2 bg-white shadow-lg shadow-black/30"
+              className="absolute rounded-2xl border-2 bg-white shadow-lg shadow-black/30 dark:bg-[var(--card)]"
               style={{
                 left: z.x,
                 top: z.y,
@@ -414,7 +428,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
                   {z.title}
                 </span>
                 {z.subtitle ? (
-                  <span className="text-[12px] font-semibold text-slate-400">
+                  <span className="text-[12px] font-semibold text-slate-400 dark:text-zinc-500">
                     {z.subtitle}
                   </span>
                 ) : null}
@@ -431,11 +445,11 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
                       style={{ borderColor: c.border, background: c.soft, height: 84 }}
                     >
                       <ItemGlyph it={it} color={c.head} size={26} />
-                      <div className="text-center text-[12px] font-semibold text-slate-700">
+                      <div className="text-center text-[12px] font-semibold text-slate-700 dark:text-zinc-200">
                         {it.label}
                       </div>
                       {it.sub ? (
-                        <div className="text-center text-[10px] text-slate-500">
+                        <div className="text-center text-[10px] text-slate-500 dark:text-zinc-400">
                           {it.sub}
                         </div>
                       ) : null}
@@ -459,11 +473,11 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
                     >
                       <ItemGlyph it={it} color={c.head} size={24} />
                       <div className="min-w-0">
-                        <div className="truncate text-[15px] font-bold text-slate-800">
+                        <div className="truncate text-[15px] font-bold text-slate-800 dark:text-zinc-100">
                           {it.label}
                         </div>
                         {it.sub ? (
-                          <div className="truncate text-[12px] text-slate-500">
+                          <div className="truncate text-[12px] text-slate-500 dark:text-zinc-400">
                             {it.sub}
                           </div>
                         ) : null}
