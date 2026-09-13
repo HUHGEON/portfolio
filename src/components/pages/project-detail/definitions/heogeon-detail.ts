@@ -1314,11 +1314,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "LG유플러스 유레카 백엔드 종합 프로젝트로 5인 팀이 만든 통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 팀이 함께 구조를 발전시켰고, 저는 조장으로 검증 배치·시드 생성기·부하 시험 결과 DB 대조·알림 outbox 릴레이를 맡았습니다.",
     role: "조장 · 배치 · 검증 · 스키마 (5인 팀)",
     period: "2026.08 ~ 진행 중",
-    demo: { title: "쿠폰 야호~ 시연 — 대기열 입장 · 발급 관제 · 검증 배치 (3배속)", gif: "/demos/coupon-yaho.gif", width: 720, height: 405, youtubeId: "hS4aFDgdmNM" },
     evidence: [
       { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
       { label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" },
       { label: "시드 생성기 실행 결과 (CLEAN · CORRUPT)", href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md" },
+      { label: "시연 영상 (YouTube)", href: "https://youtu.be/hS4aFDgdmNM" },
     ],
     metrics: [
       {
