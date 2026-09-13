@@ -379,21 +379,36 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     sections.push({
       id: "demo",
       label: `시연 · ${demo.title.replace(/\s*\(.*\)$/, "")}`,
-      cmd: "open demo.gif",
+      cmd: "open demo.mp4",
       node: (
         <div>
           {demo.caption ? (
             <p className="mb-4 leading-[1.75] text-[var(--dim)]">{demo.caption}</p>
           ) : null}
-          <div className={demo.steps ? "grid items-start gap-6 md:grid-cols-[300px_minmax(0,1fr)]" : ""}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, static export */}
-          <img
-            src={assetPath(demo.gif)}
-            alt={demo.title}
+          <div
+            className={
+              demo.steps
+                ? demo.height > demo.width
+                  ? "grid items-start gap-6 md:grid-cols-[300px_minmax(0,1fr)]"
+                  : "grid items-start gap-6"
+                : ""
+            }
+          >
+          <video
+            src={assetPath(demo.video)}
+            poster={assetPath(demo.poster)}
             width={demo.width}
             height={demo.height}
-            loading="lazy"
-            className={`block h-auto rounded-lg border border-[var(--border)] ${
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
+            preload="metadata"
+            aria-label={demo.title}
+            className={`block h-auto rounded-lg border border-[var(--border)] bg-black ${
               demo.height > demo.width ? "mx-auto w-full max-w-[300px]" : "w-full"
             }`}
           />
@@ -413,14 +428,20 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             </ol>
           ) : null}
           </div>
-          <a
-            href={`https://www.youtube.com/watch?v=${demo.youtubeId}`}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
-          >
-            {demo.title} · 전체 영상 YouTube ↗
-          </a>
+          {demo.youtubeId || demo.videoUrl ? (
+            <a
+              href={
+                demo.youtubeId
+                  ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
+                  : demo.videoUrl
+              }
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
+            >
+              {demo.title} · 전체 영상 {demo.youtubeId ? "YouTube" : "보기"} ↗
+            </a>
+          ) : null}
         </div>
       ),
     });

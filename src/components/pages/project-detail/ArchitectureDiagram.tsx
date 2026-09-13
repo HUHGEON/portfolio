@@ -19,6 +19,9 @@ import { useTheme } from "@/components/shell/theme-context";
 
 const BP = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const ic = (name: string) => `${BP}/icons/tech/${name}.svg`;
+// monochrome black brand marks: flip to white on dark surfaces
+const MONO_LOGOS = new Set(["ollama", "resend"]);
+const monoCls = (name: string) => (MONO_LOGOS.has(name) ? " dark:invert" : "");
 
 // fixed design space (px) — the canvas transform scales the whole thing
 const W = 1600;
@@ -201,7 +204,7 @@ function ItemGlyph({
         height={size}
         unoptimized
         style={{ width: size, height: size }}
-        className="shrink-0 object-contain"
+        className={`shrink-0 object-contain${monoCls(it.logo)}`}
       />
     );
   if (it.emoji)
@@ -305,6 +308,9 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
         <svg
           viewBox={`0 0 ${WW} ${HH}`}
           className="pointer-events-none absolute inset-0"
+          // Chromium paints hinted SVG text off its layout box under the scaled-down
+          // dark frame; geometric rendering keeps edge labels inside their pills
+          textRendering="geometricPrecision"
           style={{ width: WW, height: HH, zIndex: 20 }}
         >
           <defs>
@@ -422,6 +428,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
                     height={20}
                     unoptimized
                     style={{ width: 20, height: 20 }}
+                    className={monoCls(z.logo)}
                   />
                 ) : null}
                 <span className="text-[16px] font-bold" style={{ color: c.text }}>

@@ -43,10 +43,12 @@ export type HeoProjectDetail = {
   evidence?: { label: string; href: string }[]; // 주장 옆 공개 근거 링크
   demo?: {
     title: string;
-    gif: string;
+    video: string; // 자동재생 반복 mp4
+    poster: string;
     width: number;
     height: number;
-    youtubeId: string;
+    youtubeId?: string; // 없으면 원본 링크 대신 videoUrl 사용
+    videoUrl?: string;
     caption?: string; // 무엇을 봐야 하는지
     steps?: { say: string; result: string }[]; // GIF 속 발화 → 처리 결과
   }; // 시연 GIF + 원본 영상
@@ -574,10 +576,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     role: "NLP 서버 설계·주도 · API 연동",
     period: "2025.03 ~ 2025.06",
     demo: {
-      title: "음성 대화로 추천부터 결제까지 (4배속)",
-      gif: "/demos/voice-kiosk.gif",
-      width: 300,
-      height: 536,
+      title: "음성 대화로 추천부터 결제까지 (2.5배속)",
+      video: "/demos/voice-kiosk.mp4",
+      poster: "/demos/voice-kiosk.jpg",
+      width: 360,
+      height: 642,
       youtubeId: "QMuGDGB1Jsw",
       caption: "한 번의 주문 대화를 이어서 진행한 장면입니다. NLP 서버가 발화마다 의도를 해석해 추천 · 옵션 선택 · 장바구니 · 결제로 연결합니다.",
       steps: [
@@ -904,6 +907,21 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "날씨·시간대·위치를 보고 할 일을 실제 장소와 함께 추천하는 투두 앱입니다. 추천을 담당하는 NLP 서버를 혼자 개발했고, 백엔드에서는 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
     role: "NLP 추천 서버 단독 개발 · 백엔드 날씨/추천/개인화/알림 도메인",
     period: "2026.06 ~ 2026.07",
+    demo: {
+      title: "날씨 기반 장소 추천부터 일정 추가까지 (2.5배속)",
+      video: "/demos/haeyaji.mp4",
+      poster: "/demos/haeyaji.jpg",
+      width: 1440,
+      height: 810,
+      videoUrl: "https://haeyaji.github.io/haeyaji-pages/demo.mp4",
+      caption: "팀 시연 영상에서 날씨 · 추천 · 개인화 장면만 잘랐습니다.",
+      steps: [
+        { say: "날씨 홈", result: "현재 위치의 날씨와 주간 예보, 오늘 할 일을 한 화면에 표시" },
+        { say: "지도 추천", result: "현재 위치 기준으로 주변 장소를 거리순으로 정리, 장소를 누르면 사진 · 메뉴 · 후기 확인" },
+        { say: "추천 도우미", result: "대화 내용에서 관심 카테고리를 기록하고 쌓인 취향을 바탕으로 맞춤 추천" },
+        { say: "일정 추가", result: "마음에 드는 곳을 일정에 추가하면 오늘 할 일에 바로 반영" },
+      ],
+    },
     evidence: [
       { label: "시나리오 채점 결과 59/80", href: "https://github.com/haeyaji/haeyaji-nlp/blob/main/eval/results.md" },
       { label: "도메인 가드 강화 · 한계 (PR #12)", href: "https://github.com/haeyaji/haeyaji-nlp/pull/12" },
@@ -1051,6 +1069,19 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다.",
     role: "Express · MongoDB 백엔드 (개인)",
     period: "2025.08",
+    demo: {
+      title: "스토리 · 검색 · 유사 글 · 팔로우 · 쪽지 (2.5배속)",
+      video: "/demos/blog-platform.mp4",
+      poster: "/demos/blog-platform.jpg",
+      width: 1440,
+      height: 900,
+      steps: [
+        { say: "스토리", result: "로그인 후 이미지 스토리를 올리고 상세 화면에서 확인" },
+        { say: "검색 · 상세", result: "‘강아지’로 검색해 글을 열고 좋아요 · 댓글 작성, 하단에 형태소 분석으로 찾은 유사 강아지 글 표시" },
+        { say: "팔로우 · 쪽지", result: "작성자 페이지에서 팔로우한 뒤 쪽지를 보내고 보낸 쪽지함에서 확인" },
+        { say: "새 글 작성", result: "이미지와 함께 강아지 산책 글을 올리자 기존 강아지 글들이 유사 글로 추천" },
+      ],
+    },
     evidence: [
       { label: "README · 기능별 구성", href: "https://github.com/HUHGEON/Blog-Platform/blob/main/README.md" },
     ],
@@ -1337,10 +1368,21 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     description:
       "LG유플러스 유레카 백엔드 종합 프로젝트에서 5인 팀이 만든 통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 팀은 병목을 측정하면서 MySQL 락, 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 구조를 바꿔 왔고, 저는 조장으로서 검증 배치, 시드 생성기, 부하 시험 결과의 DB 대조를 맡았습니다.",
     role: "조장 · 배치 · 검증 · 스키마 (5인 팀)",
-    period: "2026.08 ~ 진행 중",
-    evidence: [
-      { label: "시연 영상 (YouTube)", href: "https://youtu.be/hS4aFDgdmNM" },
-    ],
+    period: "2026.08",
+    demo: {
+      title: "대기열 입장부터 발급 관제 · 검증 배치까지 (2.5배속)",
+      video: "/demos/coupon-yaho.mp4",
+      poster: "/demos/coupon-yaho.jpg",
+      width: 1440,
+      height: 810,
+      youtubeId: "hS4aFDgdmNM",
+      caption: "팀 시연 영상에서 대기열 · 발급 관제 · 검증 배치 장면만 잘랐습니다.",
+      steps: [
+        { say: "대기열 입장", result: "혼잡 시 번호표와 앞선 인원 · 예상 대기 시간을 보여 주고, 차례가 오면 3분 유효한 입장 토큰 발급" },
+        { say: "발급 관제", result: "관리자 화면에서 재고가 1초마다 갱신되며 10,000장 발급 완료까지 실시간 확인" },
+        { say: "검증 배치", result: "오류 700건을 심은 데이터에서 기대한 800건을 판정하고, 정상 데이터 300만 행에서는 0건 확인" },
+      ],
+    },
     metrics: [
       {
         value: "800 / 800",
