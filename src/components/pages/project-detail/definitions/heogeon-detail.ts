@@ -41,7 +41,7 @@ export type HeoProjectDetail = {
   role: string;
   period?: string; // 본인 커밋 기준 기간 (진행 중 포함)
   evidence?: { label: string; href: string }[]; // 주장 옆 공개 근거 링크
-  demo?: { title: string; youtubeId: string; vertical?: boolean }; // 시연 영상
+  demo?: { title: string; gif: string; width: number; height: number; youtubeId: string }; // 시연 GIF + 원본 영상
   award?: string;
   repoNote?: string;
   diagramKey?: string; // when set, render the rich ArchitectureDiagram instead of the grid
@@ -564,7 +564,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)·필터로 해석하고, 오케스트레이터로서 API 서버를 호출해 그\u00A0응답을 클라이언트에 돌려주는 2단 백엔드 구조입니다. 저는 NLP 서버를 맡았고, API 서버(추천·주문·장바구니·Swagger)는 팀원이 구현했습니다.",
     role: "NLP 서버 설계·주도 · API 연동",
     period: "2025.03 ~ 2025.06",
-    demo: { title: "음성인식 키오스크 캡스톤 데모", youtubeId: "QMuGDGB1Jsw", vertical: true },
+    demo: { title: "음성인식 키오스크 시연 — 음성 주문 → 옵션 → 장바구니 → 결제 (4배속)", gif: "/demos/voice-kiosk.gif", width: 300, height: 536, youtubeId: "QMuGDGB1Jsw" },
     evidence: [
       { label: "NLP 서버 의도 해석 코드", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/app/services/openai_client.py" },
       { label: "NLP 서버 README", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/README.md" },
@@ -1314,7 +1314,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "LG유플러스 유레카 백엔드 종합 프로젝트로 5인 팀이 만든 통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 팀이 함께 구조를 발전시켰고, 저는 조장으로 검증 배치·시드 생성기·부하 시험 결과 DB 대조·알림 outbox 릴레이를 맡았습니다.",
     role: "조장 · 배치 · 검증 · 스키마 (5인 팀)",
     period: "2026.08 ~ 진행 중",
-    demo: { title: "쿠폰 야호~ 시연 (고객 · 관제 화면)", youtubeId: "hS4aFDgdmNM" },
+    demo: { title: "쿠폰 야호~ 시연 — 대기열 입장 · 발급 관제 · 검증 배치 (3배속)", gif: "/demos/coupon-yaho.gif", width: 720, height: 405, youtubeId: "hS4aFDgdmNM" },
     evidence: [
       { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
       { label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" },

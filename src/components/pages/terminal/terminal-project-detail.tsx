@@ -29,6 +29,7 @@ import {
 } from "@/components/pages/terminal/terminal-ui";
 import type { ArchSpec } from "@/components/pages/project-detail/ArchitectureDiagram";
 import type { Project } from "@/types/project";
+import { assetPath } from "@/lib/asset-path";
 
 const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
 
@@ -363,31 +364,28 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     const demo = d.demo;
     sections.push({
       id: "demo",
-      label: "시연 영상",
-      cmd: "open demo.mp4",
+      label: "시연",
+      cmd: "open demo.gif",
       node: (
         <div>
-          <div
-            className={`overflow-hidden rounded-lg border border-[var(--border)] bg-black ${
-              demo.vertical ? "mx-auto aspect-[9/16] w-full max-w-[320px]" : "aspect-video w-full"
+          {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, static export */}
+          <img
+            src={assetPath(demo.gif)}
+            alt={demo.title}
+            width={demo.width}
+            height={demo.height}
+            loading="lazy"
+            className={`block h-auto rounded-lg border border-[var(--border)] ${
+              demo.height > demo.width ? "mx-auto w-full max-w-[300px]" : "w-full"
             }`}
-          >
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${demo.youtubeId}`}
-              title={demo.title}
-              loading="lazy"
-              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="h-full w-full border-0"
-            />
-          </div>
+          />
           <a
             href={`https://www.youtube.com/watch?v=${demo.youtubeId}`}
             target="_blank"
             rel="noreferrer"
             className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
           >
-            {demo.title} · YouTube에서 보기 ↗
+            {demo.title} · 전체 영상 YouTube ↗
           </a>
         </div>
       ),
