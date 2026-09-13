@@ -428,7 +428,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
                   {z.title}
                 </span>
                 {z.subtitle ? (
-                  <span className="text-[12px] font-semibold text-slate-400 dark:text-zinc-500">
+                  <span className="text-[12px] font-semibold text-slate-500 dark:text-zinc-400">
                     {z.subtitle}
                   </span>
                 ) : null}
@@ -1153,7 +1153,6 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
           { label: "발급 API", sub: "멱등키 IN_PROGRESS · DONE", lucide: Globe },
           { label: "Redis 재고 선점", sub: "Lua 원자 판정 (v2.1)", logo: "redis" },
           { label: "조건부 원자 UPDATE", sub: "active_count < total (v1.2)", lucide: Database },
-          { label: "알림 outbox", sub: "SKIP LOCKED 릴레이", lucide: Bell },
         ],
       },
       {

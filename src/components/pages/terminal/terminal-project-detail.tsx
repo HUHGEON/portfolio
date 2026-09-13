@@ -3,9 +3,11 @@
 import { Check, Maximize2, Minus, Plus, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 import {
+  type CSSProperties,
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -49,7 +51,7 @@ function ArchViewer({
   const [containerW, setContainerW] = useState(0);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const update = () => setContainerW(el.clientWidth);
@@ -59,7 +61,9 @@ function ArchViewer({
     return () => ro.disconnect();
   }, []);
 
-  const scale = containerW ? Math.min(1, containerW / ARCH_BOX_W) : 1;
+  // measured scale once mounted; before that (SSR, hydration, no JS) CSS breakpoints
+  // in .arch-fit supply a conservative scale so the diagram never renders at 1:1 and clips
+  const scale = containerW ? Math.min(1, containerW / ARCH_BOX_W) : undefined;
   const frameH = archFrameHeight(spec.width ?? 1600, spec.height ?? 980);
 
   return (
@@ -79,12 +83,16 @@ function ArchViewer({
           aria-label="아키텍처 확대"
           className="block w-full cursor-zoom-in text-left"
         >
-          <div ref={ref} className="w-full overflow-hidden">
-            <div style={{ width: ARCH_BOX_W, height: frameH * scale }}>
+          <div
+            ref={ref}
+            className="arch-fit w-full overflow-hidden"
+            style={scale === undefined ? undefined : ({ "--arch-s": scale } as CSSProperties)}
+          >
+            <div style={{ width: ARCH_BOX_W, height: `calc(${frameH}px * var(--arch-s))` }}>
               <div
                 style={{
                   width: ARCH_BOX_W,
-                  transform: `scale(${scale})`,
+                  transform: "scale(var(--arch-s))",
                   transformOrigin: "top left",
                 }}
               >
@@ -370,7 +378,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     const demo = d.demo;
     sections.push({
       id: "demo",
-      label: "시연 · 음성 한 문장이 주문이 되기까지",
+      label: `시연 · ${demo.title.replace(/\s*\(.*\)$/, "")}`,
       cmd: "open demo.gif",
       node: (
         <div>
@@ -963,17 +971,8 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               </button>
             ))}
           </nav>
-          <p className="mt-4 text-[16px] leading-[1.75] text-[var(--dim)]">
-            {emphasize(d.description)}
-          </p>
-          {d.goals && d.goals.length > 0 ? (
-            <div className="mt-5">
-              <p className="text-[13px] font-semibold text-[var(--faint)]">목표</p>
-              <Bullets items={d.goals} />
-            </div>
-          ) : null}
           {d.metrics && d.metrics.length > 0 ? (
-            <dl data-stagger className="reveal mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2">
+            <dl data-stagger className="reveal mt-5 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2">
               {d.metrics.map((m) => (
                 <div key={m.label} className="flex flex-col bg-[var(--card)] px-4 py-3">
                   <dt className="text-[12px] font-semibold text-[var(--faint)]">{m.label}</dt>
@@ -991,6 +990,15 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 </div>
               ))}
             </dl>
+          ) : null}
+          <p className="mt-4 text-[16px] leading-[1.75] text-[var(--dim)]">
+            {emphasize(d.description)}
+          </p>
+          {d.goals && d.goals.length > 0 ? (
+            <div className="mt-5">
+              <p className="text-[13px] font-semibold text-[var(--faint)]">목표</p>
+              <Bullets items={d.goals} />
+            </div>
           ) : null}
 
           {d.evidence && d.evidence.length > 0 ? (

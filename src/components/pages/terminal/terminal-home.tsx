@@ -75,14 +75,17 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         <div className="flex items-start justify-between gap-4 sm:gap-8">
           <div className="min-w-0 flex-1">
             <p className="mb-2 font-mono text-[12px] text-[var(--faint)]">
-              <span className="text-[var(--c-cat)]">❯</span> <span data-type>whoami</span>
+              <span className="text-[var(--c-cat)]">❯</span>{" "}
+              <span data-type>whoami</span>
             </p>
             <p
               data-split
               className="whitespace-nowrap text-[26px] font-extrabold leading-none tracking-tight text-[var(--heading)] sm:text-[40px]"
             >
               {home.profileCard.koreanName}{" "}
-              <span className="text-[var(--accent)]">{home.profileCard.englishName}</span>
+              <span className="text-[var(--accent)]">
+                {home.profileCard.englishName}
+              </span>
             </p>
             <p className="mt-3 text-[16px] font-medium text-[var(--dim)]">
               Backend Developer
@@ -106,46 +109,56 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           />
         </div>
 
-        <div className="order-3 mt-5 max-w-[72ch] space-y-2 sm:order-none sm:mt-3">
-          {about.paragraphs.map((p) => (
-            <p key={p} className="text-balance leading-[1.75] text-[var(--dim)]">
+        <div className="order-2 mt-5 max-w-[72ch] space-y-2 sm:order-none sm:mt-3">
+          {about.paragraphs.map((p, i) => (
+            <p
+              key={p}
+              // phones: the tagline already carries the last sentence, keep the intro to two lines of thought
+              className={`text-balance leading-[1.75] text-[var(--dim)] ${
+                i === about.paragraphs.length - 1 ? "hidden sm:block" : ""
+              }`}
+            >
               {highlightKeywords(p)}
             </p>
           ))}
         </div>
 
-        <div className="order-1 mt-5 flex flex-wrap gap-2 border-t border-[var(--border-soft)] pt-5 sm:order-none">
-          {home.profileCard.experiences.map((exp) => {
-            const Icon = exp.icon === "school" ? GraduationCap : Building2;
-            return (
-              <span
-                key={exp.title}
-                className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px]"
+        <div className="order-1 mt-5 space-y-2 border-t border-[var(--border-soft)] pt-5 sm:order-none">
+          <div className="flex flex-wrap gap-2">
+            {home.profileCard.experiences.map((exp) => {
+              const Icon = exp.icon === "school" ? GraduationCap : Building2;
+              return (
+                <span
+                  key={exp.title}
+                  className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px]"
+                >
+                  <Icon size={13} className="shrink-0 text-[var(--accent)]" />
+                  <span className="font-semibold text-[var(--text)]">{exp.title}</span>
+                  <span className="text-[var(--dim)]">{exp.detail}</span>
+                  <span className="text-[var(--faint)]">· {exp.period}</span>
+                </span>
+              );
+            })}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {awards.map((a) => (
+              <Link
+                key={a.slug}
+                href={`/projects/${a.slug}`}
+                className="group inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px] transition hover:border-[var(--accent-line)]"
               >
-                <Icon size={13} className="shrink-0 text-[var(--accent)]" />
-                <span className="font-semibold text-[var(--text)]">{exp.title}</span>
-                <span className="text-[var(--dim)]">{exp.detail}</span>
-                <span className="text-[var(--faint)]">· {exp.period}</span>
-              </span>
-            );
-          })}
-          {awards.map((a) => (
-            <Link
-              key={a.slug}
-              href={`/projects/${a.slug}`}
-              className="group inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px] transition hover:border-[var(--accent-line)]"
-            >
-              <span className="text-[var(--hue-amber)]">★</span>
-              <span className="font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">
-                {a.award}
-              </span>
-              <span className="text-[var(--faint)]">· {a.project}</span>
-            </Link>
-          ))}
+                <span className="text-[var(--hue-amber)]">★</span>
+                <span className="font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">
+                  {a.award}
+                </span>
+                <span className="text-[var(--faint)]">· {a.project}</span>
+              </Link>
+            ))}
+          </div>
         </div>
         <a
           href="#projects"
-          className="order-2 mt-5 inline-flex items-center gap-1 self-start text-[14px] font-semibold text-[var(--accent)] transition hover:gap-2 sm:order-none"
+          className="order-3 mt-5 inline-flex items-center gap-1 self-start text-[14px] font-semibold text-[var(--accent)] transition hover:gap-2 sm:order-none"
         >
           대표 프로젝트 보기 <span aria-hidden>↓</span>
         </a>
@@ -154,7 +167,9 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
       {/* ── projects: bare section (no outer card), lead project spans full width ── */}
       <section id="projects" className="reveal mt-10 scroll-mt-4">
         <div className="mb-4 flex items-baseline gap-3 border-b border-[var(--border)] pb-3">
-          <span className="font-mono text-[14px] font-semibold text-[var(--accent)]">01</span>
+          <span className="font-mono text-[14px] font-semibold text-[var(--accent)]">
+            01
+          </span>
           <h2 className="text-[20px] font-bold tracking-tight text-[var(--heading)]">
             프로젝트 · {featured.length}개
           </h2>
@@ -166,12 +181,18 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
           {featured.map((project, i) => {
             const award = HEO_PROJECT_DETAILS[project.slug]?.award;
             const lead = i === 0;
+            const rest = featured.length - 1;
+            const lastAlone = !lead && rest % 2 === 1 && i === featured.length - 1;
             return (
               <Link
                 key={project.slug}
                 href={`/projects/${project.slug}`}
                 className={`spotlight group relative flex min-w-0 flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 transition-[translate,scale,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:translate-y-0 active:scale-[0.99] ${
-                  lead ? "sm:col-span-2 dark:bg-[var(--card-2)]" : ""
+                  lead
+                    ? "sm:col-span-2 bg-[color-mix(in_srgb,var(--accent)_4%,var(--card))] dark:bg-[var(--card-2)]"
+                    : lastAlone
+                      ? "sm:col-span-2"
+                      : ""
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -188,6 +209,11 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                       →
                     </span>
                   </h3>
+                  {lead ? (
+                    <span className="rounded-md border border-[var(--accent-line)] px-2 py-0.5 text-[12px] font-semibold text-[var(--accent)]">
+                      대표 프로젝트
+                    </span>
+                  ) : null}
                   {award ? (
                     <span className="ml-auto text-[13px] text-[var(--dim)]">
                       <span className="text-[var(--hue-amber)]">★</span>{" "}
@@ -195,9 +221,30 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                     </span>
                   ) : null}
                 </div>
-                <ul className={`mt-3 flex-1 space-y-2 ${lead ? "sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0" : ""}`}>
-                  {project.highlights.map((highlight) => (
-                    <li key={highlight} className="flex gap-2 leading-[1.7] text-[var(--dim)]">
+                {lead && project.lead ? (
+                  <div className="mt-4">
+                    <p className="text-[26px] font-extrabold leading-tight tracking-tight text-[var(--heading)] sm:text-[30px]">
+                      {emphasize(project.lead.headline)}
+                    </p>
+                    <p className="mt-1 text-[16px] font-medium text-[var(--text)]">
+                      {emphasize(project.lead.detail)}
+                    </p>
+                    <p className="mt-2 text-[13px] text-[var(--dim)]">
+                      {project.lead.role}
+                    </p>
+                  </div>
+                ) : null}
+                <ul
+                  className={`mt-3 flex-1 space-y-2 ${lead ? "border-t border-[var(--border-soft)] pt-3" : ""}`}
+                >
+                  {(lead && project.lead
+                    ? project.highlights.slice(1)
+                    : project.highlights
+                  ).map((highlight) => (
+                    <li
+                      key={highlight}
+                      className="flex gap-2 leading-[1.7] text-[var(--dim)]"
+                    >
                       <span className="mt-[11px] h-1 w-1 shrink-0 rounded-full bg-[var(--accent)]" />
                       <span className="min-w-0">{emphasize(highlight)}</span>
                     </li>
@@ -205,7 +252,9 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 </ul>
                 <div className="mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-t border-[var(--border-soft)] pt-3">
                   <StackList items={project.stack} />
-                  <span className="text-[13px] font-semibold text-[var(--accent)]">자세히 보기 →</span>
+                  <span className="text-[13px] font-semibold text-[var(--accent)]">
+                    자세히 보기 →
+                  </span>
                 </div>
               </Link>
             );
@@ -227,7 +276,9 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 key={item.text}
                 className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 md:flex-row md:items-baseline md:gap-6"
               >
-                <p className="flex-1 text-balance leading-[1.75] text-[var(--dim)]">{emphasize(item.text)}</p>
+                <p className="flex-1 text-balance leading-[1.75] text-[var(--dim)]">
+                  {emphasize(item.text)}
+                </p>
                 <span className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 text-[13px]">
                   {item.projects.map((slug) => {
                     const project = projects.find((p) => p.slug === slug);

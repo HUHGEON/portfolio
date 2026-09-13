@@ -568,22 +568,22 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
   "voice-kiosk": {
     logo: "/logos/voice-kiosk.png",
     diagramKey: "voice-kiosk",
-    hook: "자유발화 한 문장을 여러 실행으로 나눠 처리하는 음성 주문 백엔드입니다.",
+    hook: "자유발화 한 문장에 담긴 여러 요청을 순서대로 처리하는 음성 주문 백엔드입니다.",
     description:
-      "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)·필터로 해석하고, 오케스트레이터로서 API 서버를 호출해 그\u00A0응답을 클라이언트에 돌려주는 2단 백엔드 구조입니다. 저는 NLP 서버를 맡았고, API 서버(추천·주문·장바구니·Swagger)는 팀원이 구현했습니다.",
+      "음성과 터치로 메뉴를 주문하고 추천받는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 LLM으로 의도(intents)와 필터로 해석하고 오케스트레이터로서 API 서버를 호출해 받은 응답을 클라이언트에 돌려주는 2단 백엔드 구조입니다. 저는 NLP 서버를 맡았고 API 서버(추천·주문·장바구니·Swagger)는 팀원이 구현했습니다.",
     role: "NLP 서버 설계·주도 · API 연동",
     period: "2025.03 ~ 2025.06",
     demo: {
-      title: "음성인식 키오스크 시연 (4배속)",
+      title: "음성 대화로 추천부터 결제까지 (4배속)",
       gif: "/demos/voice-kiosk.gif",
       width: 300,
       height: 536,
       youtubeId: "QMuGDGB1Jsw",
-      caption: "음성 발화가 NLP 서버에서 의도로 해석되어 추천 · 옵션 선택 · 장바구니 · 결제로 이어지는 흐름",
+      caption: "한 번의 주문 대화를 이어서 진행한 장면입니다. NLP 서버가 발화마다 의도를 해석해 추천 · 옵션 선택 · 장바구니 · 결제로 연결합니다.",
       steps: [
         { say: "“인기 메뉴 보여 줘”", result: "추천 의도 → 인기 메뉴 목록 표시" },
         { say: "“아이스 아메리카노 미디움 사이즈로 주문해 줘”", result: "주문 의도 + 온도·크기 옵션 추출 → 장바구니 담기" },
-        { say: "“미디움으로 해 줘”", result: "사이즈를 묻는 안내에 답해 빠진 옵션을 채우고 장바구니에 추가 (멀티턴)" },
+        { say: "“미디움으로 해 줘”", result: "이어서 담은 카페라떼의 사이즈를 묻는 안내에 답해 빠진 옵션을 채우고 장바구니에 추가 (멀티턴)" },
         { say: "“결제해 줘”", result: "결제 의도 → 주문 완료" },
       ],
     },
@@ -593,30 +593,30 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     ],
     award: "명지대 캡스톤디자인 금상",
     goals: [
-      "자유발화 한 문장을 여러 실행으로 분할 처리하는 음성 주문 백엔드 구현",
-      "LLM 출력을 intents·filters 스키마로 강제, 자연어를 안전하게 ‘실행’으로 변환",
-      "멀티턴 대화 상태(pending·세션)를 서버가 책임 관리하는 구조 확립",
+      "자유발화 한 문장에 담긴 여러 요청을 순서대로 처리하는 음성 주문 백엔드 구현",
+      "LLM 출력을 intents·filters 스키마로 제한해 자연어 요청을 실행 가능한 형태로 안전하게 변환",
+      "멀티턴 대화 상태(pending·세션)를 서버가 직접 관리하는 구조 구축",
     ],
     features: [
       {
         emoji: "🎙️",
         title: "자유발화 의도 분석",
-        desc: "한 문장 속 여러 요청을 intents 배열로 분리해 순차 실행",
+        desc: "한 문장에 담긴 여러 요청을 intents 배열로 나눠 순차 실행",
       },
       {
         emoji: "🔁",
         title: "멀티턴 옵션 완성",
-        desc: "온도·크기 등 필수 옵션 누락 시 pending 보관 후 후속 발화로 완성",
+        desc: "온도·크기 등 필수 옵션이 빠지면 pending에 보관하고 다음 발화로 채움",
       },
       {
         emoji: "⭐",
         title: "개인화 추천 (팀 API 서버)",
-        desc: "주문↔메뉴 aggregation 인기순 집계, 이미 추천한 항목 제외",
+        desc: "주문↔메뉴 aggregation으로 인기순 집계, 이미 추천한 항목은 제외",
       },
       {
         emoji: "🛒",
         title: "주문·장바구니·결제 (팀 API 서버)",
-        desc: "담기·수정·결제까지 한 발화 흐름으로 처리, Orders에 저장",
+        desc: "담기·수정·결제를 한 번의 발화 흐름으로 처리하고 Orders에 저장",
       },
       {
         emoji: "📄",
@@ -685,45 +685,47 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       ],
       steps: [
         "음성·터치 요청 시 클라이언트가 STT 텍스트와 현재 화면(page)을 NLP 서버로 전송",
-        "NLP 서버가 gpt-4o-mini로 요청을 의도(intents)·필터 JSON으로 해석(한 문장 속 여러 요청도 intents 배열로 추출)",
+        "NLP 서버가 gpt-4o-mini로 요청을 의도(intents)·필터 JSON으로 해석(한 문장에 요청이 여러 개면 intents 배열로 추출)",
         "NLP 서버(오케스트레이터)가 intents를 query.sequence로 묶어 API 서버(/api/handle) 호출",
-        "API 서버가 intents를 순차 실행(추천·주문·결제), 옵션 누락 시 pending으로 세션 보관 후 다음 발화로 완성",
+        "API 서버가 intents를 순차 실행(추천·주문·결제)하고 옵션이 빠지면 pending으로 세션에 보관한 뒤 다음 발화로 완성",
         "메뉴·주문은 MongoDB에서 조회·저장, 결과(안내·화면·항목)는 NLP 서버가 클라이언트로 반환",
       ],
     },
     problemTitle: "문제",
     problems: [
-      "한 문장 속 여러 요청(‘카페라떼 빼고 아메리카노 추가하고 결제’)의 순차 실행 필요",
-      "주문 시 필수 옵션(온도·크기 등) 누락을 즉시 실패 처리하지 않고 후속 발화로 완성 필요",
+      "한 문장에 섞인 여러 요청(‘카페라떼 빼고 아메리카노 추가하고 결제’)을 순서대로 실행해야 함",
+      "주문 시 필수 옵션(온도·크기 등)이 빠져도 바로 실패로 끝내지 않고 다음 발화로 채워야 함",
     ],
     solutions: [
-      "LLM 시스템 프롬프트로 intents 9종·filters·옵션 정규화(샷 표현·온도 수식어 분리 등) 규칙화, gpt-4o-mini로 JSON 추출",
-      "intents 존재 시 query.sequence로 묶어 API 서버가 for-loop로 순차 실행, 중첩 응답은 results만 펼쳐(flatten) 병합",
-      "옵션 누락 시 pending으로 세션 보관, 후속 발화(옵션만) 수신 시 남은 옵션 계산 후 완성되면 장바구니에 담기 (팀 API 서버와 연동)",
-      "추천은 MongoDB aggregation으로 주문↔메뉴 $lookup·인기순 집계, 이미 추천한 항목은 $nin으로 제외해 재추천 중복 방지 (팀 API 서버)",
-      "menus·​query·​recommend·​order·​cart API를 Swagger(swagger-jsdoc)로 문서화, 프론트·NLP 연동 규격 명세화 (팀 API 서버)",
+      "LLM 시스템 프롬프트에 intents 9종·filters·옵션 정규화(샷 표현·온도 수식어 분리 등) 규칙을 정의하고 gpt-4o-mini로 JSON 추출",
+      "intents가 있으면 query.sequence로 묶고 API 서버가 for-loop로 순차 실행, 중첩 응답은 results만 펼쳐(flatten) 병합",
+      "옵션이 빠지면 pending으로 세션에 보관, 옵션만 담긴 후속 발화가 오면 남은 옵션을 계산해 다 채워졌을 때 장바구니에 담기 (팀 API 서버와 연동)",
+      "추천은 MongoDB aggregation으로 주문↔메뉴 $lookup·인기순 집계, 이미 추천한 항목은 $nin으로 제외해 중복 추천 방지 (팀 API 서버)",
+      "menus·​query·​recommend·​order·​cart API를 Swagger(swagger-jsdoc)로 문서화해 프론트·NLP와 연동 규격 공유 (팀 API 서버)",
     ],
     results: [
-      "발화 한 건으로 추천 → 주문 담기 → 옵션 선택(멀티턴) → 장바구니 수정 → 결제까지 도는 키오스크 백엔드를 팀으로 완성",
-      "결제 시 메뉴별 수량을 그룹핑해 Orders 컬렉션(MongoDB Atlas)에 실제 저장, API는 Swagger로 명세화 (팀 API 서버)",
+      "복합 요청 처리: 한 문장에 담긴 여러 의도를 순서대로 실행",
+      "멀티턴 처리: 빠진 옵션을 후속 발화로 채우며 주문 진행",
+      "추천부터 장바구니 수정·결제까지 이어지는 키오스크 백엔드를 팀 프로젝트로 완성",
+      "결제 시 메뉴별 수량을 그룹핑해 Orders 컬렉션(MongoDB Atlas)에 실제 저장, API는 Swagger로 문서화 (팀 API 서버)",
     ],
     lessons:
-      "자연어라는 비정형 입력을 백엔드가 안전하게 ‘실행’으로 옮기려면 LLM 출력 스키마(intents·filters)를 강하게 규정하고 대화 상태(pending·세션)는 서버가 책임져야 함을 배웠습니다.",
+      "자연어 같은 비정형 입력을 백엔드에서 안전하게 실행하려면 LLM 출력 스키마(intents·filters)를 엄격하게 정의하고 대화 상태(pending·세션)는 서버가 관리해야 한다는 것을 배웠습니다.",
     techChoices: [
       {
         name: "FastAPI · Uvicorn",
         reason:
-          "async 라우터로 LLM·백엔드 호출 대기시간을 비동기 흡수(NLP 서버)",
+          "async 라우터로 LLM·백엔드 호출 대기를 비동기로 처리(NLP 서버)",
       },
       {
         name: "gpt-4o-mini",
         reason:
-          "자유발화에서 intents·filters JSON을 저비용·저지연 추출(코드 기본 모델)",
+          "자유발화에서 intents·filters JSON을 적은 비용과 짧은 지연으로 추출(코드 기본 모델)",
       },
       {
         name: "Express",
         reason:
-          "라우터·컨트롤러 분리로 intent별 도메인 로직을 위임하는 디스패처 구성에 적합",
+          "라우터·컨트롤러를 나눠 intent별 도메인 로직을 위임하는 디스패처 구성에 적합",
       },
       {
         name: "MongoDB · Mongoose",
@@ -733,16 +735,16 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         name: "Swagger",
         reason:
-          "라우트 JSDoc으로 API 명세 자동화, 프론트·NLP 협업 규격 공유",
+          "라우트 JSDoc으로 API 명세를 자동 생성해 프론트·NLP와 규격 공유",
       },
     ],
   },
 
   "live-chat": {
     diagramKey: "live-chat",
-    hook: "여러 Pod에 흩어진 시청자에게도 메시지를 실시간 전달하는 라이브 채팅 서버입니다.",
+    hook: "여러 Pod에 흩어진 시청자에게 메시지를 실시간으로 전달하는 라이브 채팅 서버입니다.",
     description:
-      "대규모 라이브 스트리밍 + 커머스 플랫폼 sapari에서 진행 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket 연결과 Redis Pub/Sub 패턴 구독 기반 Pod 간 중계 위에, 권한·레이트리밋·욕설 방어와 멱등·fail-open을 하나의 전송 파이프라인으로 묶었습니다. 채팅 서버를 시작으로 다른 도메인도 맡아 계속 업데이트할 예정입니다.",
+      "대규모 라이브 스트리밍·커머스 플랫폼 sapari에서 개발 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 WebSocket으로 연결을 받고 Redis Pub/Sub 패턴 구독으로 Pod 간 메시지를 중계합니다. 그 위에 권한 확인·레이트리밋·욕설 필터링과 멱등 처리·fail-open을 하나의 전송 파이프라인으로 묶었습니다. 채팅 서버를 시작으로 다른 도메인까지 맡아 계속 업데이트할 예정입니다.",
     role: "sapari(라이브 스트리밍·커머스) 채팅 서버 담당 · 진행 중 · 도메인 확장 예정",
     period: "2026.06 ~ 진행 중",
     evidence: [
@@ -750,40 +752,40 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       { label: "채팅 모듈 설계 노트 (전달 보장 수준)", href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md" },
     ],
     goals: [
-      "여러 Pod에 흩어진 시청자에게 메시지를 중계하는 stateless 수평 확장 채팅 서버",
-      "논블로킹 리액티브 파이프라인에서 권한·레이트리밋·욕설 방어를 정확한 순서로 처리",
-      "Redis 장애·중복 재전송·처리 불가 메시지에도 채팅이 멈추지 않는 멱등·fail-open 전송 파이프라인 확보",
+      "여러 Pod에 흩어진 시청자에게 메시지를 중계하는, 수평 확장 가능한 stateless 채팅 서버",
+      "논블로킹 리액티브 파이프라인에서 권한·레이트리밋·욕설 필터링을 올바른 순서로 처리",
+      "Redis 장애·중복 재전송·처리할 수 없는 메시지가 있어도 채팅이 멈추지 않도록 멱등·fail-open 전송 파이프라인 구성",
     ],
     features: [
       {
         emoji: "🔌",
         title: "WebSocket 실시간 채팅",
-        desc: "WebFlux 논블로킹 이벤트루프로 연결당 스레드 없이 다수 동시 연결 처리",
+        desc: "WebFlux 논블로킹 이벤트 루프로 연결마다 스레드를 두지 않고 다수 동시 연결 처리",
       },
       {
         emoji: "📡",
         title: "Pod 간 메시지 중계",
-        desc: "Redis Pub/Sub 패턴 구독으로 어느 Pod에 붙든 같은 방 메시지 fan-out",
+        desc: "Redis Pub/Sub 패턴 구독으로 어느 Pod에 접속하든 같은 방 메시지를 fan-out",
       },
       {
         emoji: "🛡️",
         title: "전송 파이프라인 방어",
-        desc: "권한·강퇴·레이트리밋·욕설 마스킹을 비용 낮은 검사부터 순차 처리",
+        desc: "권한·강퇴·레이트리밋·욕설 마스킹을 비용이 낮은 검사부터 순서대로 처리",
       },
       {
         emoji: "🔤",
         title: "욕설 우회 차단",
-        desc: "Aho-Corasick 1-패스로 특수문자 삽입·토큰 조인 우회까지 탐지, 사전어는 보존",
+        desc: "Aho-Corasick 1-패스로 특수문자 삽입·토큰을 이어 붙인 우회까지 탐지, 일반 단어는 보존",
       },
       {
         emoji: "♻️",
         title: "멱등 · fail-open",
-        desc: "clientMsgId 유니크 인덱스로 중복 발행 차단, Redis 장애 시 채팅 지속",
+        desc: "clientMsgId 유니크 인덱스로 중복 발행 차단, Redis 장애 시에도 채팅 유지",
       },
       {
         emoji: "🔑",
         title: "RS256 룸 토큰",
-        desc: "chat은 공개키 검증만 수행해 소유자 토큰 위조를 구조적으로 차단",
+        desc: "chat은 공개키로 검증만 해 구조상 소유자 토큰을 위조할 수 없음",
       },
     ],
     architecture: {
@@ -833,63 +835,63 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { from: "redis", to: "pod" },
       ],
       steps: [
-        "시청자 WebSocket 접속 시 방 토큰(RS256)을 서브프로토콜 헤더로 제시, 입장 게이트가 검증·강퇴·방 종료 확인",
-        "메시지 수신 시 전송 파이프라인이 비용 낮은 검사부터(권한 → 강퇴 → 레이트리밋 → 욕설 마스킹) 순차 처리",
-        "통과 메시지는 MongoDB에 먼저 저장(원문+마스킹본) 후 Redis 발행(persist-then-publish)",
-        "Redis Pub/Sub chat:pubsub:* 패턴 상시 구독 스트림이 다른 Pod 시청자에게 fan-out",
-        "clientMsgId + Mongo 유니크 인덱스로 중복 발행 차단, Redis 장애 시 fail-open으로 채팅 지속",
+        "시청자가 WebSocket 접속 시 방 토큰(RS256)을 서브프로토콜 헤더에 담아 보내면 입장 게이트에서 토큰 검증·강퇴 여부·방 종료 여부 확인",
+        "메시지를 받으면 전송 파이프라인이 비용이 낮은 검사부터(권한 → 강퇴 → 레이트리밋 → 욕설 마스킹) 순서대로 처리",
+        "통과한 메시지는 MongoDB에 먼저 저장(원문+마스킹본)한 뒤 Redis로 발행(persist-then-publish)",
+        "chat:pubsub:* 패턴을 상시 구독하는 Redis Pub/Sub 스트림이 다른 Pod의 시청자에게 fan-out",
+        "clientMsgId + Mongo 유니크 인덱스로 중복 발행 차단, Redis 장애 시 fail-open으로 채팅 유지",
       ],
     },
     problemTitle: "문제",
     problems: [
-      "WebSocket은 stateful이라 시청자가 여러 Pod에 분산, A Pod 발신 메시지를 B Pod 시청자에게 실시간 전달 필요",
-      "단일 이벤트루프를 블로킹 없이 유지하며 재전송·중복 프레임·레이트리밋 회피(파이프라이닝) 차단 필요",
-      "채팅 본문·clientMsgId·프레임 등 신뢰경계 밖 입력의 욕설 우회·로그 위조 방어 필요",
+      "WebSocket은 stateful이라 시청자가 여러 Pod에 나뉘고, A Pod에서 보낸 메시지를 B Pod 시청자에게도 실시간으로 전달해야 함",
+      "단일 이벤트 루프를 블로킹하지 않으면서 재전송·중복 프레임·파이프라이닝을 이용한 레이트리밋 회피를 막아야 함",
+      "채팅 본문·clientMsgId·프레임 같은 신뢰할 수 없는 입력을 이용한 욕설 우회·로그 위조를 막아야 함",
     ],
     solutions: [
-      "비용 0 검사는 앞, Redis I/O는 뒤로 둔 순서(방 생존 → 검증 → 권한 → 강퇴 → 레이트리밋 → 욕설 마스킹 → 저장 → 발행)로 전송 파이프라인 구성",
-      "Redis Pub/Sub 패턴(chat:pubsub:*)을 상시 hot 스트림으로 구독해 방별 lazy 구독의 ‘구독 전 유실 레이스’ 없이 Pod 간 fan-out",
-      "Aho-Corasick 1-패스 욕설 탐지로 특수문자 삽입·인접 토큰 조인 우회까지 포착, ‘시발점’ 같은 사전어는 화이트리스트로 보존",
-      "clientMsgId + Mongo partial unique index 멱등 처리(persist-then-publish)로 재전송 시 중복 발행 억제, 기존 메시지로 ack",
-      "Redis 장애로 강퇴·레이트리밋 조회 실패 시 채팅 허용(fail-open), onErrorResume 람다 안 throw 금지·시간 기반 스로틀 로그로 정책 역전 방지",
-      "chat-api(계약) ↔ chat-core(도메인·인프라) 헥사고날 분리·ArchUnit으로 강제, 인바운드는 concatMap 순차 처리",
+      "비용 0인 검사는 앞에, Redis I/O는 뒤에 두는 순서(방 생존 → 검증 → 권한 → 강퇴 → 레이트리밋 → 욕설 마스킹 → 저장 → 발행)로 전송 파이프라인 구성",
+      "Redis Pub/Sub 패턴(chat:pubsub:*)을 hot 스트림으로 상시 구독해, 방별 lazy 구독에서 생기는 ‘구독 완료 전 메시지 유실’ 레이스 없이 Pod 간 fan-out",
+      "Aho-Corasick 1-패스 욕설 탐지로 특수문자 삽입·인접 토큰 결합 우회까지 잡고, ‘시발점’ 같은 일반 단어는 화이트리스트로 보존",
+      "clientMsgId + Mongo partial unique index로 멱등 처리(persist-then-publish)해 재전송 시 중복 발행을 막고 기존 메시지로 ack",
+      "Redis 장애로 강퇴·레이트리밋 조회가 실패해도 채팅 허용(fail-open), onErrorResume 람다 안 throw 금지와 시간 기반 로그 스로틀로 fail-open 정책이 뒤집히지 않게 함",
+      "chat-api(계약) ↔ chat-core(도메인·인프라)를 헥사고날 구조로 분리하고 ArchUnit으로 강제, 인바운드는 concatMap으로 순차 처리",
     ],
     results: [
-      "어느 Pod에 붙든 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 테스트로 크로스 Pod 전달 확인 (Pub/Sub 특성상 전달은 best-effort, 재접속 시 누락 복구는 미구현)",
-      "Redis 장애 시 fail-open, poison-message 개별 skip, 재전송 멱등 처리로 세 가지 상황에서 전송 파이프라인이 멈추지 않도록 구성",
+      "어느 Pod에 접속해도 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 테스트로 Pod 간 전달 확인 (Pub/Sub 특성상 전달은 best-effort이고 재접속 시 누락 복구는 미구현)",
+      "Redis 장애(fail-open)·poison-message(개별 skip)·재전송(멱등 처리) 세 상황 모두에서 전송 파이프라인이 멈추지 않도록 구성",
     ],
     lessons:
-      "논블로킹 리액티브 파이프라인에서는 ‘무엇을 검사하느냐’만큼 ‘어느 순서로, 어느 에러 경계에서 검사하느냐’가 정확성을 좌우합니다. fail-open 람다 안 throw 금지·concatMap 강제 같은 불변식을 코드에 못 박지 않으면 가용성 정책이 조용히 뒤집힌다는 것을 체득했습니다.",
+      "논블로킹 리액티브 파이프라인에서는 무엇을 검사하느냐만큼 어떤 순서로, 어느 에러 경계에서 검사하느냐가 정확성을 좌우합니다. fail-open 람다 안 throw 금지나 concatMap 강제 같은 불변식을 코드 레벨에서 보장하지 않으면 가용성 정책이 조용히 뒤집힌다는 것을 직접 겪으며 배웠습니다.",
     techChoices: [
       {
         name: "Spring WebFlux",
         reason:
-          "이벤트루프로 WebSocket 다수 동시 연결을 연결당 스레드 없이 처리해 라이브 채팅 동시성 감당",
+          "이벤트 루프 기반이라 연결마다 스레드를 두지 않고 WebSocket 동시 연결 다수를 처리해 라이브 채팅 동시성 감당",
       },
       {
         name: "WebSocket (raw)",
         reason:
-          "채팅 프레임 직접 제어(TEXT 파싱, close code에 종료 사유 탑재)를 위해 STOMP 대신 raw WebSocket 채택",
+          "채팅 프레임을 직접 제어(TEXT 파싱, close code에 종료 사유 담기)하려고 STOMP 대신 raw WebSocket 선택",
       },
       {
         name: "Redis Pub/Sub",
         reason:
-          "패턴 구독 하나로 상시 hot 스트림 구성, 구독 레이스 없는 Pod 간 fan-out·규모 확대 시 어댑터만 교체 가능",
+          "패턴 구독 하나로 상시 hot 스트림을 구성해 구독 레이스 없이 Pod 간 fan-out, 규모가 커지면 어댑터만 교체하면 됨",
       },
       {
         name: "Redis (상태)",
         reason:
-          "크로스 Pod 공유 상태(세션·강퇴·레이트리밋) 외재화, SET NX EX 단일 원자 연산으로 레이트리밋 TOCTOU 레이스 제거",
+          "세션·강퇴·레이트리밋 등 Pod 간 공유 상태를 외부화, SET NX EX 단일 원자 연산으로 레이트리밋 TOCTOU 레이스 제거",
       },
       {
         name: "MongoDB (reactive)",
         reason:
-          "append-heavy 채팅 메시지를 _id 커서 페이징 + TTL 인덱스로 저장·조회하기에 적합",
+          "append 위주인 채팅 메시지를 _id 커서 페이징 + TTL 인덱스로 저장·조회하기에 적합",
       },
       {
         name: "RS256 룸 토큰",
         reason:
-          "발급은 개인키(live), chat은 공개키 검증만 해 chat의 소유자 토큰 위조를 막는 구조적으로 안전한 PII 게이트",
+          "발급은 개인키(live)로 하고 chat은 공개키 검증만 해, 구조상 chat에서 소유자 토큰을 위조할 수 없는 PII 게이트",
       },
     ],
   },
@@ -897,50 +899,50 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
   haeyaji: {
     logo: "/logos/haeyaji.png",
     diagramKey: "haeyaji",
-    hook: "작은 로컬 LLM을 규칙·RAG로 감싸 ‘오늘 뭐 할지’ 추천의 흔들림을 줄인 추천 두뇌입니다.",
+    hook: "작은 로컬 LLM에 규칙과 RAG를 붙여 ‘오늘 뭐 할지’ 추천이 덜 들쭉날쭉하게 만든 추천 서버입니다.",
     description:
-      "날씨·시간대·위치 기반으로 할 일을 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP 서버)를 단독 개발했고, 백엔드는 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
-    role: "NLP 추천 두뇌 단독 개발 · 백엔드 날씨/추천/개인화/알림 도메인",
+      "날씨·시간대·위치를 보고 할 일을 실제 장소와 함께 추천하는 투두 앱입니다. 추천을 담당하는 NLP 서버를 혼자 개발했고, 백엔드에서는 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
+    role: "NLP 추천 서버 단독 개발 · 백엔드 날씨/추천/개인화/알림 도메인",
     period: "2026.06 ~ 2026.07",
     evidence: [
       { label: "시나리오 채점 결과 59/80", href: "https://github.com/haeyaji/haeyaji-nlp/blob/main/eval/results.md" },
       { label: "도메인 가드 강화 · 한계 (PR #12)", href: "https://github.com/haeyaji/haeyaji-nlp/pull/12" },
     ],
     goals: [
-      "작은 로컬 LLM을 규칙·RAG로 감싼 ‘오늘 뭐 할지’ 추천 두뇌 구현",
-      "환각·JSON 붕괴·오분류를 스키마 강제·규칙 선-라우팅으로 흡수",
-      "느린 LLM 응답에도 커넥션풀·외부 API·알림이 안전한 백엔드 설계",
+      "작은 로컬 LLM에 규칙·RAG를 붙인 ‘오늘 뭐 할지’ 추천 서버 구현",
+      "환각·JSON 형식 깨짐·오분류를 스키마 강제와 LLM 호출 전 규칙 라우팅으로 방어",
+      "LLM 응답이 느려도 커넥션풀·외부 API·알림이 안전하게 동작하는 백엔드 설계",
     ],
     features: [
       {
         emoji: "🧠",
         title: "RAG 장소 검증",
-        desc: "카카오 장소 후보를 프롬프트에 주입해 후보 목록 안에서만 장소 선택, 후보 밖이면 장소 연결 해제",
+        desc: "카카오 장소 후보를 프롬프트에 넣어 후보 목록 안에서만 장소를 고르고, 후보에 없으면 장소 연결 해제",
       },
       {
         emoji: "⚙️",
         title: "규칙 선-라우팅",
-        desc: "막연어·부정·프롬프트 인젝션을 LLM 전 결정론적으로 걸러 검색어·카테고리 확정",
+        desc: "막연한 표현·부정·프롬프트 인젝션을 LLM 호출 전에 규칙으로 걸러 검색어·카테고리 확정",
       },
       {
         emoji: "📐",
         title: "스키마 강제 출력",
-        desc: "Ollama format=schema로 JSON 강제, 실패·타임아웃에도 규칙 폴백 반환",
+        desc: "Ollama format=schema로 JSON 출력을 강제하고, 실패·타임아웃 때도 규칙 폴백 반환",
       },
       {
         emoji: "📈",
         title: "개인화 학습",
-        desc: "고른 것 +2 / 안 고른 것 -0.05를 (날씨×시간대) 맥락별 가중치로 누적·decay",
+        desc: "고른 것 +2 / 안 고른 것 -0.05를 (날씨×시간대) 맥락별 가중치로 누적하고 decay 적용",
       },
       {
         emoji: "🌦️",
         title: "날씨 중계 파이프라인",
-        desc: "위경도→격자 변환·발표시각 자동 계산·Redis 캐시·fail-soft로 기상청·에어코리아 중계",
+        desc: "위경도→격자 변환·발표시각 자동 계산·Redis 캐시로 기상청·에어코리아 중계, 외부 API 장애 때도 응답 유지",
       },
       {
         emoji: "🔔",
         title: "이벤트 기반 알림",
-        desc: "도메인 직접 호출 제거, AFTER_COMMIT + REQUIRES_NEW로 알림 유실 방지",
+        desc: "도메인 간 직접 호출을 없애고 AFTER_COMMIT + REQUIRES_NEW로 알림 유실 방지",
       },
     ],
     architecture: {
@@ -986,65 +988,65 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { from: "be", to: "ext", bi: true },
       ],
       steps: [
-        "프론트 발화에 Spring 백엔드가 개인화 프로필·일정 맥락을 붙여 NLP 서버로 전달",
-        "NLP 서버가 막연어·부정·프롬프트 인젝션을 규칙으로 선필터, 검색어·카테고리 결정론적 확정",
-        "백엔드가 카카오 로컬 실제 장소 후보 프록시, 기상청·에어코리아 날씨 Redis 캐시 중계",
-        "후보 목록을 프롬프트에 주입해 NLP 서버가 Ollama(EXAONE)를 format=schema로 호출 → 후보 목록 안에서만 장소 선택",
-        "결과는 구조화 JSON으로 백엔드 거쳐 프론트 전달, 고른 것/안 고른 것은 맥락별 가중치로 학습",
+        "프론트에서 들어온 사용자 발화에 Spring 백엔드가 개인화 프로필·일정 맥락을 붙여 NLP 서버로 전달",
+        "NLP 서버가 막연한 표현·부정·프롬프트 인젝션을 규칙으로 먼저 거르고 검색어·카테고리 확정",
+        "백엔드가 카카오 로컬의 실제 장소 후보를 프록시하고, 기상청·에어코리아 날씨는 Redis 캐시를 거쳐 중계",
+        "NLP 서버가 후보 목록을 프롬프트에 넣고 Ollama(EXAONE)를 format=schema로 호출 → 후보 목록 안에서만 장소 선택",
+        "구조화된 JSON 결과를 백엔드를 거쳐 프론트로 전달, 고른 것/안 고른 것은 맥락별 가중치로 학습",
       ],
     },
     problemTitle: "문제",
     problems: [
-      "작은 로컬 LLM(2.4~7.8b)의 막연한 발화 오분류·없는 가게 날조(환각)·구조화 JSON 붕괴",
-      "최대 20~45초인 LLM 응답 동안 트랜잭션·커넥션풀 점유 시 고갈, 외부 API 호출 폭주·알림 유실도 방어 필요",
+      "작은 로컬 LLM(2.4~7.8b)의 막연한 발화 오분류·없는 가게를 지어내는 환각·구조화 JSON 형식 깨짐",
+      "LLM 응답이 최대 20~45초 걸리는 동안 트랜잭션·커넥션을 붙잡으면 커넥션풀 고갈, 외부 API 호출 폭주와 알림 유실도 막아야 함",
     ],
     solutions: [
-      "LLM은 활동·검색어만 결정, 카카오 후보 목록 주입 후 그중에서만 고르는 RAG로 없는 장소 추천 방지(후보에 없으면 장소 연결 해제)",
-      "막연어·재요청·부정·인사·도메인 밖 거절·프롬프트 인젝션은 LLM 전 규칙으로 결정론적 확정, 카테고리는 날씨×시간대 가점 점수화",
-      "Ollama 호출에 format=<Pydantic schema>로 출력 스키마 강제, 실패·타임아웃·깨진 JSON도 500 대신 규칙 폴백 반환",
-      "추천 게이트웨이 트랜잭션 분리로 느린 nlp 호출 전 DB 조립·커넥션 반납, LLM 응답 중 커넥션풀 고갈 방지",
-      "고른 것 +2 / 같이 떴지만 안 고른 것 -0.05를 (날씨×시간대) 맥락별 원자적 누적·주간 decay하는 개인화 가중치 학습",
-      "위경도→격자·중기 지역코드·최근접 측정소 변환, 발표시각 자동 계산, Redis 캐시·fail-soft 기반 기상청·에어코리아 날씨 중계 파이프라인 구축",
+      "LLM은 활동·검색어만 정하고, 카카오 후보 목록을 넣어 그 안에서만 고르게 하는 RAG로 없는 장소 추천 방지(후보에 없으면 장소 연결 해제)",
+      "막연한 표현·재요청·부정·인사·도메인 밖 거절·프롬프트 인젝션은 LLM 호출 전에 규칙으로 확정, 카테고리는 날씨×시간대 가점으로 점수화",
+      "Ollama 호출에 format=<Pydantic schema>로 출력 스키마를 강제하고, 실패·타임아웃·깨진 JSON에도 500 대신 규칙 폴백 반환",
+      "추천 게이트웨이 트랜잭션을 분리해 느린 nlp 호출 전에 DB 조립과 커넥션 반납을 끝내고, LLM 응답 중 커넥션풀 고갈 방지",
+      "고른 것 +2 / 함께 노출됐지만 안 고른 것 -0.05를 (날씨×시간대) 맥락별로 원자적으로 누적하고 주간 decay를 적용하는 개인화 가중치 학습",
+      "위경도→격자·중기 지역코드·최근접 측정소 변환, 발표시각 자동 계산, Redis 캐시, 외부 API 장애 때도 응답을 유지하는 기상청·에어코리아 날씨 중계 파이프라인 구축",
     ],
     results: [
       "nlp 시나리오 자동 채점 59/80 통과 (2026-07-06 기준: 날씨·위치 19/20, 막연한 요청 17/20, 상세 추천 17/20, 도메인 밖 거절 6/20)",
-      "도메인 밖 거절 실패 14건(요리법·번역·운세 등 거절 미작동)을 확인해 규칙 선-라우팅을 보강했고, 7.8b 모델로는 작정한 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시 (보강 후 동일 평가셋 재측정 결과는 기록 없음)",
-      "LLM·네트워크 없는 결정론 테스트(nlp 119개·be 36개)로 규칙·라우팅·폴백·날씨 변환·알림 멱등 회귀 검증",
+      "도메인 밖 거절 실패 14건(요리법·번역·운세 등에서 거절이 동작하지 않음)을 확인해 LLM 호출 전 규칙 라우팅을 보강했고, 7.8b 모델로는 작정하고 시도하는 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시 (보강 후 동일 평가셋 재측정 결과는 기록 없음)",
+      "LLM·네트워크 없이 도는 결정적 테스트(nlp 119개·be 36개)로 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
     ],
     lessons:
-      "작은 로컬 LLM을 실서비스에 쓰려면 모델을 키우기보다 흔들리는 부분(라우팅·검색어·환각)을 결정론적 규칙·스키마 강제·RAG로 감싸 LLM의 자유도를 좁히는 게 품질·지연·장애 내성을 동시에 얻는 길이라는 걸 배웠습니다.",
+      "작은 로컬 LLM을 실서비스에 쓰려면 모델을 키우기보다 결과가 자주 바뀌는 부분(라우팅·검색어·환각)을 규칙·스키마 강제·RAG로 감싸 LLM이 판단하는 범위를 좁혀야 한다는 걸 배웠습니다. 그래야 품질·지연·장애 내성을 함께 챙길 수 있었습니다.",
     techChoices: [
       {
         name: "Ollama + EXAONE 3.5",
         reason:
-          "외부 LLM API 비용·키 없는 로컬 구동, 한국어 추천 태스크에서 7.8b(정확도)/2.4b(속도) 실측 비교 후 선택",
+          "외부 LLM API 비용·키 없이 로컬에서 구동, 한국어 추천 태스크에서 7.8b(정확도)/2.4b(속도)를 실측 비교한 뒤 선택",
       },
       {
         name: "규칙 선-라우팅 + format=schema",
         reason:
-          "작은 모델의 오분류·JSON 붕괴를 LLM 전/출력 단계에서 흡수해 출력 흔들림 감소",
+          "작은 모델의 오분류·JSON 형식 깨짐을 LLM 호출 전·출력 단계에서 걸러 출력 편차 감소",
       },
       {
         name: "nlp stateless + be 단일 진실원천",
         reason:
-          "장소검색·지오코딩·시크릿을 be 프록시로 집약, nlp 외부 의존을 Ollama 하나로 줄여 확장·교체 용이",
+          "장소 검색·지오코딩·시크릿을 be 프록시로 모으고 nlp의 외부 의존을 Ollama 하나로 줄여 확장·교체가 쉬움",
       },
       {
         name: "Redis 캐시",
         reason:
-          "인스턴스 공유·재시작 내성, 외부 API(기상청·에어코리아) 호출량 상한·장애 격리",
+          "여러 인스턴스 간 공유·재시작 내성, 외부 API(기상청·에어코리아) 호출량 상한·장애 격리",
       },
       {
         name: "도메인 이벤트 기반 알림",
         reason:
-          "도메인 간 직접 호출 제거, AFTER_COMMIT + REQUIRES_NEW로 알림 유실 방지",
+          "도메인 간 직접 호출을 없애고 AFTER_COMMIT + REQUIRES_NEW로 알림 유실 방지",
       },
     ],
   },
 
   "blog-platform": {
     diagramKey: "blog-platform",
-    hook: "엔드포인트별 인증 요구와 한국어 검색, 두 난제를 미들웨어·형태소 분석으로 푼 블로그 백엔드입니다.",
+    hook: "엔드포인트마다 다른 인증 요구는 미들웨어로, 한국어 검색은 형태소 분석으로 해결한 블로그 백엔드입니다.",
     description:
       "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다.",
     role: "Express · MongoDB 백엔드 (개인)",
@@ -1054,7 +1056,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     ],
     goals: [
       "엔드포인트마다 다른 인증 요구 수준을 미들웨어 분리로 해결",
-      "조사·어미가 붙는 한국어에서 형태소 분석으로 의미 있는 유사글 추천 구현",
+      "조사·어미가 붙는 한국어 글도 형태소 분석으로 유사글을 추천하도록 구현",
       "게시글·댓글·좋아요·팔로우·쪽지·스토리 등 8개 도메인 REST API 완성",
     ],
     features: [
@@ -1066,7 +1068,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         emoji: "🔤",
         title: "형태소 유사글 추천",
-        desc: "mecab-ya로 명사 추출·제목 3배 가중 후 text 인덱스 $text 유사도로 추천",
+        desc: "mecab-ya로 명사를 추출하고 제목에 3배 가중치를 준 뒤 text 인덱스 $text 유사도로 추천",
       },
       {
         emoji: "🔎",
@@ -1131,37 +1133,37 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { from: "router", to: "morph" },
       ],
       steps: [
-        "인증 미들웨어가 엔드포인트별 3종(필수·선택·refresh) 중 하나로 클라이언트 요청 토큰 검증",
-        "이미지 포함 시 업로드 미들웨어(Multer)가 MIME·용량 검사 후 저장",
+        "엔드포인트에 따라 인증 미들웨어 3종(필수·선택·refresh) 중 하나가 클라이언트 요청 토큰 검증",
+        "이미지가 있으면 업로드 미들웨어(Multer)가 MIME·용량 검사 후 저장",
         "라우터/컨트롤러가 게시글·댓글·좋아요·팔로우·쪽지·스토리 등 8개 도메인 로직 처리",
         "게시글 본문에서 mecab-ya 형태소 분석으로 명사 추출, 검색·추천 키워드로 저장",
-        "MongoDB 저장, 추천은 형태소 text 인덱스·일반 검색은 regex로 분리해 인덱스 충돌 회피",
+        "MongoDB에 저장, 추천은 형태소 text 인덱스로·일반 검색은 regex로 나눠 인덱스 충돌 회피",
       ],
     },
     problemTitle: "문제",
     problems: [
-      "‘비슷한 글 추천’에 필요한 한국어(조사·어미 결합)의 의미 있는 유사도가 단순 문자열 매칭으로는 안 나옴",
-      "엔드포인트별 인증 요구 수준 상이(작성=필수, 상세 조회=비로그인 허용+로그인 시 좋아요 상태, 갱신=refresh만)로 단일 인증 로직 처리 불가",
+      "조사·어미가 붙는 한국어는 단순 문자열 매칭으로 ‘비슷한 글 추천’에 쓸 만한 유사도가 나오지 않음",
+      "엔드포인트마다 인증 요구 수준이 달라(작성=필수, 상세 조회=비로그인 허용+로그인 시 좋아요 상태, 갱신=refresh만) 인증 로직 하나로 처리 불가",
     ],
     solutions: [
       "인증을 authenticateToken / optionalAuth / authenticateRefreshToken 3종으로 분리, 라우트별 요구 수준에 맞춰 적용",
       "토큰 payload의 type(access/refresh)으로 종류 구분, 발급·검증 로직은 JWT 유틸로 모듈화",
-      "mecab-ya로 게시글 한국어 명사 추출·제목 키워드 3배 가중 후 analyzed_keywords_text의 text 인덱스로 $text + textScore 유사글 추천",
-      "컬렉션당 text 인덱스 1개 제약으로 추천용이 자리 차지 → 일반 제목·본문 검색은 regex $or로 분리해 인덱스 충돌 회피",
+      "mecab-ya로 게시글의 한국어 명사를 추출하고 제목 키워드에 3배 가중치를 준 뒤 analyzed_keywords_text의 text 인덱스로 $text + textScore 유사글 추천",
+      "컬렉션당 text 인덱스는 1개뿐인데 추천용이 이미 사용 → 일반 제목·본문 검색은 regex $or로 분리해 인덱스 충돌 회피",
       "비밀번호는 스키마 pre-save 훅에서 bcrypt(cost 12)로 해싱, 좋아요는 unique 복합 인덱스로 중복 방지·$inc로 카운터 동기화",
       "스토리는 TTL 인덱스로 24시간 뒤 자동 삭제",
     ],
     results: [
       "인증(3종)·게시글·댓글·좋아요·팔로우·쪽지·스토리 8개 도메인 REST API 백엔드 완성",
-      "형태소 기반 유사글 추천·조회수+좋아요+댓글 합산 인기순 정렬·24시간 TTL 스토리 등 기본 CRUD 이상 기능을 인덱스·aggregate로 구현",
+      "형태소 기반 유사글 추천·조회수+좋아요+댓글 합산 인기순 정렬·24시간 TTL 스토리 등 기본 CRUD를 넘어서는 기능을 인덱스·aggregate로 구현",
     ],
     lessons:
-      "한글의 의미 단위(명사) 추출엔 형태소 분석기가 필요하고, MongoDB text 인덱스 제약(컬렉션당 1개)에 부딪히며 같은 데이터도 목적별로 검색 전략(추천은 형태소+text, 검색은 regex)을 나눠야 함을 체감했습니다.",
+      "한글에서 의미 단위(명사)를 뽑으려면 형태소 분석기가 필요했습니다. MongoDB text 인덱스 제약(컬렉션당 1개)에 부딪히면서 같은 데이터라도 목적에 따라 검색 전략(추천은 형태소+text, 검색은 regex)을 나눠야 한다는 것도 체감했습니다.",
     techChoices: [
       {
         name: "Express",
         reason:
-          "8개 도메인을 Router로 분리, 미들웨어 체인(인증→업로드→핸들러)으로 요청을 조립하는 경량 프레임워크",
+          "8개 도메인을 Router로 분리하고 미들웨어 체인(인증→업로드→핸들러)으로 요청을 처리하는 경량 프레임워크",
       },
       {
         name: "MongoDB · Mongoose",
@@ -1171,7 +1173,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         name: "jsonwebtoken",
         reason:
-          "무상태 인증, access/refresh 토큰을 type 필드로 구분·만료 분리 관리",
+          "무상태 인증, access/refresh 토큰을 type 필드로 구분하고 만료 시간을 따로 관리",
       },
       {
         name: "mecab-ya",
@@ -1181,7 +1183,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         name: "multer · bcryptjs",
         reason:
-          "이미지 업로드(파일명 충돌 방지·MIME·5MB 필터)·비밀번호 해싱(cost 12)을 표준 라이브러리로 안전 처리",
+          "이미지 업로드(파일명 충돌 방지·MIME·5MB 필터)·비밀번호 해싱(cost 12)을 표준 라이브러리로 안전하게 처리",
       },
       {
         name: "helmet",
@@ -1196,7 +1198,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     diagramKey: "zogakzip",
     hook: "그룹·게시글·이미지 계층의 추억 기록 서비스 백엔드를 2인 팀으로 개발했습니다.",
     description:
-      "그룹 > 게시글 > 댓글·이미지 계층의 추억 기록 서비스 백엔드입니다. 게시글 API·이미지 업로드·한국 시간대(KST) 일관 처리를 맡았고, 활동 기반 배지 시스템은 팀이 함께 갖췄습니다.",
+      "그룹 > 게시글 > 댓글·이미지 계층의 추억 기록 서비스 백엔드입니다. 게시글 API·이미지 업로드와 한국 시간대(KST) 일관 처리를 맡았고 활동 기반 배지 시스템은 팀이 함께 만들었습니다.",
     role: "게시글 API · 이미지 업로드 · KST 시간대 처리 (2인 팀)",
     period: "2024.08 ~ 2024.09",
     evidence: [
@@ -1207,28 +1209,28 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     goals: [
       "그룹 > 게시글 > 이미지 계층의 추억 기록 서비스 백엔드 구현",
       "2인 팀에서 게시글 API·이미지 업로드·KST 시간대 처리 도메인 담당",
-      "참조 계층·카운터·시간대 일관성을 지키는 데이터 규칙 확립",
+      "참조 계층·카운터·시간대가 어긋나지 않도록 데이터 규칙 정립",
     ],
     features: [
       {
         emoji: "📝",
         title: "게시글 API",
-        desc: "그룹>게시글>댓글 계층 CRUD, 정렬·페이지네이션 제공",
+        desc: "그룹>게시글>댓글 계층 CRUD와 정렬·페이지네이션 제공",
       },
       {
         emoji: "🖼️",
         title: "이미지 업로드",
-        desc: "Multer diskStorage로 유니크 파일명·MIME 이중 검사 후 절대 URL로 서빙",
+        desc: "Multer diskStorage로 고유 파일명 생성·MIME 이중 검사 후 절대 URL로 서빙",
       },
       {
         emoji: "🕐",
         title: "KST 시간대 통일",
-        desc: "moment-timezone으로 저장·응답 시각을 Asia/Seoul로 일관 처리",
+        desc: "moment-timezone으로 저장·응답 시각을 Asia/Seoul 기준으로 통일",
       },
       {
         emoji: "🔢",
         title: "카운터 동기화",
-        desc: "게시글·댓글 등록 시 상위 문서 postCount·commentCount를 $inc로 동기화",
+        desc: "게시글·댓글 등록 시 상위 문서의 postCount·commentCount를 $inc로 동기화",
       },
       {
         emoji: "🏅",
@@ -1280,60 +1282,60 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { from: "mongo", to: "tz" },
       ],
       steps: [
-        "Express 서버 라우트에서 클라이언트 요청의 ObjectId·필수 필드 검증",
-        "이미지는 Multer로 유니크 파일명·MIME 이중 검사 후 저장, 절대 URL로 서빙",
-        "게시글·댓글 등록 시 상위 문서 카운터(postCount·commentCount)를 $inc로 동기화",
-        "저장·응답 시각을 moment-timezone으로 KST 통일해 시간대 오차 제거",
+        "Express 라우트에서 클라이언트 요청의 ObjectId·필수 필드 검증",
+        "이미지는 Multer로 고유 파일명 생성·MIME 이중 검사 후 저장하고 절대 URL로 서빙",
+        "게시글·댓글 등록 시 상위 문서의 카운터(postCount·commentCount)를 $inc로 동기화",
+        "moment-timezone으로 저장·응답 시각을 KST로 맞춰 시간대 오차 제거",
         "활동 조건 충족 시 이벤트 훅(즉시)·24시간 배치(시간 경과형)로 배지 갱신 — 팀 공동 구현",
       ],
     },
     problemTitle: "문제",
     problems: [
-      "그룹 > 게시글 > 이미지 계층의 참조 구조화와 게시글 수 등 카운터의 일관된 동기화 필요",
-      "저장(UTC)·응답(KST) 시각이 어긋나 모든 도메인의 저장·표시 시각 통일 필요",
+      "그룹 > 게시글 > 이미지 계층의 참조 구조를 잡고 게시글 수 등 카운터를 일관되게 동기화해야 함",
+      "저장(UTC)과 응답(KST) 시각이 어긋나 모든 도메인에서 저장·표시 시각을 통일해야 함",
     ],
     solutions: [
-      "Group/Post/Comment/Image 스키마를 참조 필드로 계층화, 게시글 등록·댓글 시 상위 문서 postCount·commentCount를 $inc로 동기화",
-      "Multer diskStorage로 유니크 파일명 생성·MIME·확장자 이중 검사 후 절대 URL로 저장, express.static으로 서빙",
-      "moment-timezone으로 저장 시 Asia/Seoul 변환, 응답도 KST 포맷으로 통일해 시간대 오차 제거",
-      "게시글 목록 정렬·페이지네이션 지원, 배지 개수 정렬 시에만 $addFields로 동적 aggregation 구성",
-      "활동 조건(연속 게시·누적 공감 등) 충족 시 배지 자동 부여 시스템 팀 공동 구축, 이벤트 훅·24시간 배치로 갱신",
+      "Group/Post/Comment/Image 스키마를 참조 필드로 계층화하고 게시글·댓글 등록 시 상위 문서의 postCount·commentCount를 $inc로 동기화",
+      "Multer diskStorage로 고유 파일명 생성, MIME·확장자 이중 검사 후 절대 URL로 저장하고 express.static으로 서빙",
+      "moment-timezone으로 저장 시 Asia/Seoul로 변환하고 응답도 KST 포맷으로 맞춰 시간대 오차 제거",
+      "게시글 목록 정렬·페이지네이션 지원, 배지 개수로 정렬할 때만 $addFields로 aggregation을 동적 구성",
+      "활동 조건(연속 게시·누적 공감 등)을 채우면 배지를 자동 부여하는 시스템 팀 공동 구축, 이벤트 훅·24시간 배치로 갱신",
     ],
     results: [
-      "그룹·게시글·댓글·이미지 CRUD, 공감·공개여부 조회 등 REST API 백엔드 팀으로 완성",
+      "그룹·게시글·댓글·이미지 CRUD와 공감·공개 여부 조회 등 REST API 백엔드를 팀으로 완성",
       "담당한 게시글 API·이미지 업로드·KST 시간대 처리를 안정적으로 구현·통합",
     ],
     lessons:
-      "팀 개발에서는 도메인 경계를 나누고 각자 맡은 API·데이터 규칙(참조 계층·카운터·시간대)을 일관되게 지키는 것이 전체 통합 속도를 좌우함을 배웠습니다.",
+      "팀 개발에서는 도메인 경계를 나누고 각자 맡은 API와 데이터 규칙(참조 계층·카운터·시간대)을 일관되게 지켜야 전체 통합 속도가 빨라진다는 것을 배웠습니다.",
     techChoices: [
       {
         name: "Express",
         reason:
-          "가볍고 라우팅이 단순해 소규모 팀의 빠른 CRUD API 분담·구축에 적합",
+          "가볍고 라우팅이 단순해 소규모 팀이 CRUD API를 나눠 빠르게 구축하기에 적합",
       },
       {
         name: "MongoDB · Mongoose",
         reason:
-          "그룹 > 게시글 > 댓글의 유연한 계층 문서 구조를 스키마 변경 부담 없이 처리",
+          "그룹 > 게시글 > 댓글처럼 유연한 계층 문서 구조를 스키마 변경 부담 없이 처리",
       },
       {
         name: "moment-timezone",
         reason:
-          "저장·응답 시각을 KST로 일관 변환해 시간대 오차 제거",
+          "저장·응답 시각을 KST로 통일해 시간대 오차 제거",
       },
       {
         name: "Multer",
         reason:
-          "multipart 이미지 업로드·디스크 저장·필터링 표준 처리",
+          "multipart 이미지 업로드·디스크 저장·파일 필터링을 표준 방식으로 처리",
       },
     ],
   },
 
   "coupon-yaho": {
     diagramKey: "coupon-yaho",
-    hook: "순간 몰리는 선착순 요청에도 한정 수량 쿠폰을 정확히 발급하고 결과를 데이터로 검증하는 시스템입니다.",
+    hook: "선착순 요청이 한꺼번에 몰려도 한정 수량 쿠폰을 정확히 발급하고, 그 결과를 데이터로 검증하는 시스템입니다.",
     description:
-      "LG유플러스 유레카 백엔드 종합 프로젝트로 5인 팀이 만든 통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 팀이 함께 구조를 발전시켰고, 저는 조장으로 검증 배치·시드 생성기·부하 시험 결과 DB 대조·알림 outbox 릴레이를 맡았습니다.",
+      "LG유플러스 유레카 백엔드 종합 프로젝트에서 5인 팀이 만든 통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 팀은 병목을 측정하면서 MySQL 락, 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 구조를 바꿔 왔고, 저는 조장으로서 검증 배치, 시드 생성기, 부하 시험 결과의 DB 대조를 맡았습니다.",
     role: "조장 · 배치 · 검증 · 스키마 (5인 팀)",
     period: "2026.08 ~ 진행 중",
     evidence: [
@@ -1343,87 +1345,88 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         value: "800 / 800",
         label: "오염 데이터 기대 검출",
-        note: "700건 주입 → 기대 800행 · 누락 0 · 오탐 0",
+        note: "700건 주입(1개 유형이 규칙 2개에 걸려 기대 800행) · 누락 0 · 오탐 0",
       },
       {
         value: "4/7 → 0/7",
-        label: "500 req/s 응답 붕괴 회차",
-        note: "7회 측정 중 성공 응답 중앙값이 1초를 넘은 횟수",
+        label: "500 req/s 중앙값 1초 이상 회차",
+        note: "7회 중 성공 응답 중앙값이 1초 이상인 횟수",
       },
       {
         value: "2,240 → 802ms",
         label: "500 req/s 성공 응답 p99",
-        note: "성공 응답 기준 · 붕괴 회차 제외 · p95 2,160 → 641ms",
+        note: "성공 응답 기준 · 중앙값 1초 이상 회차 제외 · p95 2,160 → 641ms",
       },
       { value: "0건", label: "초과 발급", note: "105회차 전체" },
     ],
     cases: [
       {
         title:
-          "오류 700건을 심은 오염 데이터셋으로 검증 배치가 실제로 오류를 찾는지 입증, 누락 0 · 오탐 0 확인",
+          "오류 700건을 심은 데이터셋으로 검증 배치가 실제로 오류를 찾아내는지 확인, 누락 0 · 오탐 0",
         links: [
           { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
           { label: "시드 생성기 실행 결과", href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md" },
         ],
         causes: [
-          "검증 배치 0건이 오류가 없어서인지 검증기가 못 찾아서인지 구분할 근거 부재",
-          "검출 개수만 비교하면 400건 누락 + 400건 오탐도 합계 800으로 합격",
-          "회원 100만 · 발급 300만 규모를 작은 MySQL 컨테이너에 넣어야 했고, 난수 이메일은 해시 인덱스 충돌로 적재 전체가 실패할 위험",
+          "검증 배치 결과 0건이 오류가 없어서인지 검증기가 못 찾아서인지 구분할 근거가 없음",
+          "검출 개수만 비교하면 누락과 오탐이 같은 수만큼 섞여도 합계가 기대치와 같아져 통과",
+          "회원 100만 · 발급 300만 규모를 작은 MySQL 컨테이너에 적재해야 했고 이메일을 난수로 만들면 해시 인덱스 충돌로 적재 전체가 실패할 수 있음",
         ],
         solutions: [
-          "시드 생성기로 정상셋(CLEAN)과 7유형 700건을 심은 오염셋(CORRUPT) 두 벌 생성, 기대 검출 결과도 기록",
-          "검출 결과를 (finding_type, target_key) 집합으로 비교해 누락과 오탐을 따로 세는 양방향 대조 구현",
-          "결정론 RNG와 Feistel 순열로 겹칠 수 없는 값을 구성해 UNIQUE 충돌 0 보장, 보조 인덱스 없이 적재 후 제약 일괄 생성",
+          "시드 생성기로 정상셋(CLEAN)과 오류 7유형 × 100건 = 700건을 심은 오염셋(CORRUPT) 두 벌을 만들고 기대 검출 결과도 기록",
+          "기대 검출이 800행인 이유: 7유형 중 '사용 취소 이중 기록' 100건은 재고 불일치(V1)와 불법 상태 전이(V4) 두 규칙에 동시에 걸려 200행으로 잡힘 → 600 + 200 = 800행",
+          "검출 결과를 (finding_type, target_key) 집합 단위로 양방향 대조해 누락과 오탐을 따로 집계",
+          "시드 고정 RNG와 Feistel 순열로 겹치지 않는 값을 만들어 UNIQUE 충돌 0 보장, 보조 인덱스 없이 적재한 뒤 제약을 한 번에 생성",
         ],
         checks: [
-          "배포 서버와 같은 조건(MySQL 2 vCPU · 768MB · 버퍼풀 128MB)의 실제 실행 로그로 확인",
+          "배포 서버와 같은 조건(MySQL 2 vCPU · 768MB · 버퍼풀 128MB)에서 돌린 실제 실행 로그로 확인",
         ],
         results: [
-          "CLEAN: 회원 100만 · 발급 300만 · 이력 534만 행에서 검증 규칙 6종 모두 0건, 이력 전수 리플레이 57초",
-          "CORRUPT: 기대 800행 → 검출 800 · 누락 0 · 오탐 0 (주입 700건 중 한 유형이 규칙 2개에 동시에 걸려 기대 800행)",
+          "CLEAN: 회원 100만 · 발급 300만 · 이력 534만 행에서 검증 규칙 6종 모두 0건, 이력 전체 리플레이 57초",
+          "CORRUPT: 기대 800행 → 검출 800 · 누락 0 · 오탐 0",
           "CLEAN 생성 · 적재 199.7초, 제약 생성 81초",
         ],
       },
       {
         title:
-          "팀에서 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 전환해 500 req/s 응답 붕괴 4/7 → 0/7, 성공 응답 p99 2,240ms → 802ms",
+          "팀에서 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 바꿔 500 req/s 중앙값 1초 이상 회차 4/7 → 0/7, 성공 응답 p99 2,240ms → 802ms",
         links: [{ label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" }],
         causes: [
-          "재고 행이 회차당 하나라 모든 발급이 같은 잠금 구간을 한 줄로 통과, FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 구간이 김",
-          "도착률을 올리자 450 req/s부터 응답 붕괴가 나타났고(1/7), 500 req/s에선 7회 중 4회 붕괴(성공 응답 중앙값 1초 이상)",
-          "무너진 회차도 5xx 없이 지연으로만 나타나 가용성 지표만으로는 결함 미검출",
+          "재고 행이 회차당 하나뿐이라 모든 발급이 같은 잠금을 순서대로 통과하고 FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 잠금 구간이 김",
+          "도착률을 올리자 450 req/s부터 성공 응답 중앙값이 1초 이상인 회차가 나왔고(1/7), 500 req/s에선 7회 중 4회로 늘어남",
+          "지연이 커진 회차도 5xx 없이 느려지기만 해서 가용성 지표만으로는 문제를 잡지 못함",
         ],
         solutions: [
-          "검사와 차감을 UPDATE … WHERE active_count < total_quantity 한 문장으로 합쳐 잠금을 UPDATE에서 시작, 영향 행 0이면 소진으로 판정",
+          "검사와 차감을 UPDATE … WHERE active_count < total_quantity 한 문장으로 합쳐 잠금이 UPDATE에서 시작되게 하고 영향 행이 0이면 소진으로 판정",
           "1인 1매는 UNIQUE(coupon_id, member_id)로 DB에서 최종 보장",
-          "이후 재고 판정은 Redis Lua 선점으로 옮기고 앞단에 적응형 대기열을 두는 구조로 확장 (아래 버전별 발전 과정)",
+          "이후 재고 판정을 Redis Lua 선점으로 옮기고 앞단에 적응형 대기열을 두는 구조로 확장 (아래 버전별 발전 과정)",
         ],
         checks: [
-          "같은 커밋에서 잠금 방식만 바꾼 이미지로 재고 1만 · 요청 2만, 300~500 req/s 도착률마다 7회씩 측정",
-          "k6 constant-arrival-rate로 도착률 고정, 회차마다 발급 · 이력 · 멱등 · Redis 키 롤백으로 같은 상태에서 출발",
+          "같은 커밋에서 잠금 방식만 바꾼 이미지로 재고 1만 · 요청 2만 조건, 300~500 req/s 도착률마다 7회씩 측정",
+          "k6 constant-arrival-rate로 도착률 고정, 회차마다 발급 · 이력 · 멱등 · Redis 키를 롤백해 같은 상태에서 시작",
         ],
         results: [
-          "500 req/s 성공 응답 p99 2,240 → 802ms, p95 2,160 → 641ms(붕괴 회차는 지연 집계에서 제외), 응답 붕괴 4/7 → 0/7",
-          "105회차 전체 초과 발급 0건",
+          "500 req/s 성공 응답 p99 2,240 → 802ms, p95 2,160 → 641ms(중앙값 1초 이상 회차는 지연 집계에서 제외), 중앙값 1초 이상 회차 4/7 → 0/7",
+          "105회차 전체에서 초과 발급 0건",
         ],
       },
       {
         title:
-          "측정 환경 오염을 발견해 이전 수치를 전부 폐기하고, 외부 요인을 통제한 환경에서 세 잠금 구현을 105회차 재측정",
+          "측정 환경에 다른 컨테이너가 함께 돌던 것을 발견해 이전 수치를 모두 폐기하고, 외부 요인을 통제한 환경에서 세 잠금 구현을 105회차 재측정",
         causes: [
-          "첫 측정은 다른 프로젝트 컨테이너 6개가 함께 돈 환경이라 같은 FOR UPDATE 구현의 300 req/s p99가 6,873ms로 부풀려짐",
+          "첫 측정 때 다른 프로젝트 컨테이너 6개가 함께 돌고 있어 같은 FOR UPDATE 구현의 300 req/s p99가 6,873ms로 부풀려짐",
         ],
         solutions: [
-          "외부 컨테이너 전부 제거, 회차마다 외부 컨테이너 수와 호스트 CPU 기록",
-          "세 이미지를 교차 실행해 시간대 편향 제거, 회차마다 예열 후 측정",
+          "외부 컨테이너를 모두 내리고 회차마다 외부 컨테이너 수와 호스트 CPU 기록",
+          "세 이미지를 번갈아 실행해 시간대 편향을 없애고 회차마다 예열 후 측정",
         ],
         checks: [
-          "105회차 전부 외부 컨테이너 0개 기록 확인",
-          "k6 constant-arrival-rate로 도착률을 고정해 구현만 바꾼 비교가 되도록 요청 수 2만 유지",
+          "105회차 모두 외부 컨테이너 0개로 기록된 것 확인",
+          "k6 constant-arrival-rate로 도착률을 고정하고 요청 수 2만을 유지해 구현만 바뀐 비교가 되도록 함",
         ],
         results: [
-          "같은 조건 FOR UPDATE 300 req/s p99 6,873 → 222.72ms로 측정 오염 제거, 이전 수치 전부 폐기",
-          "500 req/s 응답 붕괴: FOR UPDATE 4/7 · 조건부 UPDATE 0/7 · Redis 분리 실험 0/7",
+          "같은 조건 FOR UPDATE 300 req/s p99 6,873 → 222.72ms로 외부 영향 제거, 이전 수치는 전부 폐기",
+          "500 req/s 중앙값 1초 이상 회차: FOR UPDATE 4/7 · 조건부 UPDATE 0/7 · Redis 분리 실험 0/7",
         ],
       },
     ],
@@ -1433,13 +1436,13 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         title: "비관적 락",
         status: "구현",
         problem:
-          "동시 요청이 회차 재고 행 하나를 두고 경쟁해 정합성 보장이 우선",
+          "동시 요청이 회차당 재고 행 하나를 두고 경쟁해 정합성 확보가 먼저",
         choice:
-          "SELECT … FOR UPDATE로 재고 행을 잠근 뒤 검사·차감. DB가 정확성을 보장하는 가장 단순한 방식이라 이후 버전 비교의 기준선으로 설정",
+          "SELECT … FOR UPDATE로 재고 행을 잠근 뒤 검사·차감. DB가 정확성을 보장하는 가장 단순한 방식이라 이후 버전 비교의 기준선으로 삼음",
         tradeoff:
-          "모든 발급이 같은 잠금 구간을 한 줄로 통과하고 INSERT까지 임계구간에 포함돼 커넥션 풀을 늘려도 대기가 줄지 않음",
+          "모든 발급이 같은 잠금을 순서대로 통과하고 INSERT까지 임계구간에 들어가 커넥션 풀을 늘려도 대기가 줄지 않음",
         metric:
-          "450 req/s 붕괴 1/7 · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 붕괴 4/7",
+          "450 req/s 중앙값 1초 이상 회차 1/7 · 500 req/s 성공 p95 2,160ms · p99 2,240ms · 중앙값 1초 이상 회차 4/7",
         next: "잠금 구간이 길어 포화 지점이 400~450 req/s에 머묾",
       },
       {
@@ -1447,47 +1450,47 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         title: "조건부 원자 UPDATE",
         status: "구현 · 제품 코드",
         problem:
-          "요청마다 잠금 조회와 차감 UPDATE 두 번 왕복하며 잠금을 오래 점유",
+          "요청마다 잠금 조회와 차감 UPDATE로 두 번 왕복하며 잠금을 오래 잡음",
         choice:
-          "UPDATE … WHERE active_count < total_quantity 한 문장으로 검사와 차감을 합치고 영향 행 0이면 소진 판정. 잠금이 UPDATE에서 시작해 구간 단축",
+          "UPDATE … WHERE active_count < total_quantity 한 문장으로 검사와 차감을 합치고 영향 행이 0이면 소진 판정. 잠금이 UPDATE에서 시작돼 구간이 짧아짐",
         tradeoff:
-          "단일 재고 행 경쟁 구조와 요청별 동기 DB 트랜잭션은 그대로 남음",
+          "재고 행 하나를 두고 경쟁하는 구조와 요청별 동기 DB 트랜잭션은 그대로 남음",
         metric:
-          "500 req/s 성공 p95 641ms · p99 802ms · 붕괴 0/7",
-        next: "경합 지점이 여전히 DB 안의 재고 행 하나라 재고 계수를 DB 밖으로 이전",
+          "500 req/s 성공 p95 641ms · p99 802ms · 중앙값 1초 이상 회차 0/7",
+        next: "경합 지점이 여전히 DB의 재고 행 하나라 재고 카운트를 DB 밖으로 옮김",
       },
       {
         version: "v2.1",
         title: "Redis Lua 원자 선점",
         status: "구현",
         problem:
-          "DB 직렬 구간이 남으면 커넥션 증설로도 처리량이 늘지 않음",
+          "DB에 직렬 구간이 남아 있으면 커넥션을 늘려도 처리량이 늘지 않음",
         choice:
           "Lua 스크립트 5종(claim · complete · compensate · restore · reclaim)이 회차 상태 · 등급 · 1인 1매 · 재고를 한 번에 판정하고 차감. 발급은 선점 → 트랜잭션 → 완료 CAS 세 단계로 분리",
         tradeoff:
-          "저장소가 둘로 나뉘어 선점 직후 중단 시 Redis가 DB보다 앞섬. 요청 토큰으로 보상, Redis 유실 시 DB 기준 재구성, Redis↔DB 격차 관제 지표 추가",
+          "저장소가 둘로 나뉘어 선점 직후 중단되면 Redis가 DB보다 앞서감. 요청 토큰으로 보상, Redis 유실 시 DB 기준으로 재구성, Redis↔DB 격차 모니터링 지표 추가",
         metric:
-          "재고 UPDATE를 별도 트랜잭션으로 뗀 실험(v2-split): 500 req/s 성공 p95 562ms · p99 748ms · 붕괴 0/7 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
-        next: "DB 경합은 줄었으나 순간 유입 자체와 건별 영속화는 그대로 남음",
+          "재고 UPDATE를 별도 트랜잭션으로 분리한 실험(v2-split): 500 req/s 성공 p95 562ms · p99 748ms · 중앙값 1초 이상 회차 0/7 · 발급당 DB 쓰기 7행 → 3행 (실험 · 미커밋)",
+        next: "DB 경합은 줄었지만 순간 유입 자체와 건별 영속화는 그대로 남음",
       },
       {
         version: "v2.2",
         title: "적응형 대기열",
         status: "핵심 경로 구현",
         problem:
-          "순간 몰리는 유입이 애플리케이션과 DB를 함께 과부하",
+          "순간적으로 몰리는 유입이 애플리케이션과 DB에 함께 과부하를 줌",
         choice:
-          "세 가지 이유로 게이트웨이를 별도 서비스로 분리. 경계(입장만 책임, 재고는 쿠폰 서비스만 차감) · 스택(입장은 WebFlux, 발급은 MVC + JPA라 한 프로세스면 블로킹이 이벤트 루프를 막음) · 장애 격리(뒷단이 멈춰도 대기열 유지)",
+          "게이트웨이를 별도 서비스로 분리한 이유는 세 가지. 경계(입장만 담당, 재고 차감은 쿠폰 서비스만) · 스택(입장은 WebFlux, 발급은 MVC + JPA라 한 프로세스에 두면 블로킹이 이벤트 루프를 막음) · 장애 격리(뒷단이 멈춰도 대기열 유지)",
         tradeoff:
-          "입장은 순서만 보장하고 발급은 보장하지 않음. 컴포넌트가 늘고 성공 요청마다 동기 DB 커밋은 여전히 필요",
+          "입장은 순서만 보장할 뿐 발급은 보장하지 않음. 컴포넌트가 늘고 성공 요청마다 동기 DB 커밋도 여전히 필요",
         metric:
           "페이즈 게이트 7단계 통과 · 요청 경로 Redis 명령 0건 · 오버헤드 p99 < 5ms · 크레딧 초과 배분 0/10만 회 · 매진 후 동시 조회 1만 → 뒷단 1건",
       },
     ],
     goals: [
-      "재고 1만·요청 2만 동시 발급에서 초과 발급 0건과 회차별 1인 1매 보장",
-      "병목을 측정하며 DB 락 → 조건부 원자 UPDATE → Redis 선점 → 적응형 대기열로 구조를 단계적 발전",
-      "발급 이력을 재계산해 저장 상태와 교차 검증, 검증기 자체도 오류 데이터로 검증",
+      "재고 1만·요청 2만 동시 발급에서 초과 발급 0건, 회차별 1인 1매 보장",
+      "병목을 측정하며 DB 락 → 조건부 원자 UPDATE → Redis 선점 → 적응형 대기열 순으로 구조를 단계적으로 개선",
+      "발급 이력을 재계산해 저장된 상태와 교차 검증하고 검증기 자체도 오류를 심은 데이터로 검증",
     ],
     features: [
       {
@@ -1496,7 +1499,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         title: "적응형 대기열",
-        desc: "평시 즉시 통과, 혼잡 시 백엔드 가용량에 맞춰 입장량을 조절하고 순번·예상 대기시간·입장 토큰 제공",
+        desc: "평시엔 바로 통과, 혼잡하면 백엔드 가용량에 맞춰 입장량을 조절하고 순번·예상 대기시간·입장 토큰 제공",
       },
       {
         title: "정합성 검증 배치",
@@ -1504,26 +1507,22 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         title: "대용량 시드 생성기",
-        desc: "회원 100만·발급 300만·이력 534만 행을 정상셋과 오류를 심은 오염셋 두 벌로 생성, 결정론 RNG로 같은 시드에서 같은 데이터 재현",
+        desc: "회원 100만·발급 300만·이력 534만 행을 정상셋과 오류를 심은 오염셋 두 벌로 생성, 시드 고정 RNG로 같은 시드면 같은 데이터 재현",
       },
       {
         title: "배치 이상 감지",
-        desc: "알림 규칙 45종(critical 12 · warning 33), 잡은 성공했으나 데이터가 어긋난 경우까지 별도 규칙으로 감지",
-      },
-      {
-        title: "알림 outbox 릴레이",
-        desc: "발급 결과 알림을 outbox에 기록 후 SKIP LOCKED 배치 클레임과 Full Jitter 재시도로 Kafka에 발행",
+        desc: "알림 규칙 45종(critical 12 · warning 33), 잡은 성공했지만 데이터가 어긋난 경우도 별도 규칙으로 감지",
       },
     ],
     architecture: {
       nodes: [],
       edges: [],
       steps: [
-        "사용자 요청이 NGINX를 거쳐 대기열 게이트웨이(WebFlux)로 진입, 즉시 종결 · 무대기 통과 · 대기열 진입 세 갈래로 판정",
+        "사용자 요청이 NGINX를 거쳐 대기열 게이트웨이(WebFlux)로 들어오면 즉시 종결 · 무대기 통과 · 대기열 진입 중 하나로 판정",
         "통과한 발급 요청은 쿠폰 서비스가 멱등키를 IN_PROGRESS로 먼저 기록한 뒤 재고 판정. v1.2는 조건부 원자 UPDATE, v2.1은 Redis Lua 선점",
-        "MySQL이 발급 · 상태 이력 · 사용 실적 · 멱등 응답을 보관, UNIQUE(coupon_id, member_id)가 1인 1매의 최종 방어선",
-        "발급 결과 알림은 outbox에 기록, 릴레이가 Kafka로 발행",
-        "배치 서버가 만료 · 정리 · 정합성 검증 · 집계를 발급 API와 분리 수행, Prometheus가 API · 배치 · 대기열 지표 수집",
+        "MySQL이 발급 · 상태 이력 · 사용 실적 · 멱등 응답을 저장하고 UNIQUE(coupon_id, member_id)로 1인 1매를 최종 보장",
+        "발급 결과 알림은 Kafka로 발행",
+        "배치 서버가 만료 · 정리 · 정합성 검증 · 집계를 발급 API와 분리해 수행, Prometheus가 API · 배치 · 대기열 지표 수집",
       ],
     },
     problemTitle: "측정 · 검증",
@@ -1531,8 +1530,8 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     solutions: [],
     benchmark: {
       caption:
-        "같은 커밋에서 재고 잠금 방식만 바꿔 재고 10,000 · 요청 20,000 조건으로 도착률마다 7회씩 측정했습니다. 각 지표는 7회 중앙값이며, p95 · p99는 성공 응답 지연(ms)입니다.",
-      headers: ["도착률", "구현", "p95", "p99", "붕괴"],
+        "같은 커밋에서 재고 잠금 방식만 바꿔 재고 10,000 · 요청 20,000 조건으로 도착률마다 7회씩 측정했습니다. p95 · p99(ms)는 성공 응답 중앙값이 1초 미만인 회차들의 중앙값이며, 1초 이상인 회차 수는 오른쪽 열에 따로 표시했습니다.",
+      headers: ["도착률", "구현", "p95", "p99", "1초 이상 회차"],
       rows: [
         { cells: ["300/s", "v1.1 FOR UPDATE", "50.10", "222.72", "0/7"] },
         { cells: ["", "v1.2 조건부", "28.12", "158.64", "0/7"], highlight: true },
@@ -1544,66 +1543,66 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         { cells: ["", "v1.2 조건부", "640.92", "802.16", "0/7"], highlight: true },
       ],
       footnote:
-        "k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 붕괴 = 성공 응답 중앙값 1,000ms 이상이며, 붕괴 회차는 지연 집계에서 제외해 FOR UPDATE 450 · 500 req/s의 p95 · p99는 버틴 회차만의 값입니다(실제 꼬리 지연은 더 나쁨).",
+        "k6 constant-arrival-rate · 로컬 Docker(API 2대 · MySQL 단일) · 외부 컨테이너 0개 · 회차마다 상태 롤백. 1초 이상 회차는 성공 응답 중앙값이 1,000ms 이상인 회차로, 지연 집계에서 제외했습니다. 따라서 FOR UPDATE 450 · 500 req/s의 p95 · p99는 나머지 회차만의 값이며 실제 꼬리 지연은 더 나쁩니다.",
     },
     results: [],
     lessons:
-      "평상 부하(300 req/s)에서는 세 구현의 성공 응답 중앙값이 3.4~4.0ms로 구분되지 않았습니다. 개선은 상시 지연이 아니라 포화 지점을 올린 것이었고, 그 차이는 지표를 제대로 고르고 측정 환경을 통제해야만 보인다는 것을 배웠습니다. 검증에서도 마찬가지로 '0건'이라는 결과는 오류를 심어 두고 전부 찾아낼 때만 믿을 수 있다는 기준을 세웠습니다.",
+      "평상 부하(300 req/s)에서는 세 구현의 성공 응답 중앙값이 3.4~4.0ms로 차이가 드러나지 않았습니다. 개선 효과는 평소 지연을 줄인 것이 아니라 포화 지점을 끌어올린 데 있었고, 이 차이는 지표를 제대로 고르고 측정 환경을 통제해야만 보인다는 것을 배웠습니다. 검증도 마찬가지로 '0건'이라는 결과는 오류를 심어 두고 전부 찾아냈을 때만 믿을 수 있다는 기준을 세웠습니다.",
     techChoices: [
       {
         name: "Spring Batch",
         reason:
-          "만료 · 정리 · 검증 · 집계를 발급 API와 분리, 실행과 재시작 상태를 메타데이터로 추적",
+          "만료 · 정리 · 검증 · 집계를 발급 API와 분리하고 실행·재시작 상태를 메타데이터로 추적",
       },
       {
         name: "MySQL · Flyway",
         reason:
-          "UNIQUE 제약과 조건부 UPDATE로 정합성 최종 방어선을 DB에 두고 스키마 마이그레이션을 버전 관리",
+          "UNIQUE 제약과 조건부 UPDATE로 정합성의 최종 보장을 DB에 두고 스키마 마이그레이션을 버전 관리",
       },
       {
         name: "Redis · Lua",
         reason:
-          "재고 · 1인 1매 · 멱등 요청 판정을 한 번의 원자 스크립트로 처리해 DB 재고 행 경합 감소",
+          "재고 · 1인 1매 · 멱등 요청 판정을 원자적 스크립트 한 번으로 처리해 DB 재고 행 경합 감소",
       },
       {
         name: "k6 · Prometheus",
         reason:
-          "도착률을 고정한 채 구현만 바꿔 비교하도록 k6 constant-arrival-rate로 부하, 서버 지표는 같은 회차로 수집",
+          "도착률을 고정하고 구현만 바꿔 비교하려고 k6 constant-arrival-rate로 부하를 주고 서버 지표는 같은 회차에 맞춰 수집",
       },
       {
         name: "Python 시드 생성기",
         reason:
-          "결정론 RNG와 Feistel 순열로 같은 시드에서 같은 데이터 재현, UNIQUE 충돌 0을 구성적으로 보장하도록 직접 제작",
+          "시드 고정 RNG와 Feistel 순열로 같은 시드에서 같은 데이터를 재현하고 UNIQUE 충돌 0을 설계상 보장하도록 직접 제작",
       },
     ],
   },
 
   "media-inference": {
     diagramKey: "intern-arch",
-    hook: "백엔드 프로토타입부터 데이터 분석 자동화·QA까지 수행한 사내 실무입니다.",
+    hook: "백엔드 프로토타입 개발부터 데이터 분석 자동화, QA까지 맡은 사내 실무입니다.",
     description:
-      "엠트리센 인턴 중 사내 실무를 기술 중심으로 정리했습니다. 기획팀이 조사를 위해 반복하던 엑셀 작업을 함께 맡게 되면서 이를 대시보드로 자동화했습니다. 도메인·세부 기능·정량 성과는 대외비라 사용 기술·구조만 공개합니다.",
+      "엠트리센 인턴 기간에 맡은 사내 실무를 기술 위주로 정리했습니다. 기획팀이 조사용으로 반복하던 엑셀 작업을 함께 맡으면서 대시보드로 자동화했습니다. 도메인·세부 기능·정량 성과는 대외비라 사용 기술과 구조만 공개합니다.",
     role: "백엔드 · 데이터 분석 자동화 · QA (사내 프로토타입)",
     period: "2025.08 ~ 2026.01",
     repoNote: "사내 · 비공개 저장소",
     works: [
       {
         title: "백엔드 프로토타입 · 처리 파이프라인",
-        desc: "업로드 데이터 전처리·외부 처리 서버 연동·결과 저장·캐싱 백엔드 파이프라인, 업로드·전처리·외부 연동·저장을 서비스 레이어로 분리",
+        desc: "업로드 데이터 전처리 → 외부 처리 서버 연동 → 결과 저장·캐싱으로 이어지는 백엔드 파이프라인 구현, 업로드·전처리·외부 연동·저장을 서비스 레이어로 분리",
         stack: ["Node.js", "Express", "MongoDB", "Redis", "Docker"],
       },
       {
         title: "데이터 분석·시각화 대시보드 ①",
-        desc: "기획팀이 조사용으로 반복하던 엑셀 작업을 부탁받아 자동화. 엑셀 데이터 로드·가공·통계 분석·차트 시각화 Streamlit 대시보드로 수작업 분석 대체",
+        desc: "기획팀이 조사용으로 반복하던 엑셀 작업을 부탁받아 자동화. 엑셀 데이터 로드·가공·통계 분석·차트 시각화를 하는 Streamlit 대시보드로 수작업 분석 대체",
         stack: ["Python", "Streamlit", "pandas", "numpy", "matplotlib", "scipy"],
       },
       {
         title: "데이터 분석·시각화 대시보드 ②",
-        desc: "같은 기획팀 조사 업무의 기간·조건별 엑셀 집계·분석을 Altair 차트 Streamlit 대시보드로 자동화. 데이터 로드·가공·시각화를 유틸로 모듈화",
+        desc: "같은 기획팀 조사 업무에서 기간·조건별 엑셀 집계·분석을 Altair 차트 기반 Streamlit 대시보드로 자동화. 데이터 로드·가공·시각화는 유틸 모듈로 분리",
         stack: ["Python", "Streamlit", "pandas", "numpy", "Altair"],
       },
     ],
-    qa: "- 자체 프로젝트(백엔드·데이터 도구): 테스트 케이스 직접 설계·수행으로 동작 검증. 백엔드는 Jest 단위·통합 테스트, 데이터 도구는 입력·경계(엣지) 케이스로 결과 검증\n- 타사 앱 QA: 사내에서 다른 회사 앱을 직접 테스트하고 테스트 보고서로 정리·보고하는 업무 자주 담당",
+    qa: "- 자체 프로젝트(백엔드·데이터 도구): 테스트 케이스를 직접 설계·수행해 동작 검증. 백엔드는 Jest 단위·통합 테스트, 데이터 도구는 입력·경계(엣지) 케이스로 결과 검증\n- 타사 앱 QA: 사내에서 다른 회사 앱을 직접 테스트하고 결과를 테스트 보고서로 정리·보고하는 업무를 자주 담당",
     problemTitle: "문제",
     problems: [],
     solutions: [],
