@@ -16,6 +16,7 @@ export const ARCH_DIMENSIONS: Record<string, { w: number; h: number }> = {
   "live-chat": { w: 1500, h: 760 },
   "blog-platform": { w: 1250, h: 620 },
   zogakzip: { w: 1580, h: 560 },
+  "coupon-yaho": { w: 1400, h: 860 },
   "media-inference": { w: 1550, h: 620 },
   "intern-arch": { w: 1440, h: 840 },
 };

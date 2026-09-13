@@ -6,16 +6,16 @@
 /* ---- Design tokens mirrored from the tech blog (huhgeon.github.io) ---- */
 /* Light is the base; dark is applied via `.dark` on <html>. */
 :root {
-  --bg: #fbfbfa;
-  --bg-2: #f3f4f1;
+  --bg: #ffffff;
+  --bg-2: #fafafa;
   --surface: #ffffff;
   --card: #ffffff;
-  --card-2: #f3f4f0;
-  --border: #e5e6e0;
-  --border-soft: #eeefe9;
-  --text: #1a1d22;
-  --dim: #5a626d;
-  --faint: #9aa1aa;
+  --card-2: #fafafa;
+  --border: #e7e7e7;
+  --border-soft: #f0f0f0;
+  --text: #171717;
+  --dim: #474747;
+  --faint: #8a8a8a;
   --accent: #4f7aa6;
   --accent-2: #6a93bd;
   --accent-deep: #3c6390;
@@ -33,16 +33,18 @@
   --hue-amber: #c0863c;
   --hue-purple: #7a6bb0;
   --hue-rose: #b0626f;
-  --line: rgba(20, 24, 32, 0.022);
+  --line: rgba(0, 0, 0, 0.03);
   --glow: radial-gradient(
     58% 70% at 50% -4%,
     rgba(79, 122, 166, 0.05),
     transparent 70%
   );
-  --shadow: 0 22px 50px -26px rgba(30, 35, 45, 0.2);
-  --shadow-sm: 0 8px 22px -14px rgba(30, 35, 45, 0.16);
+  --shadow: 0 20px 48px -28px rgba(0, 0, 0, 0.16);
+  --shadow-sm: 0 4px 14px -10px rgba(0, 0, 0, 0.12);
   --radius: 14px;
   --radius-lg: 20px;
+  --scrollbar: rgba(0, 0, 0, 0.16);
+  --scrollbar-hover: rgba(0, 0, 0, 0.3);
 
   --background: var(--bg);
   --foreground: var(--text);
@@ -75,6 +77,8 @@
   --hue-amber: #d0a568;
   --hue-purple: #a394d6;
   --hue-rose: #cf9099;
+  --scrollbar: rgba(255, 255, 255, 0.14);
+  --scrollbar-hover: rgba(255, 255, 255, 0.28);
   --line: rgba(255, 255, 255, 0.035);
   --glow: radial-gradient(
     58% 70% at 50% -4%,
@@ -109,6 +113,31 @@ h1,
 h2,
 h3 {
   text-wrap: pretty;
+}
+
+/* theme-aware thin scrollbars — WebKit/Blink use the pseudo-elements,
+ * engines without them (Firefox) get the standard properties */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 4px solid transparent;
+  border-radius: 999px;
+  background: var(--scrollbar) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-hover);
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
 }
 
 ::selection {
@@ -159,25 +188,56 @@ h3 {
 }
 
 /* scroll-reveal: hidden until the ScrollReveal client marks it .is-in */
-.reveal {
+/* anime.js drives the motion (scroll-reveal.tsx); CSS only holds the pre-reveal state */
+.reveal:not(.is-in),
+.reveal:not(.is-in) [data-stagger] > * {
   opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
+
+/* sidebar branch graph lines grow from their top edge */
+[data-graph="line"] {
+  transform-origin: top;
+}
+
+/* cursor spotlight: a soft accent glow on the card border that follows the pointer */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    var(--accent),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.spotlight:hover::before {
+  opacity: 0.6;
 }
 @media (prefers-reduced-motion: reduce) {
   .anim-rise {
     animation: none;
   }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  .reveal,
+  .reveal [data-stagger] > * {
+    opacity: 1 !important;
+  }
+  .spotlight::before {
+    display: none;
   }
 }
 
@@ -287,16 +347,14 @@ html {
 }
 /* subtle CRT-ish top glow for the terminal window (theme-aware, very light) */
 .term-win {
+  overscroll-behavior: contain;
   background:
     radial-gradient(120% 60% at 50% -10%, var(--accent-soft), transparent 60%),
     var(--surface);
 }
-/* light: the blog's faint 46px terminal grid */
+/* light: plain soft-gray ground so white cards read as layers */
 :root:not(.dark) .term-win {
-  background:
-    linear-gradient(var(--line) 1px, transparent 1px) -1px -1px / 46px 46px,
-    linear-gradient(90deg, var(--line) 1px, transparent 1px) -1px -1px / 46px 46px,
-    var(--bg);
+  background: var(--bg);
 }
 .term-line {
   display: block;

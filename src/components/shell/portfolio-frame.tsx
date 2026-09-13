@@ -11,9 +11,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { animate, stagger } from "animejs";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { GithubIcon } from "@/components/icons/github-icon";
-import { serviceLabel } from "@/components/pages/terminal/terminal-ui";
+import { groupProjects, serviceLabel } from "@/components/pages/terminal/terminal-ui";
 import { ThemeToggle, ThemeToggleRail } from "@/components/shell/theme-toggle";
 import { PortfolioViewportProvider } from "@/components/shell/viewport-context";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -33,15 +34,19 @@ type SidebarChild = {
   href: string;
 };
 
+type SidebarGroup = {
+  id: string;
+  label: string;
+  children: SidebarChild[];
+};
+
 type SidebarSection = {
   id: string;
   label: string;
   href: string;
   icon: LucideIcon;
-  children?: SidebarChild[];
+  groups?: SidebarGroup[];
 };
-
-const sidebarProjectLimit = 6;
 
 export function PortfolioFrame({
   children,
@@ -94,21 +99,46 @@ function PortfolioSidebar({
   onToggle,
 }: PortfolioSidebarProps) {
   const pathname = usePathname();
-  const projectChildren = projects
-    .filter((project) => project.featured)
-    .slice(0, sidebarProjectLimit)
-    .map((project) => ({
+  const graphRef = useRef<HTMLElement>(null);
+
+  // draw the branch graph once: lines grow top-down, then commit dots pop in
+  useEffect(() => {
+    const nav = graphRef.current;
+    if (!nav || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const lines = nav.querySelectorAll<HTMLElement>('[data-graph="line"]');
+    const nodes = nav.querySelectorAll<HTMLElement>('[data-graph="node"]');
+    animate(lines, {
+      scaleY: [0, 1],
+      duration: 420,
+      delay: stagger(28),
+      ease: "outQuad",
+    });
+    animate(nodes, {
+      scale: [0, 1],
+      opacity: [0, 1],
+      duration: 380,
+      delay: stagger(40, { start: 160 }),
+      ease: "outBack(2)",
+    });
+  }, []);
+  const projectGroups = groupProjects(
+    projects.filter((project) => project.featured),
+  ).map((group) => ({
+    id: group.id,
+    label: group.label,
+    children: group.items.map((project) => ({
       id: project.slug,
       label: serviceLabel(project.slug, project.title),
       href: `/projects/${project.slug}`,
-    }));
+    })),
+  }));
   const sections: SidebarSection[] = [
     {
       id: "overview",
       label: "main",
       href: "/",
       icon: Home,
-      children: projectChildren,
+      groups: projectGroups,
     },
   ];
   const links = [
@@ -135,7 +165,11 @@ function PortfolioSidebar({
       : pathname === href || pathname.startsWith(`${href}/`);
   const isSectionActive = (section: SidebarSection) =>
     isActive(section.href) ||
-    Boolean(section.children?.some((child) => isActive(child.href)));
+    Boolean(
+      section.groups?.some((group) =>
+        group.children.some((child) => isActive(child.href)),
+      ),
+    );
 
   return (
     <div
@@ -233,8 +267,9 @@ function PortfolioSidebar({
 
         {/* --- git-graph navigation: main trunk + commits + forked branch --- */}
         <nav
+          ref={graphRef}
           aria-label={navigation.pagesLabel}
-          className="min-h-0 overflow-y-auto pb-1"
+          className="min-h-0 overflow-y-auto overscroll-contain pb-1"
         >
           {/* branch-graph title */}
           <div className="mb-2 flex items-center gap-1.5 pl-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--faint)]">
@@ -246,7 +281,7 @@ function PortfolioSidebar({
             const Icon = section.icon;
             const active = isSectionActive(section);
             const isHead = pathname === section.href;
-            const children = section.children ?? [];
+            const groups = section.groups ?? [];
 
             return (
               <div key={section.id}>
@@ -260,11 +295,11 @@ function PortfolioSidebar({
                       : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]",
                   ].join(" ")}
                 >
-                  <span
+                  <span data-graph="line"
                     className="pointer-events-none absolute left-[11px] w-px bg-[var(--accent)]"
                     style={{ top: si === 0 ? "50%" : 0, bottom: 0 }}
                   />
-                  <span
+                  <span data-graph="node"
                     className={[
                       "pointer-events-none absolute left-[11px] top-1/2 z-10 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--accent)] transition",
                       active
@@ -283,56 +318,86 @@ function PortfolioSidebar({
                   ) : null}
                 </Link>
 
-                {/* forked branch holding this section's children */}
-                {children.length > 0 ? (
-                  <div className="relative">
-                    {children.map((child, ci) => {
-                      const last = ci === children.length - 1;
-                      const cactive = isActive(child.href);
-                      return (
-                        <Link
-                          key={child.id}
-                          href={child.href}
-                          aria-current={cactive ? "page" : undefined}
+                {/* topic branches forked off main, each holding its project commits */}
+                {groups.map((group, gi) => {
+                  const lastGroup = gi === groups.length - 1;
+                  const groupActive = group.children.some((child) =>
+                    isActive(child.href),
+                  );
+                  return (
+                    <div key={group.id} className="relative">
+                      {/* branch tip: forks right off the main trunk */}
+                      <div className="relative flex h-8 min-w-0 items-center pl-[46px] pr-2">
+                        <span data-graph="line"
+                          className="pointer-events-none absolute left-[11px] top-0 w-px bg-[var(--accent)]"
+                          style={{ bottom: lastGroup ? "50%" : "0" }}
+                        />
+                        <span className="pointer-events-none absolute left-[11px] top-0 h-1/2 w-[17px] rounded-bl-[9px] border-b border-l border-[var(--c-cat)]" />
+                        <span data-graph="line" className="pointer-events-none absolute left-[28px] top-1/2 bottom-0 w-px bg-[var(--c-cat)]" />
+                        <span data-graph="node"
                           className={[
-                            "group relative flex h-8 min-w-0 items-center rounded-md pl-[46px] pr-2 text-xs transition",
-                            cactive
-                              ? "bg-[var(--c-cat-soft)] font-medium text-[var(--c-cat)]"
-                              : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]",
+                            "pointer-events-none absolute left-[28px] top-1/2 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--c-cat)]",
+                            groupActive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",
+                          ].join(" ")}
+                        />
+                        <GitBranch
+                          size={12}
+                          className="mr-1.5 shrink-0 text-[var(--c-cat)]"
+                        />
+                        <span
+                          className={[
+                            "min-w-0 flex-1 truncate text-[12px] font-semibold",
+                            groupActive ? "text-[var(--c-cat)]" : "text-[var(--text)]",
                           ].join(" ")}
                         >
-                          {/* main trunk continues straight down (blue) */}
-                          <span className="pointer-events-none absolute inset-y-0 left-[11px] w-px bg-[var(--accent)]" />
-                          {/* feature branch line (green): forks in at the first child */}
-                          <span
-                            className="pointer-events-none absolute left-[28px] top-0 w-px bg-[var(--c-cat)]"
-                            style={{ bottom: last ? "50%" : "0" }}
-                          />
-                          {ci === 0 ? (
-                            <span className="pointer-events-none absolute left-[11px] top-0 h-1/2 w-[17px] rounded-bl-[9px] border-b border-l border-[var(--c-cat)]" />
-                          ) : null}
-                          {/* tick from branch to commit dot */}
-                          <span className="pointer-events-none absolute left-[28px] top-1/2 h-px w-[12px] bg-[var(--c-cat)]" />
-                          {/* feature commit dot (green) */}
-                          <span
+                          {group.label}
+                        </span>
+                      </div>
+                      {group.children.map((child, ci) => {
+                        const lastChild = ci === group.children.length - 1;
+                        const cactive = isActive(child.href);
+                        return (
+                          <Link
+                            key={child.id}
+                            href={child.href}
+                            aria-current={cactive ? "page" : undefined}
                             className={[
-                              "pointer-events-none absolute left-[40px] top-1/2 z-10 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--c-cat)] transition",
-                              cactive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",
+                              "group relative flex h-8 min-w-0 items-center rounded-md pl-[58px] pr-2 text-xs transition",
+                              cactive
+                                ? "bg-[var(--c-cat-soft)] font-medium text-[var(--c-cat)]"
+                                : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]",
                             ].join(" ")}
-                          />
-                          <span className="min-w-0 flex-1 truncate text-[12.5px]">
-                            {child.label}
-                          </span>
-                          {cactive ? (
-                            <span className="shrink-0 rounded-sm bg-[var(--c-cat-soft)] px-1 py-px font-mono text-[9px] font-bold tracking-wide text-[var(--c-cat)]">
-                              HEAD
+                          >
+                            {/* main trunk keeps going past this branch */}
+                            {!lastGroup ? (
+                              <span data-graph="line" className="pointer-events-none absolute inset-y-0 left-[11px] w-px bg-[var(--accent)]" />
+                            ) : null}
+                            {/* topic branch line */}
+                            <span data-graph="line"
+                              className="pointer-events-none absolute left-[28px] top-0 w-px bg-[var(--c-cat)]"
+                              style={{ bottom: lastChild ? "50%" : "0" }}
+                            />
+                            <span className="pointer-events-none absolute left-[28px] top-1/2 h-px w-[16px] bg-[var(--c-cat)]" />
+                            <span data-graph="node"
+                              className={[
+                                "pointer-events-none absolute left-[48px] top-1/2 z-10 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--c-cat)] transition",
+                                cactive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",
+                              ].join(" ")}
+                            />
+                            <span className="min-w-0 flex-1 truncate text-[12.5px]">
+                              {child.label}
                             </span>
-                          ) : null}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ) : null}
+                            {cactive ? (
+                              <span className="shrink-0 rounded-sm bg-[var(--c-cat-soft)] px-1 py-px font-mono text-[9px] font-bold tracking-wide text-[var(--c-cat)]">
+                                HEAD
+                              </span>
+                            ) : null}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}

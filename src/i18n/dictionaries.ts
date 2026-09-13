@@ -40,6 +40,7 @@ export type Dictionary = {
       closing: string;
       final: string;
     };
+    proficiency: { text: string; projects: string[] }[];
     techFocus: {
       buildTitle: string;
       buildItems: string[];
@@ -158,6 +159,32 @@ const heogeon: Dictionary = {
       closing: "복잡한 요구사항을 **명확한 데이터 모델과 안정적인 API**로 풀어내는 것.",
       final: "그것이 제가 백엔드 개발자로서 추구하는 방향입니다.",
     },
+    proficiency: [
+      {
+        text: "동시 요청이 몰리는 발급에서 조건부 원자 UPDATE·Redis Lua 선점으로 재고 정합성을 지키고 부하 측정으로 개선 효과를 수치 검증할 수 있습니다.",
+        projects: ["coupon-yaho"],
+      },
+      {
+        text: "Spring Batch로 대용량 이력을 재생·대조하는 검증 배치를 만들고 오류를 심은 데이터로 검증기 자체를 검증할 수 있습니다.",
+        projects: ["coupon-yaho"],
+      },
+      {
+        text: "Spring WebFlux와 Redis Pub/Sub으로 인스턴스를 수평 확장해도 모든 사용자에게 메시지가 닿는 실시간 서버를 구현할 수 있습니다.",
+        projects: ["live-chat"],
+      },
+      {
+        text: "LLM 출력을 규칙 라우팅 · RAG · 스키마 강제로 감싸 환각·장애에도 결정론적인 의도 해석 · 추천 서버를 설계할 수 있습니다.",
+        projects: ["haeyaji", "voice-kiosk"],
+      },
+      {
+        text: "느린 외부 호출의 커넥션 풀 고갈을 막도록 트랜잭션 경계를 나누고 장애 시 fail-open · 폴백 정책을 설계할 수 있습니다.",
+        projects: ["haeyaji", "live-chat"],
+      },
+      {
+        text: "MongoDB text · TTL · unique 복합 인덱스와 aggregation으로 검색 · 추천 · 중복 방지 요구사항을 데이터 모델로 풀 수 있습니다.",
+        projects: ["blog-platform", "voice-kiosk"],
+      },
+    ],
     techFocus: {
       buildTitle: "What I Build",
       buildItems: [
@@ -212,13 +239,26 @@ const heogeon: Dictionary = {
     },
     featuredProjects: [
       {
+        slug: "coupon-yaho",
+        title: "선착순 쿠폰 발급 시스템",
+        description:
+          "통신사 브랜드데이 선착순 쿠폰 발급 시스템입니다. 병목을 측정하며 MySQL 락에서 조건부 원자 UPDATE, Redis Lua 선점, 적응형 대기열 순으로 구조를 발전시켰고, 발급 결과는 이력 재생 배치로 검증합니다.",
+        highlights: [
+          "재고 잠금을 조건부 원자 UPDATE로 바꿔 500 req/s 성공 응답 p99 2,240ms → 802ms 단축",
+          "이력 534만 행 재생 검증 배치로, 오류 700건을 심은 데이터의 기대 검출 800행을 누락 0 · 오탐 0으로 탐지",
+        ],
+        stack: ["Java 21", "Spring Boot", "Spring Batch", "MySQL", "Redis", "Kafka"],
+        iconSrc: "",
+        iconAlt: "선착순 쿠폰 발급 시스템 아이콘",
+      },
+      {
         slug: "voice-kiosk",
         title: "음성인식 키오스크",
         description:
-          "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 gpt-4o-mini로 의도(intents)로 해석하고, 오케스트레이터로서 API 서버를 호출해 주문 로직으로 연결합니다.",
+          "음성·터치 메뉴 주문·추천 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 gpt-4o-mini로 의도(intents) 해석하고, 오케스트레이터로 API 서버를 호출해 주문 로직에 연결합니다.",
         highlights: [
-          "NLP 서버가 LLM으로 intents를 뽑아 API 서버를 호출하는 오케스트레이터로 설계했습니다.",
-          "옵션이 빠지면 pending 상태로 세션에 보관해 후속 발화로 이어 완성하는 멀티턴을 구현했습니다.",
+          "NLP 서버를 LLM으로 intents 추출 후 API 서버를 호출하는 오케스트레이터로 설계",
+          "옵션 누락 시 pending 상태로 세션에 보관, 후속 발화로 완성하는 멀티턴 구현",
         ],
         stack: ["FastAPI", "gpt-4o-mini", "Express", "MongoDB", "Swagger"],
         iconSrc: "/logos/voice-kiosk.png",
@@ -228,10 +268,10 @@ const heogeon: Dictionary = {
         slug: "live-chat",
         title: "라이브 커머스 채팅 서버",
         description:
-          "라이브 커머스 방송의 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, 여러 Pod로 늘려도 모든 시청자에게 도달하도록 Redis Pub/Sub으로 중계합니다.",
+          "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 모든 시청자에게 닿도록 Redis Pub/Sub으로 중계합니다.",
         highlights: [
-          "Redis Pub/Sub 방별 채널로 Pod 간 메시지를 중계해 수평 확장에서도 전체 전파를 보장합니다.",
-          "권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리했습니다.",
+          "Redis Pub/Sub 방별 채널로 Pod 간 메시지 중계, 수평 확장 시에도 전체 전파 보장",
+          "권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리",
         ],
         stack: ["Spring", "WebFlux", "WebSocket", "Redis", "MongoDB"],
         iconSrc: "",
@@ -241,36 +281,23 @@ const heogeon: Dictionary = {
         slug: "haeyaji",
         title: "해야지 (haeyaji)",
         description:
-          "날씨·시간대·위치를 근거로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP 서버)를 단독으로 만들고, 백엔드의 날씨·추천·개인화·알림 도메인을 맡았습니다.",
+          "날씨·시간대·위치 기반으로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP 서버)를 단독 개발하고 백엔드 날씨·추천·개인화·알림 도메인을 맡았습니다.",
         highlights: [
-          "로컬 LLM(EXAONE)의 오분류·환각을 규칙 라우팅과 RAG·스키마 강제로 감싸 결정론적 추천 품질을 확보했습니다.",
-          "느린 LLM 호출이 커넥션풀을 고갈시키지 않도록 추천 게이트웨이 트랜잭션을 분리하고, 맥락별 개인화 가중치를 학습합니다.",
+          "로컬 LLM(EXAONE)의 오분류·환각을 규칙 라우팅·RAG·스키마 강제로 감싸 결정론적 추천 품질 확보",
+          "느린 LLM 호출의 커넥션풀 고갈을 막는 추천 게이트웨이 트랜잭션 분리, 맥락별 개인화 가중치 학습",
         ],
         stack: ["FastAPI", "Ollama · EXAONE", "Spring Boot", "MySQL", "Redis"],
         iconSrc: "/logos/haeyaji.png",
         iconAlt: "해야지 로고",
       },
       {
-        slug: "zogakzip",
-        title: "조각집 (ZOGAKZIP)",
-        description:
-          "추억을 그룹 > 게시글 > 이미지 계층으로 기록하는 서비스의 백엔드를 2인 팀으로 개발했습니다. 게시글 API·이미지 업로드·한국 시간대(KST) 처리를 맡았습니다.",
-        highlights: [
-          "게시글 API와 Multer 이미지 업로드를 구현하고, 상위 문서 카운터를 $inc로 동기화했습니다.",
-          "moment-timezone으로 저장·응답 시각을 KST로 통일해 도메인 전반의 시간대 오차를 제거했습니다.",
-        ],
-        stack: ["Node.js", "Express", "MongoDB", "Multer"],
-        iconSrc: "/logos/zogakzip.png",
-        iconAlt: "조각집 로고",
-      },
-      {
         slug: "blog-platform",
         title: "Blog Platform 백엔드",
         description:
-          "인증부터 게시글·댓글·좋아요·팔로우·쪽지·스토리까지 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다.",
+          "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다.",
         highlights: [
-          "JWT 인증·Multer 업로드를 미들웨어로 분리해 라우터 전반에서 재사용했습니다.",
-          "게시글 본문에서 한국어 형태소 분석으로 명사를 추출해 검색·태그 키워드로 활용했습니다.",
+          "JWT 인증·Multer 업로드를 미들웨어로 분리해 라우터 전반에서 재사용",
+          "게시글 본문에서 한국어 형태소 분석으로 명사 추출, 검색·태그 키워드로 활용",
         ],
         stack: ["Express", "MongoDB", "JWT"],
         iconSrc: "",
@@ -280,10 +307,10 @@ const heogeon: Dictionary = {
         slug: "media-inference",
         title: "엠트리센 인턴 · 사내 실무",
         description:
-          "엠트리센 인턴 중 수행한 사내 실무 3건(백엔드 프로토타입 · 데이터 분석 자동화 · QA)을 기술 중심으로 정리했습니다. (도메인·세부는 대외비)",
+          "엠트리센 인턴 사내 실무 3건(백엔드 프로토타입 · 데이터 분석 자동화 · QA)의 기술 중심 정리입니다. (도메인·세부는 대외비)",
         highlights: [
-          "요청 전처리 → 외부 처리 서버 연동 → 저장·캐싱 백엔드 파이프라인과 Streamlit 데이터 분석·시각화 대시보드 2종을 개발했습니다.",
-          "자체 프로젝트를 테스트로 검증하고, 사내에서 타사 앱 QA·테스트 보고 업무도 자주 수행했습니다.",
+          "요청 전처리 → 외부 처리 서버 연동 → 저장·캐싱 백엔드 파이프라인, Streamlit 데이터 분석·시각화 대시보드 2종 개발",
+          "자체 프로젝트 테스트 검증, 사내 타사 앱 QA·테스트 보고 업무도 자주 수행",
         ],
         stack: ["Node.js", "Express", "Python", "Streamlit", "pandas", "Jest"],
         iconSrc: "",
@@ -298,9 +325,9 @@ const heogeon: Dictionary = {
     eyebrow: "About",
     title: "안정적인 서버와 좋은 데이터 설계로 뒷단을 만드는 백엔드 개발자입니다.",
     paragraphs: [
-      "Node.js·Spring 기반 백엔드 개발을 중심으로 API 설계, ERD·DB 모델링, 실시간 서버, 데이터 파이프라인을 만듭니다.",
-      "엠트리센 백엔드 인턴으로 API·DB 구조 설계와 데이터 수집·가공 자동화를 담당했고, 팀·개인 프로젝트에서 서비스의 뒷단을 실제로 동작하는 구조로 만드는 데 집중해 왔습니다.",
-      "포트폴리오에서는 화려한 효과보다 각 프로젝트의 문제 정의, 역할, 기술 선택, 결과를 빠르게 파악할 수 있는 구성을 우선합니다.",
+      "Node.js·Spring 백엔드를 중심으로 API 설계, ERD·DB 모델링, 실시간 서버, 데이터 파이프라인을 만듭니다.",
+      "엠트리센 백엔드 인턴으로 API·DB 구조 설계와 데이터 수집·가공 자동화를 맡았고, 팀·개인 프로젝트에서는 서비스 뒷단을 실제 동작하는 구조로 만드는 데 집중했습니다.",
+      "포트폴리오는 화려한 효과보다 프로젝트별 문제 정의·역할·기술 선택·결과를 빠르게 파악하는 구성을 우선합니다.",
     ],
   },
   skills: {
@@ -348,11 +375,21 @@ const heogeon: Dictionary = {
   },
   projects: [
     {
+      slug: "coupon-yaho",
+      title: "선착순 쿠폰 발급 시스템",
+      type: "Team Project",
+      description:
+        "통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 바꿔 500 req/s 성공 응답 p99를 2,240ms → 802ms로 줄였고, 이력 534만 행 재생 검증 배치로 발급 결과를 검증합니다.",
+      href: "https://github.com/coupon-yaho",
+      stack: ["Java 21", "Spring Boot", "Spring Batch", "MySQL", "Redis", "Kafka", "k6"],
+      featured: true,
+    },
+    {
       slug: "voice-kiosk",
       title: "음성인식 키오스크",
       type: "Team Project",
       description:
-        "음성·터치로 메뉴 주문·추천을 처리하는 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 gpt-4o-mini로 의도(intents)·필터로 해석한 뒤, 오케스트레이터로서 API 서버를 호출하고 응답을 클라이언트에 되돌려주는 2단 백엔드입니다. NLP 서버 설계를 주도했습니다.",
+        "음성·터치 메뉴 주문·추천 키오스크 서비스입니다. NLP 서버가 STT 텍스트를 gpt-4o-mini로 의도(intents)·필터로 해석하고 오케스트레이터로 API 서버를 호출해 응답을 클라이언트에 돌려주는 2단 백엔드입니다. NLP 서버 설계를 주도했습니다.",
       href: "https://github.com/Say-It-It-s-OK",
       stack: ["FastAPI", "gpt-4o-mini", "Express", "MongoDB", "Swagger"],
       featured: true,
@@ -362,7 +399,7 @@ const heogeon: Dictionary = {
       title: "라이브 커머스 채팅 서버",
       type: "Team Project",
       description:
-        "라이브 커머스 방송의 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, 여러 Pod로 늘려도 모든 시청자에게 도달하도록 Redis Pub/Sub으로 중계합니다. 권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리했습니다.",
+        "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받고, Pod를 늘려도 모든 시청자에게 닿도록 Redis Pub/Sub으로 중계하며, 권한·레이트리밋·욕설 마스킹·저장·발행을 하나의 전송 파이프라인으로 분리했습니다.",
       href: "https://github.com/sago-panda/sapari-be",
       stack: ["Java 21", "Spring WebFlux", "WebSocket", "Redis", "MongoDB"],
       featured: true,
@@ -372,7 +409,7 @@ const heogeon: Dictionary = {
       title: "해야지 (haeyaji)",
       type: "Team Project",
       description:
-        "날씨·시간대·위치를 근거로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP)는 단독으로 개발하고, 백엔드에서는 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
+        "날씨·시간대·위치 기반으로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 두뇌(NLP)를 단독 개발하고 백엔드의 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
       href: "https://github.com/haeyaji",
       stack: [
         "FastAPI",
@@ -389,7 +426,7 @@ const heogeon: Dictionary = {
       title: "Blog Platform 백엔드",
       type: "Personal Project",
       description:
-        "인증부터 게시글·댓글·좋아요·팔로우·쪽지·스토리까지 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다. 인증을 3종 미들웨어로 분리하고, mecab-ya 형태소 분석으로 유사글 추천 키워드를 추출했습니다.",
+        "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다. 인증을 3종 미들웨어로 분리하고 mecab-ya 형태소 분석으로 유사글 추천 키워드를 추출했습니다.",
       href: "https://github.com/HUHGEON/Blog-Platform",
       stack: ["Express", "MongoDB", "JWT", "mecab-ya", "Multer"],
       featured: true,
@@ -399,17 +436,17 @@ const heogeon: Dictionary = {
       title: "조각집 (ZOGAKZIP)",
       type: "Team Project",
       description:
-        "추억을 그룹 > 게시글 > 이미지 계층으로 기록하는 서비스의 백엔드를 2인 팀으로 개발했습니다. 게시글 API·이미지 업로드·한국 시간대(KST) 처리를 맡았고, 활동 기반 배지 시스템은 팀이 함께 갖췄습니다.",
+        "그룹 > 게시글 > 이미지 계층의 추억 기록 서비스 백엔드를 2인 팀으로 개발했습니다. 게시글 API·이미지 업로드·한국 시간대(KST) 처리를 맡았고, 활동 기반 배지 시스템은 팀이 함께 갖췄습니다.",
       href: "https://github.com/HUHGEON/CODEIT-ZOGAKZIP",
       stack: ["Node.js", "Express", "MongoDB", "Multer", "moment-timezone"],
-      featured: true,
+      featured: false,
     },
     {
       slug: "media-inference",
       title: "엠트리센 인턴 · 사내 실무",
       type: "엠트리센 인턴 · 2025.08\u00A0~\u00A02026.01",
       description:
-        "엠트리센 인턴 중 수행한 사내 실무 3건(백엔드 프로토타입 · 데이터 분석 자동화 · QA)을 기술 중심으로 정리했습니다. 요청을 전처리 → 외부 처리 서버 연동 → 결과 저장·캐싱으로 잇는 백엔드 파이프라인과 데이터 분석·시각화 대시보드 2종(Python·Streamlit·pandas)을 개발하고, 자체 프로젝트를 테스트로 검증했습니다. 또한 사내에서 타사 앱을 직접 테스트하고 테스트 보고서로 정리·보고하는 QA 업무도 자주 수행했습니다. (도메인·세부 기능·정량 성과는 대외비)",
+        "엠트리센 인턴 사내 실무 3건(백엔드 프로토타입 · 데이터 분석 자동화 · QA)의 기술 중심 정리입니다. 요청 전처리 → 외부 처리 서버 연동 → 결과 저장·캐싱 백엔드 파이프라인과 데이터 분석·시각화 대시보드 2종(Python·Streamlit·pandas)을 개발하고 자체 프로젝트를 테스트로 검증했습니다. 사내에서 타사 앱을 직접 테스트하고 테스트 보고서로 정리·보고하는 QA 업무도 자주 수행했습니다. (도메인·세부 기능·정량 성과는 대외비)",
       href: "",
       stack: [
         "Node.js",

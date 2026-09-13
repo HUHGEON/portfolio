@@ -218,7 +218,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
 
   return (
     <div
-      className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[#f6f7f8] shadow-[var(--shadow-sm)] dark:bg-[var(--card-2)]"
+      className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card-2)] dark:shadow-[var(--shadow-sm)]"
       style={{ height: frameH, overflow: "hidden", position: "relative" }}
     >
       <div
@@ -235,7 +235,7 @@ export function ArchitectureDiagram({ spec }: { spec: ArchSpec }) {
         {spec.container ? (
           <>
             <div
-              className="absolute rounded-[26px] border-2 border-dashed border-slate-300/60 bg-black/[0.015] dark:border-white/10 dark:bg-white/[0.03]"
+              className="absolute rounded-[26px] border-2 border-dashed border-[var(--border)] dark:border-white/10 dark:bg-white/[0.03]"
               style={{ left: 8, top: 66, width: WW - 16, height: HH - 74 }}
             />
             <div
@@ -1094,6 +1094,180 @@ export const ARCH_SPECS: Record<string, ArchSpec> = {
     legend: [
       { flow: "req", label: "요청/응답" },
       { flow: "data", label: "데이터 저장/조회" },
+    ],
+  },
+
+  "coupon-yaho": {
+    height: 860,
+    width: 1400,
+    zones: [
+      {
+        id: "user",
+        layout: "plain",
+        title: "사용자",
+        color: "slate",
+        lucide: User,
+        x: 30,
+        y: 232,
+        w: 110,
+      },
+      {
+        id: "gateway",
+        title: "대기열 게이트웨이",
+        subtitle: "Spring WebFlux",
+        color: "teal",
+        logo: "spring",
+        x: 230,
+        y: 152,
+        w: 300,
+        items: [
+          { label: "입장 판정", sub: "종결 · 통과 · 대기 세 갈래", lucide: Shield },
+          { label: "전역 순번 · ETA", sub: "입장 토큰 180초", lucide: User },
+          { label: "리더 선출 · 크레딧 배분", sub: "가용량 기반 유입 제어", lucide: Cog },
+        ],
+      },
+      {
+        id: "coupon",
+        title: "쿠폰 서비스",
+        subtitle: "Spring MVC · N대",
+        color: "green",
+        logo: "spring",
+        x: 640,
+        y: 120,
+        w: 320,
+        items: [
+          { label: "발급 API", sub: "멱등키 IN_PROGRESS · DONE", lucide: Globe },
+          { label: "Redis 재고 선점", sub: "Lua 원자 판정 (v2.1)", logo: "redis" },
+          { label: "조건부 원자 UPDATE", sub: "active_count < total (v1.2)", lucide: Database },
+          { label: "알림 outbox", sub: "SKIP LOCKED 릴레이", lucide: Bell },
+        ],
+      },
+      {
+        id: "redis",
+        title: "Redis",
+        subtitle: "Cache · Store",
+        color: "indigo",
+        logo: "redis",
+        x: 1080,
+        y: 90,
+        w: 280,
+        items: [
+          { label: "재고 · 발급 게이트", sub: "Lua 스크립트 5종", logo: "redis" },
+          { label: "대기열 상태", sub: "순번 · 스냅샷", lucide: Database },
+        ],
+      },
+      {
+        id: "mysql",
+        title: "MySQL",
+        subtitle: "Flyway",
+        color: "blue",
+        logo: "mysql",
+        x: 1080,
+        y: 330,
+        w: 280,
+        items: [
+          { label: "발급 · 이력 · 멱등", sub: "UNIQUE 1인 1매", logo: "mysql" },
+          { label: "검증 결과 · 통계", sub: "verification_runs", lucide: Database },
+        ],
+      },
+      {
+        id: "kafka",
+        title: "Kafka",
+        subtitle: "알림 이벤트",
+        color: "slate",
+        lucide: Bell,
+        x: 230,
+        y: 560,
+        w: 300,
+        items: [{ label: "알림 Consumer", sub: "발급 결과 알림", lucide: Bell }],
+      },
+      {
+        id: "batch",
+        title: "배치 서버",
+        subtitle: "Spring Batch",
+        color: "purple",
+        logo: "spring",
+        x: 640,
+        y: 520,
+        w: 320,
+        items: [
+          { label: "정합성 검증", sub: "규칙 6종 · 이력 재생", lucide: Shield },
+          { label: "만료 · 정리 · 집계", sub: "발급 API와 분리", lucide: Cog },
+          { label: "이상 감지", sub: "알림 규칙 45종", lucide: Bell },
+        ],
+      },
+      {
+        id: "prometheus",
+        title: "Prometheus",
+        subtitle: "관측",
+        color: "amber",
+        logo: "prometheus",
+        x: 1080,
+        y: 600,
+        w: 280,
+        items: [{ label: "API · 배치 · 대기열 지표", sub: "Alertmanager", logo: "prometheus" }],
+      },
+    ],
+    edges: [
+      {
+        from: "user",
+        fromSide: "right",
+        to: "gateway",
+        toSide: "left",
+        flow: "req",
+        label: "요청",
+      },
+      {
+        from: "gateway",
+        fromSide: "right",
+        to: "coupon",
+        toSide: "left",
+        flow: "req",
+        label: "입장 통과",
+      },
+      {
+        from: "coupon",
+        fromItem: 1,
+        fromSide: "right",
+        to: "redis",
+        toItem: 0,
+        toSide: "left",
+        flow: "data",
+        label: "선점",
+      },
+      {
+        from: "coupon",
+        fromItem: 2,
+        fromSide: "right",
+        to: "mysql",
+        toItem: 0,
+        toSide: "left",
+        flow: "data",
+        label: "저장",
+      },
+      {
+        from: "coupon",
+        fromSide: "bottom",
+        to: "kafka",
+        toSide: "top",
+        flow: "external",
+        label: "알림 발행",
+      },
+      {
+        from: "batch",
+        fromItem: 0,
+        fromSide: "right",
+        to: "mysql",
+        toItem: 1,
+        toSide: "left",
+        flow: "data",
+        label: "검증",
+      },
+    ],
+    legend: [
+      { flow: "req", label: "요청 · 입장" },
+      { flow: "data", label: "재고 선점 · 저장" },
+      { flow: "external", label: "알림 이벤트" },
     ],
   },
 

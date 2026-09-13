@@ -1,7 +1,40 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
+
+// ---- scan-reading emphasis: numbers with units and tech names read first ----
+const EMPHASIS_TECH = [
+  "SELECT … FOR UPDATE", "Spring Batch", "Spring WebFlux", "Spring Boot", "Redis Pub/Sub",
+  "FOR UPDATE", "SKIP LOCKED", "WebFlux", "WebSocket", "Pub/Sub", "Redis", "MySQL", "MongoDB",
+  "Kafka", "Lua", "FastAPI", "Express", "Node.js", "Ollama", "EXAONE", "gpt-4o-mini", "JWT",
+  "Multer", "k6", "Prometheus", "Flyway", "Streamlit", "pandas", "Swagger", "TestContainers",
+  "Testcontainers", "ArchUnit", "Aho-Corasick", "mecab-ya", "QueryDSL", "InnoDB", "RAG", "LLM",
+];
+const EMPHASIS_UNIT = "(?:ms|req\\/s|%|건|회차|회|만|행|시간|초|개|종|배|명|vCPU|MB|GB)";
+const EMPHASIS_NUM = `(?<![\\w.\\-/~])(?:\\d+\\/\\d+|(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?(?:\\s?${EMPHASIS_UNIT})?)(?![\\w])`;
+const EMPHASIS_RE = new RegExp(
+  `(${EMPHASIS_TECH.map((t) => t.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")).join("|")}|${EMPHASIS_NUM})`,
+  "g",
+);
+// a bare single digit ("1인 1매") stays plain; units, separators or 2+ digits are emphasized
+const isMeaningfulNumber = (part: string) =>
+  /[,./]/.test(part) || /\d\s?\D/.test(part) || /^\d{2,}/.test(part);
+
+/** Bolds numbers-with-units and tech names inside a sentence so it can be scanned. */
+export function emphasize(text: string): ReactNode {
+  return text.split(EMPHASIS_RE).map((part, i) => {
+    if (i % 2 === 0 || (/^\d/.test(part) && !isMeaningfulNumber(part))) {
+      return <Fragment key={i}>{part}</Fragment>;
+    }
+    return (
+      <strong key={i} className="font-semibold text-[var(--text)]">
+        {part}
+      </strong>
+    );
+  });
+}
 
 /** Human Korean service label per project (shown instead of the git-style slug). */
 export const SERVICE_LABEL: Record<string, string> = {
+  "coupon-yaho": "선착순 쿠폰 발급",
   "voice-kiosk": "음성인식 키오스크",
   "live-chat": "라이브 채팅 서버",
   haeyaji: "날씨 추천 앱",
@@ -11,6 +44,24 @@ export const SERVICE_LABEL: Record<string, string> = {
 };
 export const serviceLabel = (slug: string, fallback: string) =>
   SERVICE_LABEL[slug] ?? fallback;
+
+/** Project branches — the single grouping used by the sidebar, projects page and home order. */
+export const PROJECT_GROUPS: { id: string; label: string; slugs: string[] }[] = [
+  { id: "traffic", label: "대규모 트래픽", slugs: ["coupon-yaho", "live-chat"] },
+  { id: "llm", label: "LLM 활용", slugs: ["voice-kiosk", "haeyaji"] },
+  { id: "web", label: "웹 백엔드", slugs: ["blog-platform", "zogakzip"] },
+  { id: "intern", label: "실무", slugs: ["media-inference"] },
+];
+
+/** Featured items bucketed into PROJECT_GROUPS order (empty groups dropped). */
+export function groupProjects<T extends { slug: string }>(items: T[]) {
+  return PROJECT_GROUPS.map((group) => ({
+    ...group,
+    items: group.slugs
+      .map((slug) => items.find((item) => item.slug === slug))
+      .filter((item): item is T => Boolean(item)),
+  })).filter((group) => group.items.length > 0);
+}
 
 /** Category colour for a tech token — matches the home "기술 스택" palette. */
 export function stackHue(tech: string): string {
@@ -23,7 +74,7 @@ export function stackHue(tech: string): string {
   if (/(node|express|spring|fastapi|nest|webflux|websocket|flask|django)/.test(t))
     return "var(--hue-blue)";
   if (
-    /(docker|git|swagger|jest|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg)/.test(
+    /(docker|git|swagger|jest|kafka|prometheus|k6|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg)/.test(
       t,
     )
   )
@@ -67,7 +118,7 @@ export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
           </h2>
         </span>
       ) : null}
-      <span className="flex items-baseline gap-x-1.5 text-[12px]">
+      <span className="flex items-baseline gap-x-2 text-[12px]">
         <span className="select-none text-[var(--faint)]">~</span>
         <span className="select-none font-bold text-[var(--c-cat)]">❯</span>
         <span className="text-[var(--dim)]">{cmd}</span>
@@ -79,12 +130,14 @@ export function Prompt({ cmd, comment }: { cmd: string; comment?: string }) {
 /** A titled panel — a section rendered as a distinct "tool output" card with a
  * bold Korean topic and a monospace shell-command label. */
 export function Panel({
+  index,
   cmd,
   comment,
   className,
   bodyClassName,
   children,
 }: {
+  index?: number;
   cmd: string;
   comment?: string;
   className?: string;
@@ -95,13 +148,18 @@ export function Panel({
     <section
       className={`overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)] ${className ?? ""}`}
     >
-      <header className="flex items-center gap-2.5 border-b border-[var(--border-soft)] bg-[var(--card-2)] px-4 py-2.5 sm:px-5">
+      <header className="flex items-center gap-3 border-b border-[var(--border-soft)] bg-[var(--card-2)] px-4 py-3 sm:px-5">
+        {index !== undefined ? (
+          <span className="font-mono text-[13px] font-semibold text-[var(--accent)]">
+            {String(index).padStart(2, "0")}
+          </span>
+        ) : null}
         {comment ? (
           <h2 className="whitespace-nowrap text-[15px] font-bold tracking-tight text-[var(--text)]">
             {comment}
           </h2>
         ) : null}
-        <span className="ml-auto hidden items-baseline gap-1.5 font-mono text-[11px] text-[var(--faint)] sm:flex">
+        <span className="ml-auto hidden items-baseline gap-2 font-mono text-[11px] text-[var(--faint)] sm:flex">
           <span className="text-[var(--c-cat)]">❯</span>
           <span className="truncate">{cmd}</span>
         </span>
@@ -129,8 +187,8 @@ export function TermWindow({
     <div className="term h-[100dvh] overflow-hidden bg-[var(--bg)] px-3 py-3 text-[15px] leading-relaxed text-[var(--dim)] sm:px-4 lg:pl-[232px]">
       <div className="mx-auto flex h-full w-full max-w-[1240px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] shadow-[var(--shadow)]">
         {/* pinned title bar */}
-        <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-2.5">
-          <span aria-hidden className="flex gap-1.5">
+        <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3">
+          <span aria-hidden className="flex gap-2">
             <span className="h-3 w-3 rounded-full bg-[#e06c5b]" />
             <span className="h-3 w-3 rounded-full bg-[#e0b23b]" />
             <span className="h-3 w-3 rounded-full bg-[#5bb865]" />
@@ -145,8 +203,8 @@ export function TermWindow({
           {children}
         </div>
         {/* tmux-style status bar */}
-        <div className="flex shrink-0 items-center gap-3 border-t border-[var(--border)] bg-[var(--card-2)] px-4 py-1.5 font-mono text-[11px] text-[var(--faint)]">
-          <span className="flex items-center gap-1.5 rounded bg-[var(--c-cat-soft)] px-1.5 py-0.5 font-semibold text-[var(--c-cat)]">
+        <div className="flex shrink-0 items-center gap-3 border-t border-[var(--border)] bg-[var(--card-2)] px-4 py-2 font-mono text-[11px] text-[var(--faint)]">
+          <span className="flex items-center gap-2 rounded bg-[var(--c-cat-soft)] px-2 py-0.5 font-semibold text-[var(--c-cat)]">
             <span aria-hidden>⎇</span> {branch}
           </span>
           <span className="truncate text-[var(--dim)]">{status}</span>

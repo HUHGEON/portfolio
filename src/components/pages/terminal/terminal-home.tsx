@@ -4,9 +4,11 @@ import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
 import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
+  groupProjects,
   LivePrompt,
   Panel,
   serviceLabel,
+  emphasize,
   StackList,
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
@@ -53,9 +55,16 @@ function highlightKeywords(text: string) {
 }
 
 export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
-  const { profile, home, about, skills } = dictionary;
-  const featured = home.featuredProjects;
-  const awardCount = featured.filter((p) => HEO_PROJECT_DETAILS[p.slug]?.award).length;
+  const { profile, home, about, skills, projects } = dictionary;
+  const featured = groupProjects(home.featuredProjects).flatMap((group) => group.items);
+  // every award, including projects no longer featured on the cards
+  const awards = projects.flatMap((p) => {
+    const award = HEO_PROJECT_DETAILS[p.slug]?.award;
+    return award
+      ? [{ slug: p.slug, award, project: serviceLabel(p.slug, p.title) }]
+      : [];
+  });
+  const awardCount = awards.length;
 
   const stats: {
     value: string;
@@ -74,19 +83,19 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
     >
       {/* ── hero feature panel ── */}
       <section className="reveal relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-sm)]">
-        <div className="relative flex flex-col gap-5 p-5 sm:p-6">
+        <div className="relative flex flex-col gap-5 p-4 sm:p-5">
           <div className="flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
             <div>
               <p className="mb-2 font-mono text-[12px] text-[var(--faint)]">
-                <span className="text-[var(--c-cat)]">❯</span> whoami
+                <span className="text-[var(--c-cat)]">❯</span> <span data-type>whoami</span>
               </p>
-              <p className="text-[30px] font-extrabold leading-none tracking-tight text-[var(--text)] sm:text-[40px]">
+              <p data-split className="text-[30px] font-extrabold leading-none tracking-tight text-[var(--text)] sm:text-[40px]">
                 {home.profileCard.koreanName}{" "}
                 <span className="text-[var(--accent)]">
                   {home.profileCard.englishName}
                 </span>
               </p>
-              <p className="mt-2.5 text-[16px] font-medium text-[var(--dim)]">
+              <p className="mt-3 text-[16px] font-medium text-[var(--dim)]">
                 Backend Developer <span className="text-[var(--faint)]">·</span> 백엔드
                 개발자
               </p>
@@ -96,7 +105,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                   return (
                     <span
                       key={exp.title}
-                      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-1.5 text-[13px]"
+                      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-[var(--border)] bg-[var(--card-2)] px-3 py-2 text-[13px]"
                     >
                       <Icon size={13} className="shrink-0 text-[var(--accent)]" />
                       <span className="font-semibold text-[var(--text)]">
@@ -117,7 +126,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 height={460}
                 priority
                 unoptimized
-                className="relative h-[150px] w-[116px] rounded-2xl object-cover shadow-[var(--shadow)] ring-1 ring-[var(--border)]"
+                className="relative h-[150px] w-[116px] rounded-2xl object-cover shadow-[var(--shadow-sm)] ring-1 ring-[var(--accent-line)]"
               />
             </div>
           </div>
@@ -128,15 +137,33 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                 <p
                   className="font-mono text-[26px] font-extrabold leading-none text-[var(--text)]"
                 >
-                  {s.value}
+                  <span data-countup>{s.value}</span>
                   {s.unit ? (
                     <span className="ml-0.5 text-[16px] font-bold">{s.unit}</span>
                   ) : null}
                 </p>
-                <p className="mt-1.5 text-[13px] text-[var(--dim)]">{s.label}</p>
+                <p className="mt-2 text-[13px] text-[var(--dim)]">{s.label}</p>
               </div>
             ))}
           </div>
+          {awards.length > 0 ? (
+            <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-[var(--border-soft)] pt-4 text-[13px]">
+              <span className="text-[var(--dim)]">수상</span>
+              {awards.map((a) => (
+                <Link
+                  key={a.slug}
+                  href={`/projects/${a.slug}`}
+                  className="group whitespace-nowrap transition"
+                >
+                  <span className="text-[var(--hue-amber)]">★</span>{" "}
+                  <span className="font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">
+                    {a.award}
+                  </span>
+                  <span className="text-[var(--faint)]"> · {a.project}</span>
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -144,15 +171,16 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <Panel
           cmd="cat about.md"
+          index={1}
           comment="소개"
           className="reveal sm:col-span-2"
         >
           <p className="text-[19px] font-bold leading-snug tracking-tight text-[var(--text)] sm:text-[22px]">
             {home.title}
           </p>
-          <div className="mt-2.5 space-y-1.5 leading-relaxed">
+          <div className="mt-3 space-y-2 leading-relaxed">
             {about.paragraphs.map((p) => (
-              <p key={p} className="text-[var(--dim)]">
+              <p key={p} className="text-balance leading-[1.75] text-[var(--dim)]">
                 {highlightKeywords(p)}
               </p>
             ))}
@@ -160,39 +188,56 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
         </Panel>
 
         <Panel
-          cmd="cat ~/focus"
-          comment="무엇을 만드는가"
-          className="reveal"
+          cmd="cat PROFICIENCY.md"
+          index={2}
+          comment="할 수 있는 것"
+          className="reveal sm:col-span-2"
         >
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            {home.techFocus.buildItems.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--card-2)] px-3.5 py-3 text-[15px] font-medium text-[var(--text)] transition hover:border-[var(--accent-line)] hover:bg-[var(--card)]"
+          <ul data-stagger className="divide-y divide-[var(--border-soft)]">
+            {home.proficiency.map((item) => (
+              <li
+                key={item.text}
+                className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 md:flex-row md:items-baseline md:gap-6"
               >
-                <span className="text-[var(--faint)]">▸</span> {item}
-              </div>
+                <p className="flex-1 text-balance leading-[1.75] text-[var(--dim)]">{emphasize(item.text)}</p>
+                <span className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 text-[13px]">
+                  {item.projects.map((slug) => {
+                    const project = projects.find((p) => p.slug === slug);
+                    return project ? (
+                      <Link
+                        key={slug}
+                        href={`/projects/${slug}`}
+                        className="whitespace-nowrap text-[var(--dim)] transition hover:text-[var(--accent)]"
+                      >
+                        <span className="text-[var(--accent)]">→</span>{" "}
+                        {serviceLabel(slug, project.title)}
+                      </Link>
+                    ) : null;
+                  })}
+                </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </Panel>
 
         <Panel
           cmd="ls ~/stack"
+          index={3}
           comment="기술 스택"
-          className="reveal"
+          className="reveal sm:col-span-2"
         >
-          <div className="space-y-2.5">
+          <div data-stagger className="space-y-3">
             {skills.groups.map((group, gi) => {
               const hue = HUES[gi % HUES.length];
               return (
-                <div key={group.title} className="flex flex-wrap items-center gap-1.5">
+                <div key={group.title} className="flex flex-wrap items-center gap-2">
                   <span className="mr-1 w-[74px] shrink-0 font-mono text-[12px] text-[var(--faint)]">
                     {group.title.toLowerCase()}/
                   </span>
                   {group.items.map((it) => (
                     <span
                       key={it}
-                      className="rounded-md border px-2 py-[3px] text-[13px] font-medium"
+                      className="rounded-md border px-2 py-1 text-[13px] font-medium"
                       style={{
                         color: hue,
                         borderColor: tint(hue, 34),
@@ -210,17 +255,18 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
 
         <Panel
           cmd="git log ./projects"
+          index={4}
           comment={`프로젝트 · ${featured.length}개`}
           className="reveal sm:col-span-2"
         >
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <div data-stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {featured.map((project) => {
               const award = HEO_PROJECT_DETAILS[project.slug]?.award;
               return (
                 <Link
                   key={project.slug}
                   href={`/projects/${project.slug}`}
-                  className="group relative flex min-w-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-line)] hover:shadow-[var(--shadow-sm)]"
+                  className="spotlight group relative flex min-w-0 flex-col rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-[translate,scale,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:translate-y-0 active:scale-[0.99]"
                 >
                   <div className="flex flex-wrap items-center gap-x-2">
                     <span className="font-semibold text-[16px] text-[var(--text)] transition group-hover:text-[var(--accent)]">
@@ -232,10 +278,10 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1.5 line-clamp-2 text-[var(--dim)]">
-                    {project.description}
+                  <p className="mt-2 line-clamp-2 text-[var(--dim)]">
+                    {emphasize(project.description)}
                   </p>
-                  <StackList items={project.stack} className="mt-2.5" />
+                  <StackList items={project.stack} className="mt-3" />
                   <span className="mt-2 text-[12px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
                     자세히 보기 →
                   </span>
@@ -247,6 +293,7 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
 
         <Panel
           cmd="cat ./contact"
+          index={5}
           comment="연락처"
           className="reveal sm:col-span-2"
         >
