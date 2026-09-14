@@ -480,3 +480,64 @@ html {
     stroke-dashoffset: 0;
   }
 }
+
+/* ---- PDF summary edition (/print): fixed A4 sheets, light only ---- */
+@page {
+  size: A4;
+  margin: 0;
+}
+.print-root {
+  background: #ffffff;
+  color: var(--text);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  word-break: keep-all;
+}
+.print-sheet {
+  position: relative;
+  box-sizing: border-box;
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto;
+  padding: 12mm 13mm 14mm;
+  overflow: hidden;
+  background: #ffffff;
+  break-after: page;
+}
+.print-sheet:last-child {
+  break-after: auto;
+}
+.print-footer {
+  position: absolute;
+  right: 13mm;
+  bottom: 6mm;
+  left: 13mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--faint);
+}
+/* the theme flips dark → light on load; no transition may be caught mid-fade */
+.print-root,
+.print-root * {
+  transition: none !important;
+  animation: none !important;
+}
+.print-root .avoid-break {
+  break-inside: avoid;
+}
+@media screen {
+  .print-root {
+    background: #e9e9e9;
+    padding-block: 16px;
+  }
+  .print-sheet {
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  }
+}
+@media print {
+  .skip-link {
+    display: none;
+  }
+}
