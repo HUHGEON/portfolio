@@ -37,6 +37,20 @@ jobs:
           GITHUB_PAGES: "true"
         run: npm run build
 
+      # the A4 summary PDF is rendered from the built site so it can never drift
+      # from the pages; if this step fails, the committed public/ copy stays in place
+      - name: Render summary PDF from the built site
+        continue-on-error: true
+        run: |
+          mkdir -p .pdf-serve
+          ln -sfn "$PWD/out" .pdf-serve/portfolio
+          python3 -m http.server 4173 --directory .pdf-serve &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:4173/portfolio/print/ && break
+            sleep 1
+          done
+          node scripts/export-pdf.mjs http://localhost:4173/portfolio/print/ out/heo-geon-portfolio.pdf
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

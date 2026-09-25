@@ -383,7 +383,7 @@ const heogeon: Dictionary = {
     {
       slug: "coupon-yaho",
       title: "선착순 쿠폰 발급 시스템",
-      type: "Team Project",
+      type: "팀 프로젝트",
       description:
         "통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 바꿔 500 req/s 성공 응답 p99를 2,240ms → 802ms로 줄였습니다. 발급 결과는 이력 534만 행을 재생하는 검증 배치로 검증합니다.",
       href: "https://github.com/coupon-yaho",
@@ -393,7 +393,7 @@ const heogeon: Dictionary = {
     {
       slug: "voice-kiosk",
       title: "음성인식 키오스크",
-      type: "Team Project",
+      type: "팀 프로젝트",
       description:
         "음성·터치로 메뉴를 주문하고 추천받는 키오스크 서비스입니다. NLP 서버가 gpt-4o-mini로 STT 텍스트를 의도(intents)·필터로 해석한 뒤 오케스트레이터로 API 서버를 호출하고 응답을 클라이언트에 돌려주는 2단 구조의 백엔드입니다. NLP 서버 설계를 주도했습니다.",
       href: "https://github.com/Say-It-It-s-OK",
@@ -403,7 +403,7 @@ const heogeon: Dictionary = {
     {
       slug: "live-chat",
       title: "라이브 커머스 채팅 서버",
-      type: "Team Project",
+      type: "팀 프로젝트",
       description:
         "라이브 커머스 방송 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 + WebSocket으로 메시지를 주고받습니다. Pod를 늘려도 다른 Pod의 시청자에게 메시지가 전달되도록 Redis Pub/Sub으로 중계하고(best-effort) 권한·레이트리밋·욕설 마스킹·저장·발행은 하나의 전송 파이프라인 안에서 단계별로 분리했습니다.",
       href: "https://github.com/sago-panda/sapari-be/tree/feature/SPR-16",
@@ -413,7 +413,7 @@ const heogeon: Dictionary = {
     {
       slug: "haeyaji",
       title: "해야지 (haeyaji)",
-      type: "Team Project",
+      type: "팀 프로젝트",
       description:
         "날씨·시간대·위치를 바탕으로 ‘오늘 뭐 하면 좋을지’를 실제 장소와 함께 추천하는 투두 앱입니다. 추천 엔진(NLP)을 단독 개발하고 백엔드의 날씨 중계·추천 게이트웨이·개인화 학습·알림 도메인을 맡았습니다.",
       href: "https://github.com/haeyaji",
@@ -430,7 +430,7 @@ const heogeon: Dictionary = {
     {
       slug: "blog-platform",
       title: "Blog Platform 백엔드",
-      type: "Personal Project",
+      type: "개인 프로젝트",
       description:
         "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다. 인증을 3종 미들웨어로 분리하고 mecab-ya 형태소 분석으로 유사글 추천 키워드를 추출했습니다.",
       href: "https://github.com/HUHGEON/Blog-Platform",
@@ -440,7 +440,7 @@ const heogeon: Dictionary = {
     {
       slug: "zogakzip",
       title: "조각집 (ZOGAKZIP)",
-      type: "Team Project",
+      type: "팀 프로젝트",
       description:
         "그룹 > 게시글 > 이미지 계층의 추억 기록 서비스 백엔드를 2인 팀으로 개발했습니다. 게시글 API·이미지 업로드·한국 시간대(KST) 처리를 맡았고 활동 기반 배지 시스템은 팀이 함께 만들었습니다.",
       href: "https://github.com/HUHGEON/CODEIT-ZOGAKZIP",

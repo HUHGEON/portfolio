@@ -23,14 +23,18 @@ import {
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
 import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
+  groupProjects,
   LivePrompt,
   emphasize,
+  serviceLabel,
   StackList,
   stackHue,
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
 import type { ArchSpec } from "@/components/pages/project-detail/ArchitectureDiagram";
 import type { Project } from "@/types/project";
+import { defaultLocale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
 import { assetPath } from "@/lib/asset-path";
 
 const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
@@ -75,7 +79,9 @@ function ArchViewer({
           aria-label="아키텍처 확대"
           className="absolute right-4 top-4 z-10 inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface)]/90 px-3 py-2 font-mono text-[12px] text-[var(--dim)] shadow-[var(--shadow-sm)] backdrop-blur transition hover:border-[var(--accent-line)] hover:text-[var(--accent)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         >
-          <Maximize2 size={12} /> 확대
+          <Maximize2 size={12} />
+          <span className="sm:hidden">눌러서 확대</span>
+          <span className="hidden sm:inline">확대</span>
         </button>
         <button
           type="button"
@@ -317,7 +323,8 @@ function FlowSteps({ steps }: { steps: string[] }) {
   );
 }
 
-type SectionDef = { id: string; label: string; cmd: string; node: ReactNode };
+// `short` is the TOC label when the heading itself is too long for the phone strip
+type SectionDef = { id: string; label: string; short?: string; cmd: string; node: ReactNode };
 
 function SectionHead({
   index,
@@ -349,6 +356,12 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
   const d = HEO_PROJECT_DETAILS[project.slug];
   const branch = branchName(project.slug);
   const spec = d?.diagramKey ? ARCH_SPECS[d.diagramKey] : undefined;
+  // sidebar order, so "다음 프로젝트" matches the branch list a reader already saw
+  const ordered = groupProjects(
+    getDictionary(defaultLocale).projects.filter((p) => p.featured),
+  ).flatMap((group) => group.items);
+  const here = ordered.findIndex((p) => p.slug === project.slug);
+  const next = here === -1 ? undefined : ordered[(here + 1) % ordered.length];
   const [activeId, setActiveId] = useState<string>("");
 
   // build the ordered content sections (drives both the rail TOC and the body)
@@ -379,6 +392,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     sections.push({
       id: "demo",
       label: `시연 · ${demo.title.replace(/\s*\(.*\)$/, "")}`,
+      short: "시연",
       cmd: "open demo.mp4",
       node: (
         <div>
@@ -876,7 +890,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                       <span className="font-mono text-[12px] text-[var(--faint)]">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      {s.label}
+                      {s.short ?? s.label}
                     </button>
                   </li>
                 );
@@ -988,7 +1002,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                     : "border-[var(--border)] text-[var(--dim)]"
                 }`}
               >
-                {s.label}
+                {s.short ?? s.label}
               </button>
             ))}
           </nav>
@@ -1069,14 +1083,23 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             ))}
           </div>
 
-          <div className="mt-12 border-t border-[var(--border)] pt-5">
+          <nav className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-5">
             <Link
               href="/"
-              className="inline-block font-mono text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
+              className="font-mono text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
             >
               <span className="text-[var(--accent)]">←</span> 홈으로
             </Link>
-          </div>
+            {next ? (
+              <Link
+                href={`/projects/${next.slug}`}
+                className="text-[14px] font-semibold text-[var(--dim)] transition hover:text-[var(--accent)]"
+              >
+                다음 프로젝트 · {serviceLabel(next.slug, next.title)}{" "}
+                <span aria-hidden className="text-[var(--accent)]">→</span>
+              </Link>
+            ) : null}
+          </nav>
           <LivePrompt />
         </div>
       </div>

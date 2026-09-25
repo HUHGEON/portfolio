@@ -1,7 +1,8 @@
-import { Building2, GraduationCap } from "lucide-react";
+import { Building2, FileDown, GraduationCap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
+import { CopyEmail } from "@/components/pages/terminal/copy-email";
 import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
   groupProjects,
@@ -156,12 +157,20 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
             ))}
           </div>
         </div>
-        <a
-          href="#projects"
-          className="order-3 mt-5 inline-flex items-center gap-1 self-start text-[14px] font-semibold text-[var(--accent)] transition hover:gap-2 sm:order-none"
-        >
-          대표 프로젝트 보기 <span aria-hidden>↓</span>
-        </a>
+        <div className="order-3 mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 sm:order-none">
+          <a
+            href="#projects"
+            className="inline-flex items-center gap-1 text-[14px] font-semibold text-[var(--accent)] transition hover:gap-2"
+          >
+            대표 프로젝트 보기 <span aria-hidden>↓</span>
+          </a>
+          <a
+            href={assetPath("/heo-geon-portfolio.pdf")}
+            className="inline-flex items-center gap-1 text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
+          >
+            <FileDown size={14} className="text-[var(--accent)]" /> 요약 PDF (A4 9쪽)
+          </a>
+        </div>
       </section>
 
       {/* ── projects: bare section (no outer card), lead project spans full width ── */}
@@ -355,11 +364,20 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
             >
               <span className="text-[var(--accent)]">→</span> huhgeon.github.io
             </a>
+            <span className="inline-flex items-center gap-2">
+              <a
+                href={`mailto:${profile.email}`}
+                className="text-[var(--dim)] transition hover:text-[var(--accent)]"
+              >
+                <span className="text-[var(--accent)]">→</span> {profile.email}
+              </a>
+              <CopyEmail email={profile.email} />
+            </span>
             <a
-              href={`mailto:${profile.email}`}
+              href={assetPath("/heo-geon-portfolio.pdf")}
               className="text-[var(--dim)] transition hover:text-[var(--accent)]"
             >
-              <span className="text-[var(--accent)]">→</span> {profile.email}
+              <span className="text-[var(--accent)]">→</span> 포트폴리오 요약 PDF
             </a>
           </div>
         </Panel>
