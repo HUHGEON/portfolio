@@ -1623,7 +1623,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     diagramKey: "intern-arch",
     hook: "백엔드 프로토타입 개발부터 데이터 분석 자동화, QA까지 맡은 사내 실무입니다.",
     description:
-      "엠트리센 인턴 기간에 맡은 사내 실무를 기술 위주로 정리했습니다. 기획팀이 조사용으로 반복하던 엑셀 작업을 함께 맡으면서 대시보드로 자동화했습니다. 도메인·세부 기능·정량 성과는 대외비라 사용 기술과 구조만 공개합니다.",
+      "엠트리센 인턴 기간에 맡은 사내 실무를 기술 위주로 정리했습니다. 기획팀에서 조사용 엑셀 작업을 부탁받았는데, 반복되는 작업이라 스스로 대시보드로 자동화했습니다. 도메인·세부 기능·정량 성과는 대외비라 사용 기술과 구조만 공개합니다.",
     role: "백엔드 · 데이터 분석 자동화 · QA (사내 프로토타입)",
     period: "2025.08 ~ 2026.01",
     repoNote: "사내 · 비공개 저장소",
@@ -1635,7 +1635,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         title: "데이터 분석·시각화 대시보드 ①",
-        desc: "기획팀이 조사용으로 반복하던 엑셀 작업을 부탁받아 자동화. 엑셀 데이터 로드·가공·통계 분석·차트 시각화를 하는 Streamlit 대시보드로 수작업 분석 대체",
+        desc: "기획팀에서 부탁받은 조사용 엑셀 작업이 반복된다는 점을 보고 스스로 자동화. 엑셀 데이터 로드·가공·통계 분석·차트 시각화를 하는 Streamlit 대시보드로 수작업 분석 대체",
         stack: ["Python", "Streamlit", "pandas", "numpy", "matplotlib", "scipy"],
       },
       {
