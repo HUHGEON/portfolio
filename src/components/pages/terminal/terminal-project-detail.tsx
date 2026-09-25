@@ -136,6 +136,8 @@ function ArchLightbox({
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(
     null,
   );
+  // rendered cursor, so grabbing/grab actually repaints while a drag starts and ends
+  const [dragging, setDragging] = useState(false);
 
   const clampZoom = (z: number) => Math.min(3, Math.max(0.4, z));
   const reset = useCallback(() => {
@@ -161,6 +163,7 @@ function ArchLightbox({
   const onPointerDown = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, ox: pos.x, oy: pos.y };
+    setDragging(true);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drag.current) return;
@@ -171,6 +174,7 @@ function ArchLightbox({
   };
   const onPointerUp = () => {
     drag.current = null;
+    setDragging(false);
   };
 
   return createPortal(
@@ -217,7 +221,7 @@ function ArchLightbox({
       {/* canvas */}
       <div
         className="relative flex-1 touch-none overflow-hidden"
-        style={{ cursor: drag.current ? "grabbing" : "grab" }}
+        style={{ cursor: dragging ? "grabbing" : "grab" }}
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
