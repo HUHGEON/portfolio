@@ -541,3 +541,41 @@ html {
     display: none;
   }
 }
+
+/* ---- architecture diagram motion (interactive copies only; the PDF stays static) ---- */
+/* lines draw themselves in, one after another, when the section scrolls into view;
+   without the reveal (no JS) they simply stay drawn */
+.arch-edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.reveal.is-in .arch-edge {
+  animation: arch-draw 0.9s ease-out both;
+  animation-delay: calc(var(--i, 0) * 140ms + 250ms);
+}
+@keyframes arch-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/* nodes of the current playback step breathe in their own colour */
+@keyframes arch-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--glow);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--glow),
+      0 0 22px 4px color-mix(in srgb, var(--glow) 45%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal .arch-edge {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

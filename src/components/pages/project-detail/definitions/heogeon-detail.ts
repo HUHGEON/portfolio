@@ -1553,7 +1553,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         title: "배치 이상 감지",
-        desc: "알림 규칙 45종(critical 12 · warning 33), 잡은 성공했지만 데이터가 어긋난 경우도 별도 규칙으로 감지",
+        desc: "알림 규칙 48종(critical 12 · warning 36), 잡은 성공했지만 데이터가 어긋난 경우도 별도 규칙으로 감지",
       },
     ],
     architecture: {
@@ -1561,7 +1561,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       edges: [],
       steps: [
         "사용자 요청이 NGINX를 거쳐 대기열 게이트웨이(WebFlux)로 들어오면 즉시 종결 · 무대기 통과 · 대기열 진입 중 하나로 판정",
-        "통과한 발급 요청은 쿠폰 서비스가 멱등키를 IN_PROGRESS로 먼저 기록한 뒤 재고 판정. v1.2는 조건부 원자 UPDATE, v2.1은 Redis Lua 선점",
+        "통과한 발급 요청은 쿠폰 서비스가 재고를 판정하고 발급과 멱등 기록(DONE)을 한 트랜잭션에서 확정. 재고 판정은 v1.2가 조건부 원자 UPDATE, v2.1이 Redis Lua 선점",
         "MySQL이 발급 · 상태 이력 · 사용 실적 · 멱등 응답을 저장하고 UNIQUE(coupon_id, member_id)로 1인 1매를 최종 보장",
         "발급 결과 알림은 Kafka로 발행",
         "배치 서버가 만료 · 정리 · 정합성 검증 · 집계를 발급 API와 분리해 수행, Prometheus가 API · 배치 · 대기열 지표 수집",
@@ -1630,21 +1630,21 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     works: [
       {
         title: "백엔드 프로토타입 · 처리 파이프라인",
-        desc: "업로드 데이터 전처리 → 외부 처리 서버 연동 → 결과 저장·캐싱으로 이어지는 백엔드 파이프라인 구현, 업로드·전처리·외부 연동·저장을 서비스 레이어로 분리",
-        stack: ["Node.js", "Express", "MongoDB", "Redis", "Docker"],
+        desc: "원본 데이터 전처리(파일명 파싱·외부 조회 결과와 교차 검증) → 외부 서버 2곳 병렬 호출 → FFmpeg 압축 → 테넌트별 DB 저장·Redis 캐싱으로 이어지는 백엔드 파이프라인 구현. 처리·조회·캐시·외부 연동을 서비스 레이어로 분리하고, 목록 조회는 커서 페이지네이션과 쓰기 시 캐시 무효화로 처리",
+        stack: ["Node.js", "Express", "MongoDB", "Redis", "FFmpeg", "Docker"],
       },
       {
         title: "데이터 분석·시각화 대시보드 ①",
-        desc: "기획팀에서 부탁받은 조사용 엑셀 작업이 반복된다는 점을 보고 스스로 자동화. 엑셀 데이터 로드·가공·통계 분석·차트 시각화를 하는 Streamlit 대시보드로 수작업 분석 대체",
+        desc: "기획팀에서 부탁받은 조사용 엑셀 작업이 반복된다는 점을 보고 스스로 자동화. 엑셀 데이터 로드·가공·통계 분석(Kruskal-Wallis·Pearson 상관)·차트 시각화를 하는 Streamlit 대시보드로 수작업 분석 대체. 데이터 로드·가공·시각화는 유틸 모듈로 분리",
         stack: ["Python", "Streamlit", "pandas", "numpy", "matplotlib", "scipy"],
       },
       {
         title: "데이터 분석·시각화 대시보드 ②",
-        desc: "같은 기획팀 조사 업무에서 기간·조건별 엑셀 집계·분석을 Altair 차트 기반 Streamlit 대시보드로 자동화. 데이터 로드·가공·시각화는 유틸 모듈로 분리",
+        desc: "같은 기획팀 조사 업무에서 기간·조건별 엑셀 집계·분석을 Altair 차트 기반 Streamlit 대시보드로 자동화",
         stack: ["Python", "Streamlit", "pandas", "numpy", "Altair"],
       },
     ],
-    qa: "- 자체 프로젝트(백엔드·데이터 도구): 테스트 케이스를 직접 설계·수행해 동작 검증. 백엔드는 Jest 단위·통합 테스트, 데이터 도구는 입력·경계(엣지) 케이스로 결과 검증\n- 타사 앱 QA: 사내에서 다른 회사 앱을 직접 테스트하고 결과를 테스트 보고서로 정리·보고하는 업무를 자주 담당",
+    qa: "- 백엔드: Jest·supertest로 테스트 케이스 194개 작성(DB·캐시·외부 호출은 mock으로 격리), 테스트하기 쉽도록 핸들러와 비즈니스 로직을 분리하는 리팩터링 진행\n- 타사 앱 QA: 사내에서 다른 회사 앱을 직접 테스트하고 결과를 테스트 보고서로 정리·보고하는 업무를 자주 담당",
     problemTitle: "문제",
     problems: [],
     solutions: [],

@@ -5,11 +5,9 @@ import type { ReactNode } from "react";
 import {
   ARCH_SPECS,
   ArchitectureDiagram,
+  archView,
 } from "@/components/pages/project-detail/ArchitectureDiagram";
-import {
-  ARCH_BOX_W,
-  archFrameHeight,
-} from "@/components/pages/project-detail/arch-dimensions";
+import { ARCH_BOX_W } from "@/components/pages/project-detail/arch-dimensions";
 import {
   HEO_PROJECT_DETAILS,
   type HeoProjectDetail,
@@ -35,6 +33,7 @@ import { useTheme } from "@/components/shell/theme-context";
 const SITE = "https://huhgeon.github.io/portfolio";
 // A4 at 96dpi minus the 12mm × 13mm sheet padding
 const CONTENT_W = 696;
+const ARCH_MAX_PRINT_H = 380; // px on the sheet
 
 const typeLabel = (type: string) =>
   ({ "Team Project": "팀 프로젝트", "Personal Project": "개인 프로젝트" })[type] ??
@@ -84,8 +83,9 @@ function Bullets({ items, strong }: { items: string[]; strong?: boolean }) {
 function Arch({ diagramKey }: { diagramKey: string }) {
   const spec = ARCH_SPECS[diagramKey];
   if (!spec) return null;
-  const scale = CONTENT_W / ARCH_BOX_W;
-  const frameH = archFrameHeight(spec.width ?? 1600, spec.height ?? 980);
+  const frameH = archView(spec).frameH;
+  // full width, unless a tall diagram would push the page past A4
+  const scale = Math.min(CONTENT_W / ARCH_BOX_W, ARCH_MAX_PRINT_H / frameH);
   return (
     // `contain: strict` keeps the 1340px design box out of the print layout width;
     // otherwise Chrome shrinks the whole sheet to fit it
@@ -96,11 +96,12 @@ function Arch({ diagramKey }: { diagramKey: string }) {
       <div
         style={{
           width: ARCH_BOX_W,
+          marginLeft: (CONTENT_W - ARCH_BOX_W * scale) / 2,
           transform: `scale(${scale})`,
           transformOrigin: "top left",
         }}
       >
-        <ArchitectureDiagram spec={spec} />
+        <ArchitectureDiagram spec={spec} detail="read" />
       </div>
     </div>
   );

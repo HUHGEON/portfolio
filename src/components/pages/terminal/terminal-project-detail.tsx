@@ -1,6 +1,17 @@
 "use client";
 
-import { Check, Maximize2, Minus, Plus, RotateCcw, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Minus,
+  Pause,
+  Play,
+  Plus,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import {
   type CSSProperties,
@@ -15,11 +26,15 @@ import { createPortal } from "react-dom";
 import {
   ARCH_SPECS,
   ArchitectureDiagram,
+  archView,
+  describeNode,
 } from "@/components/pages/project-detail/ArchitectureDiagram";
 import {
-  ARCH_BOX_W,
-  archFrameHeight,
-} from "@/components/pages/project-detail/arch-dimensions";
+  ARCH_STORIES,
+  type ArchStoryStep as ArchStory,
+} from "@/components/pages/project-detail/arch-stories";
+import { ARCH_EVIDENCE } from "@/components/pages/project-detail/arch-evidence";
+import { ARCH_BOX_W } from "@/components/pages/project-detail/arch-dimensions";
 import { HEO_PROJECT_DETAILS } from "@/components/pages/project-detail/definitions/heogeon-detail";
 import { ScrollReveal } from "@/components/pages/terminal/scroll-reveal";
 import {
@@ -42,18 +57,117 @@ const branchName = (slug: string) => (slug === "media-inference" ? "intern" : sl
 /* ────────────────────────── architecture viewer ────────────────────────── */
 
 /** Inline diagram (scaled to fit) with a zoomable full-screen viewer. */
+/** What a clicked diagram node is: its lines in and out, and the code behind it. */
+function ArchDetail({
+  spec,
+  diagramKey,
+  nodeKey,
+  onClose,
+  className,
+}: {
+  spec: ArchSpec;
+  diagramKey: string;
+  nodeKey: string;
+  onClose: () => void;
+  className?: string;
+}) {
+  const info = describeNode(spec, nodeKey);
+  if (!info) return null;
+  const ev = ARCH_EVIDENCE[diagramKey]?.[nodeKey];
+  const arrow = { in: "←", out: "→", both: "↔" } as const;
+  return (
+    <div
+      className={`rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-left shadow-[var(--shadow-sm)] ${className ?? ""}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          {info.zoneTitle ? (
+            <p className="text-[12px] text-[var(--faint)]">{info.zoneTitle}</p>
+          ) : null}
+          <p className="font-semibold text-[var(--heading)]">{info.title}</p>
+          {info.sub ? (
+            <p className="text-[13px] text-[var(--dim)]">{info.sub}</p>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          aria-label="설명 닫기"
+          onClick={onClose}
+          className="shrink-0 rounded-md p-1 text-[var(--faint)] transition hover:bg-[var(--card-2)] hover:text-[var(--text)]"
+        >
+          <X size={15} />
+        </button>
+      </div>
+      {ev?.note ? (
+        <p className="mt-2 text-[14px] leading-[1.6] text-[var(--text)]">{ev.note}</p>
+      ) : null}
+      {info.items && info.items.length > 0 ? (
+        <p className="mt-2 text-[13px] text-[var(--dim)]">
+          구성 · {info.items.join(" · ")}
+        </p>
+      ) : null}
+      {info.links.length > 0 ? (
+        <ul className="mt-3 space-y-1 text-[13px] text-[var(--dim)]">
+          {info.links.map((l, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="w-4 shrink-0 text-center font-mono text-[var(--accent)]">
+                {arrow[l.dir]}
+              </span>
+              <span className="min-w-0">
+                {l.peer}
+                {l.label ? (
+                  <span className="text-[var(--faint)]"> · {l.label}</span>
+                ) : null}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+/** Inline diagram (scaled to fit) with a zoomable full-screen viewer. */
 function ArchViewer({
   spec,
   diagramKey,
   label,
+  steps = [],
 }: {
   spec: ArchSpec;
   diagramKey: string;
   label: string;
+  steps?: string[];
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [containerW, setContainerW] = useState(0);
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  // playback walks the "동작 흐름" lines; a story only exists when it matches them 1:1
+  const story = ARCH_STORIES[diagramKey];
+  const canPlay = Boolean(story) && story.length === steps.length;
+  const [step, setStep] = useState<number | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const toggle = (key: string) => {
+    setPlaying(false);
+    setStep(null);
+    setSelected((cur) => (cur === key ? null : key));
+  };
+  const goTo = (i: number) => {
+    setSelected(null);
+    setStep(i);
+  };
+
+  useEffect(() => {
+    if (!playing || step === null) return;
+    // the last step also stays up for a full beat before playback stops
+    const t = setTimeout(
+      () => (step >= steps.length - 1 ? setPlaying(false) : setStep(step + 1)),
+      3200,
+    );
+    return () => clearTimeout(t);
+  }, [playing, step, steps.length]);
+  const activeStory = canPlay && step !== null ? story[step] : null;
 
   useLayoutEffect(() => {
     const el = ref.current;
@@ -68,7 +182,7 @@ function ArchViewer({
   // measured scale once mounted; before that (SSR, hydration, no JS) CSS breakpoints
   // in .arch-fit supply a conservative scale so the diagram never renders at 1:1 and clips
   const scale = containerW ? Math.min(1, containerW / ARCH_BOX_W) : undefined;
-  const frameH = archFrameHeight(spec.width ?? 1600, spec.height ?? 980);
+  const frameH = archView(spec).frameH;
 
   return (
     <>
@@ -83,18 +197,18 @@ function ArchViewer({
           <span className="sm:hidden">눌러서 확대</span>
           <span className="hidden sm:inline">확대</span>
         </button>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="아키텍처 확대"
-          className="block w-full cursor-zoom-in text-left"
-        >
+        {/* background opens the viewer; nodes inside stop the click and select instead */}
+        <div onClick={() => setOpen(true)} className="block w-full cursor-zoom-in">
           <div
             ref={ref}
             className="arch-fit w-full overflow-hidden"
-            style={scale === undefined ? undefined : ({ "--arch-s": scale } as CSSProperties)}
+            style={
+              scale === undefined ? undefined : ({ "--arch-s": scale } as CSSProperties)
+            }
           >
-            <div style={{ width: ARCH_BOX_W, height: `calc(${frameH}px * var(--arch-s))` }}>
+            <div
+              style={{ width: ARCH_BOX_W, height: `calc(${frameH}px * var(--arch-s))` }}
+            >
               <div
                 style={{
                   width: ARCH_BOX_W,
@@ -102,17 +216,128 @@ function ArchViewer({
                   transformOrigin: "top left",
                 }}
               >
-                <ArchitectureDiagram spec={spec} key={diagramKey} />
+                <ArchitectureDiagram
+                  spec={spec}
+                  key={diagramKey}
+                  interactive
+                  selected={selected}
+                  onSelect={toggle}
+                  story={activeStory}
+                  detail="read"
+                />
               </div>
             </div>
           </div>
-        </button>
+        </div>
       </div>
+      {canPlay ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {step === null ? (
+            <button
+              type="button"
+              onClick={() => {
+                goTo(0);
+                setPlaying(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-md border border-[var(--accent-line)] bg-[var(--accent-soft)] px-3 py-1.5 text-[13px] font-semibold text-[var(--accent)] transition hover:bg-[var(--accent)] hover:text-white"
+            >
+              <Play size={13} /> 동작 흐름 재생
+            </button>
+          ) : (
+            <>
+              {[
+                {
+                  l: "이전 단계",
+                  icon: ChevronLeft,
+                  fn: () => {
+                    setPlaying(false);
+                    goTo(Math.max(0, step - 1));
+                  },
+                },
+                {
+                  l: playing ? "일시정지" : "계속 재생",
+                  icon: playing ? Pause : Play,
+                  fn: () => {
+                    if (!playing && step >= steps.length - 1) goTo(0);
+                    setPlaying(!playing);
+                  },
+                },
+                {
+                  l: "다음 단계",
+                  icon: ChevronRight,
+                  fn: () => {
+                    setPlaying(false);
+                    goTo(Math.min(steps.length - 1, step + 1));
+                  },
+                },
+              ].map(({ l, icon: Icon, fn }) => (
+                <button
+                  key={l}
+                  type="button"
+                  aria-label={l}
+                  onClick={fn}
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--dim)] transition hover:border-[var(--accent-line)] hover:text-[var(--accent)]"
+                >
+                  <Icon size={15} />
+                </button>
+              ))}
+              <span className="font-mono text-[12.5px] text-[var(--faint)]">
+                {step + 1} / {steps.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaying(false);
+                  setStep(null);
+                }}
+                className="ml-1 text-[12.5px] text-[var(--faint)] underline-offset-2 transition hover:text-[var(--text)] hover:underline"
+              >
+                재생 끝내기
+              </button>
+            </>
+          )}
+          {step === null && !selected ? (
+            <span className="hidden text-[12.5px] text-[var(--faint)] sm:inline">
+              또는 항목에 마우스를 올리거나 눌러 연결과 설명을 확인하세요.
+            </span>
+          ) : null}
+        </div>
+      ) : !selected ? (
+        <p className="mt-2 hidden text-[12.5px] text-[var(--faint)] sm:block">
+          항목에 마우스를 올리면 연결이, 누르면 설명이 보입니다.
+        </p>
+      ) : null}
+      {selected ? (
+        <ArchDetail
+          spec={spec}
+          diagramKey={diagramKey}
+          nodeKey={selected}
+          onClose={() => setSelected(null)}
+          className="mt-3"
+        />
+      ) : null}
+      {steps.length > 0 ? (
+        <FlowSteps
+          steps={steps}
+          active={step}
+          onPick={
+            canPlay
+              ? (i) => {
+                  setPlaying(false);
+                  goTo(i);
+                }
+              : undefined
+          }
+        />
+      ) : null}
       {open ? (
         <ArchLightbox
           spec={spec}
           diagramKey={diagramKey}
           label={label}
+          selected={selected}
+          onSelect={toggle}
+          story={activeStory}
           onClose={() => setOpen(false)}
         />
       ) : null}
@@ -124,24 +349,35 @@ function ArchLightbox({
   spec,
   diagramKey,
   label,
+  selected,
+  onSelect,
+  story = null,
   onClose,
 }: {
   spec: ArchSpec;
   diagramKey: string;
   label: string;
+  selected: string | null;
+  onSelect: (key: string) => void;
+  story?: ArchStory | null;
   onClose: () => void;
 }) {
-  const [zoom, setZoom] = useState(1);
+  // open fitted to the screen width (phones would otherwise start on a cropped 100% view)
+  const fitZoom = () =>
+    typeof window === "undefined"
+      ? 1
+      : Math.min(1, (window.innerWidth - 32) / ARCH_BOX_W);
+  const [zoom, setZoom] = useState(fitZoom);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(
-    null,
-  );
+  const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   // rendered cursor, so grabbing/grab actually repaints while a drag starts and ends
   const [dragging, setDragging] = useState(false);
+  // a pan that moved more than a few px must not also count as a click on a node
+  const moved = useRef(false);
 
-  const clampZoom = (z: number) => Math.min(3, Math.max(0.4, z));
+  const clampZoom = (z: number) => Math.min(3, Math.max(0.2, z));
   const reset = useCallback(() => {
-    setZoom(1);
+    setZoom(fitZoom());
     setPos({ x: 0, y: 0 });
   }, []);
 
@@ -163,10 +399,14 @@ function ArchLightbox({
   const onPointerDown = (e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, ox: pos.x, oy: pos.y };
+    moved.current = false;
     setDragging(true);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (!drag.current) return;
+    if (Math.hypot(e.clientX - drag.current.x, e.clientY - drag.current.y) > 4) {
+      moved.current = true;
+    }
     setPos({
       x: drag.current.ox + (e.clientX - drag.current.x),
       y: drag.current.oy + (e.clientY - drag.current.y),
@@ -181,9 +421,10 @@ function ArchLightbox({
     <div className="fixed inset-0 z-[100] flex flex-col bg-[var(--bg)]/92 backdrop-blur-md">
       {/* toolbar */}
       <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--card-2)] px-4 py-3">
-        <span className="flex items-center gap-2 font-mono text-[13px] text-[var(--dim)]">
-          <span className="text-[var(--c-cat)]">❯</span> architecture.svg —{" "}
-          <span className="text-[var(--text)]">{label}</span>
+        <span className="flex min-w-0 items-center gap-2 font-mono text-[13px] text-[var(--dim)]">
+          <span className="text-[var(--c-cat)]">❯</span>
+          <span className="hidden sm:inline">architecture.svg —</span>
+          <span className="truncate text-[var(--text)]">{label}</span>
         </span>
         <div className="flex items-center gap-2">
           {[
@@ -235,12 +476,30 @@ function ArchLightbox({
           }}
         >
           <div style={{ width: ARCH_BOX_W }}>
-            <ArchitectureDiagram spec={spec} key={`lb-${diagramKey}`} />
+            <ArchitectureDiagram
+              spec={spec}
+              key={`lb-${diagramKey}`}
+              interactive
+              selected={selected}
+              story={story}
+              onSelect={(key) => {
+                if (!moved.current) onSelect(key);
+              }}
+            />
           </div>
         </div>
       </div>
+      {selected ? (
+        <ArchDetail
+          spec={spec}
+          diagramKey={diagramKey}
+          nodeKey={selected}
+          onClose={() => onSelect(selected)}
+          className="absolute bottom-12 left-4 right-4 z-10 max-h-[45dvh] overflow-y-auto sm:bottom-auto sm:left-auto sm:top-[68px] sm:w-[340px] sm:max-h-[70dvh]"
+        />
+      ) : null}
       <p className="border-t border-[var(--border)] bg-[var(--card-2)] py-2 text-center font-mono text-[12px] text-[var(--faint)]">
-        스크롤 확대·축소 · 드래그로 이동 · ESC 닫기
+        스크롤 확대·축소 · 드래그로 이동 · 항목 클릭 시 설명 · ESC 닫기
       </p>
     </div>,
     document.body,
@@ -309,26 +568,76 @@ function EvidenceLinks({
   );
 }
 
-function FlowSteps({ steps }: { steps: string[] }) {
+function FlowSteps({
+  steps,
+  active = null,
+  onPick,
+}: {
+  steps: string[];
+  active?: number | null;
+  onPick?: (i: number) => void;
+}) {
   return (
     <div className="mt-6">
-      <p className="mb-3 text-[13px] font-semibold text-[var(--faint)]">동작 흐름</p>
+      <p className="mb-3 text-[13px] font-semibold text-[var(--faint)]">
+        동작 흐름
+        {onPick ? (
+          <span className="ml-2 font-normal">· 단계를 누르면 그림에서 보여 줍니다</span>
+        ) : null}
+      </p>
       <ol className="relative ml-[11px] border-l border-[var(--border)]">
-        {steps.map((step, i) => (
-          <li key={step} className="relative flex gap-4 pb-5 pl-6 last:pb-0">
-            <span className="absolute -left-[11px] top-0 z-10 flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[var(--accent-line)] bg-[var(--card-2)] font-mono text-[12px] font-semibold text-[var(--accent)]">
-              {i + 1}
-            </span>
-            <span className="pt-0.5 leading-[1.75] text-[var(--dim)]">{emphasize(step)}</span>
-          </li>
-        ))}
+        {steps.map((step, i) => {
+          const on = active === i;
+          const body = (
+            <>
+              <span
+                className={`absolute -left-[11px] top-0 z-10 flex h-[22px] w-[22px] items-center justify-center rounded-full border font-mono text-[12px] font-semibold transition ${
+                  on
+                    ? "border-[var(--accent)] bg-[var(--accent)] text-white"
+                    : "border-[var(--accent-line)] bg-[var(--card-2)] text-[var(--accent)]"
+                }`}
+              >
+                {i + 1}
+              </span>
+              <span
+                className={`pt-0.5 leading-[1.75] transition ${on ? "text-[var(--text)]" : "text-[var(--dim)]"}`}
+              >
+                {emphasize(step)}
+              </span>
+            </>
+          );
+          return (
+            <li key={step} className="relative pb-5 pl-6 last:pb-0">
+              {onPick ? (
+                <button
+                  type="button"
+                  aria-current={on ? "step" : undefined}
+                  onClick={() => onPick(i)}
+                  className={`-my-1 -ml-2 flex w-full gap-4 rounded-md py-1 pl-2 text-left transition ${
+                    on ? "bg-[var(--accent-soft)]" : "hover:bg-[var(--card-2)]"
+                  }`}
+                >
+                  {body}
+                </button>
+              ) : (
+                <div className="flex gap-4">{body}</div>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
 }
 
 // `short` is the TOC label when the heading itself is too long for the phone strip
-type SectionDef = { id: string; label: string; short?: string; cmd: string; node: ReactNode };
+type SectionDef = {
+  id: string;
+  label: string;
+  short?: string;
+  cmd: string;
+  node: ReactNode;
+};
 
 function SectionHead({
   index,
@@ -371,437 +680,453 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
   // build the ordered content sections (drives both the rail TOC and the body)
   const sections: SectionDef[] = [];
   if (d) {
-  if (spec && d.diagramKey) {
-    sections.push({
-      id: "architecture",
-      label: "아키텍처",
-      cmd: "render architecture.svg",
-      node: (
-        <>
-          <ArchViewer spec={spec} diagramKey={d.diagramKey} label={project.title} />
-          {d.architecture.steps.length > 0 ? <FlowSteps steps={d.architecture.steps} /> : null}
-        </>
-      ),
-    });
-  } else if (d.architecture.steps.length > 0) {
-    sections.push({
-      id: "flow",
-      label: "동작 흐름",
-      cmd: "cat FLOW.md",
-      node: <FlowSteps steps={d.architecture.steps} />,
-    });
-  }
-  if (d.demo) {
-    const demo = d.demo;
-    sections.push({
-      id: "demo",
-      label: `시연 · ${demo.title.replace(/\s*\(.*\)$/, "")}`,
-      short: "시연",
-      cmd: "open demo.mp4",
-      node: (
-        <div>
-          {demo.caption ? (
-            <p className="mb-4 leading-[1.75] text-[var(--dim)]">{demo.caption}</p>
-          ) : null}
-          <div
-            className={
-              demo.steps
-                ? demo.height > demo.width
-                  ? "grid items-start gap-6 md:grid-cols-[300px_minmax(0,1fr)]"
-                  : "grid items-start gap-6"
-                : ""
-            }
-          >
-          <video
-            src={assetPath(demo.video)}
-            poster={assetPath(demo.poster)}
-            width={demo.width}
-            height={demo.height}
-            autoPlay
-            muted
-            loop
-            playsInline
-            controls
-            controlsList="nodownload noremoteplayback"
-            disablePictureInPicture
-            preload="metadata"
-            aria-label={demo.title}
-            className={`block h-auto rounded-lg border border-[var(--border)] bg-black ${
-              demo.height > demo.width ? "mx-auto w-full max-w-[300px]" : "w-full"
-            }`}
-          />
-          {demo.steps ? (
-            <ol className="space-y-4">
-              {demo.steps.map((step, i) => (
-                <li key={step.say} className="flex gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--accent-line)] font-mono text-[12px] font-semibold text-[var(--accent)]">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[var(--heading)]">{step.say}</p>
-                    <p className="mt-0.5 leading-[1.7] text-[var(--dim)]">{step.result}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          ) : null}
-          </div>
-          {demo.youtubeId || demo.videoUrl ? (
-            <a
-              href={
-                demo.youtubeId
-                  ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
-                  : demo.videoUrl
-              }
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
-            >
-              {demo.title} · 전체 영상 {demo.youtubeId ? "YouTube" : "보기"} ↗
-            </a>
-          ) : null}
-        </div>
-      ),
-    });
-  }
-  if (d.cases && d.cases.length > 0) {
-    sections.push({
-      id: "cases",
-      label: "문제 해결 사례",
-      cmd: "cat CASES.md",
-      node: (
-        <ol data-stagger className="space-y-4">
-          {d.cases.map((c, ci) => (
-            <li
-              key={c.title}
-              className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5"
-            >
-              <p className="font-mono text-[13px] font-semibold text-[var(--accent)]">
-                사례 {ci + 1}
-              </p>
-              <h3 className="mt-1 text-balance text-[17px] font-bold leading-snug text-[var(--text)]">
-                {c.title}
-              </h3>
-              {c.links && c.links.length > 0 ? (
-                <div className="mt-2">
-                  <EvidenceLinks items={c.links} inline />
-                </div>
-              ) : null}
-              <div className="mt-4 space-y-4">
-                {(
-                  [
-                    ["문제 원인", c.causes],
-                    ["해결 과정", c.solutions],
-                    ["검증", c.checks ?? []],
-                    ["결과", c.results],
-                  ] as const
-                )
-                  .filter(([, items]) => items.length > 0)
-                  .map(([label, items]) => (
-                    <div key={label}>
-                      <p className="text-[13px] font-semibold text-[var(--faint)]">
-                        {label}
-                      </p>
-                      <ol className="mt-2 space-y-2">
-                        {items.map((item, ii) => (
-                          <li key={item} className="flex gap-3">
-                            <span className="w-5 shrink-0 font-mono text-[13px] leading-relaxed text-[var(--faint)]">
-                              {ii + 1})
-                            </span>
-                            <span
-                              className={
-                                label === "결과"
-                                  ? "font-semibold leading-[1.75] text-[var(--text)]"
-                                  : "leading-[1.75] text-[var(--dim)]"
-                              }
-                            >
-                              {emphasize(item)}
-                            </span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  ))}
-              </div>
-            </li>
-          ))}
-        </ol>
-      ),
-    });
-  }
-  if (d.versions && d.versions.length > 0) {
-    sections.push({
-      id: "versions",
-      label: "버전별 발전 과정",
-      cmd: "git log --oneline versions",
-      node: (
-        <ol data-stagger className="relative space-y-4 pl-7 before:absolute before:bottom-6 before:left-[7px] before:top-6 before:w-px before:bg-[var(--accent-line)]">
-          {d.versions.map((v) => (
-            <li
-              key={v.version}
-              className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5"
-            >
-              <span
-                aria-hidden
-                className="absolute -left-7 top-6 z-10 h-[15px] w-[15px] rounded-full border-2 border-[var(--accent)] bg-[var(--surface)]"
-              />
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span className="font-mono text-[14px] font-bold text-[var(--accent)]">
-                  {v.version}
-                </span>
-                <h3 className="text-[16px] font-bold text-[var(--text)]">{v.title}</h3>
-                <span className="rounded-md border border-[var(--border)] px-2 py-0.5 text-[12px] text-[var(--dim)]">
-                  {v.status}
-                </span>
-              </div>
-              <dl className="mt-3 grid gap-x-4 gap-y-2 sm:grid-cols-[88px_1fr]">
-                {(
-                  [
-                    ["문제", v.problem],
-                    ["선택 이유", v.choice],
-                    ["트레이드오프", v.tradeoff],
-                    ["수치", v.metric],
-                    ["다음 단계로", v.next],
-                  ] as const
-                )
-                  .filter(([, text]) => Boolean(text))
-                  .map(([label, text]) => (
-                    <div key={label} className="contents">
-                      <dt className="text-[13px] font-semibold text-[var(--faint)] sm:pt-0.5">
-                        {label}
-                      </dt>
-                      <dd
-                        className={
-                          label === "수치"
-                            ? "font-mono text-[14px] leading-relaxed text-[var(--text)]"
-                            : "leading-[1.75] text-[var(--dim)]"
-                        }
-                      >
-                        {emphasize(text ?? "")}
-                      </dd>
-                    </div>
-                  ))}
-              </dl>
-            </li>
-          ))}
-        </ol>
-      ),
-    });
-  }
-  if (d.works) {
-    sections.push({
-      id: "work",
-      label: "사내 실무 · 기술 중심",
-      cmd: "ls ./work",
-      node: (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {d.works.map((w) => (
-              <div
-                key={w.title}
-                className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4"
-              >
-                <p className="font-semibold text-[var(--text)]">{w.title}</p>
-                <p className="mt-2 leading-[1.75] text-[var(--dim)]">
-                  {emphasize(w.desc)}
-                </p>
-                <StackList items={w.stack} className="mt-3" />
-              </div>
-            ))}
-          </div>
-          {d.qa ? (
-            <div className="mt-4 space-y-2 border-t border-[var(--border-soft)] pt-4">
-              {d.qa.split("\n").map((line) => (
-                <p key={line} className="leading-[1.75] text-[var(--dim)]">
-                  {line.replace(/^- /, "")}
-                </p>
-              ))}
-            </div>
-          ) : null}
-          <p className="mt-4 font-mono text-[12px] text-[var(--faint)]">
-            ※ 도메인·세부 기능·정량 성과는 대외비로, 사용 기술과 구조만 기재.
-          </p>
-        </>
-      ),
-    });
-  } else {
-    if (d.features && d.features.length > 0) {
+    if (spec && d.diagramKey) {
       sections.push({
-        id: "features",
-        label: "주요 기능",
-        cmd: "cat FEATURES.md",
-        node: (
-          <div data-stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {d.features.map((f) => (
-              <div
-                key={f.title}
-                className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-[translate,scale,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
-              >
-                <p className="font-semibold text-[var(--text)]">{f.title}</p>
-                <p className="mt-2 leading-[1.75] text-[var(--dim)]">{emphasize(f.desc)}</p>
-              </div>
-            ))}
-          </div>
-        ),
-      });
-    }
-    if (d.problems.length > 0 || d.solutions.length > 0) {
-      sections.push({
-        id: "problem",
-        label: "문제 · 해결",
-        cmd: "cat PROBLEM_SOLUTION.md",
-        node: (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {d.problems.length > 0 ? (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-                <p className="font-semibold text-[var(--text)]">
-                  # 문제 — {d.problemTitle}
-                </p>
-                <Bullets items={d.problems} />
-              </div>
-            ) : null}
-            {d.solutions.length > 0 ? (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-                <p className="font-semibold text-[var(--text)]"># 해결 과정</p>
-                <Bullets items={d.solutions} />
-                {d.progress && d.progress.length > 0 ? (
-                  <div className="mt-3 border-t border-[var(--border-soft)] pt-3">
-                    <p className="font-mono text-[13px] text-[var(--faint)]">
-                      {d.progressTitle ?? "현재 진행"}
-                    </p>
-                    <Bullets items={d.progress} />
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ),
-      });
-    }
-    if (d.benchmark) {
-      const b = d.benchmark;
-      sections.push({
-        id: "benchmark",
-        label: "측정 결과",
-        cmd: "cat BENCHMARK.md",
+        id: "architecture",
+        label: "아키텍처",
+        cmd: "render architecture.svg",
         node: (
           <>
-            <p className="leading-[1.75] text-[var(--dim)]">{emphasize(b.caption)}</p>
-            <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--border)]">
-              <table className="w-full border-collapse font-mono text-[13px] tabular-nums">
-                <thead>
-                  <tr className="bg-[var(--card-2)]">
-                    {b.headers.map((h, i) => (
-                      <th
-                        key={h}
-                        className={`whitespace-nowrap border-b border-[var(--border)] px-2 py-2 text-[12px] font-semibold text-[var(--dim)] ${i < 2 ? "text-left" : "text-right"}`}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody data-stagger>
-                  {b.rows.map((row, ri) => (
-                    <tr
-                      key={`${row.cells.join("|")}-${ri}`}
-                      className={
-                        row.cells[0]
-                          ? "border-t border-[var(--border)]"
-                          : "border-t border-[var(--border-soft)]"
-                      }
-                    >
-                      {row.cells.map((cell, ci) => (
-                        <td
-                          key={`${ci}-${cell}`}
-                          className={`whitespace-nowrap px-2 py-2 ${ci < 2 ? "text-left" : "text-right"} ${row.highlight ? "font-semibold text-[var(--text)]" : "text-[var(--dim)]"}`}
-                        >
-                          {b.bar && ci === b.bar.column ? (
-                            <span className="inline-flex flex-col items-end gap-1">
-                              <span>{cell}</span>
-                              <span
-                                title={`${row.cells[1]} · ${b.bar.label} ${cell} (상대값, 눈금 끝 ${b.bar.max.toFixed(1)})`}
-                                className="relative block h-1.5 w-14 rounded-full bg-[var(--border-soft)]"
-                              >
-                                <span
-                                  data-bar
-                                  className="absolute inset-y-0 left-0 origin-left rounded-full bg-[var(--accent)]"
-                                  style={{
-                                    width: `${Math.min(100, (Number(cell) / b.bar.max) * 100)}%`,
-                                  }}
-                                />
-                              </span>
-                            </span>
-                          ) : (
-                            cell
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {b.footnote ? (
-              <p className="mt-3 text-[13px] leading-relaxed text-[var(--faint)]">
-                {b.footnote}
-              </p>
-            ) : null}
+            <ArchViewer
+              spec={spec}
+              diagramKey={d.diagramKey}
+              label={project.title}
+              steps={d.architecture.steps}
+            />
           </>
         ),
       });
-    }
-    if (d.results.length > 0) {
+    } else if (d.architecture.steps.length > 0) {
       sections.push({
-        id: "results",
-        label: "결과",
-        cmd: "cat RESULTS.md",
+        id: "flow",
+        label: "동작 흐름",
+        cmd: "cat FLOW.md",
+        node: <FlowSteps steps={d.architecture.steps} />,
+      });
+    }
+    if (d.demo) {
+      const demo = d.demo;
+      sections.push({
+        id: "demo",
+        label: `시연 · ${demo.title.replace(/\s*\(.*\)$/, "")}`,
+        short: "시연",
+        cmd: "open demo.mp4",
         node: (
-          <ul className="space-y-3">
-            {d.results.map((r) => (
-              <li key={r} className="flex gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--c-cat-soft)]">
-                  <Check size={13} className="text-[var(--c-cat)]" />
-                </span>
-                <span className="leading-[1.75] text-[var(--text)]">{emphasize(r)}</span>
+          <div>
+            {demo.caption ? (
+              <p className="mb-4 leading-[1.75] text-[var(--dim)]">{demo.caption}</p>
+            ) : null}
+            <div
+              className={
+                demo.steps
+                  ? demo.height > demo.width
+                    ? "grid items-start gap-6 md:grid-cols-[300px_minmax(0,1fr)]"
+                    : "grid items-start gap-6"
+                  : ""
+              }
+            >
+              <video
+                src={assetPath(demo.video)}
+                poster={assetPath(demo.poster)}
+                width={demo.width}
+                height={demo.height}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                controlsList="nodownload noremoteplayback"
+                disablePictureInPicture
+                preload="metadata"
+                aria-label={demo.title}
+                className={`block h-auto rounded-lg border border-[var(--border)] bg-black ${
+                  demo.height > demo.width ? "mx-auto w-full max-w-[300px]" : "w-full"
+                }`}
+              />
+              {demo.steps ? (
+                <ol className="space-y-4">
+                  {demo.steps.map((step, i) => (
+                    <li key={step.say} className="flex gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--accent-line)] font-mono text-[12px] font-semibold text-[var(--accent)]">
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[var(--heading)]">
+                          {step.say}
+                        </p>
+                        <p className="mt-0.5 leading-[1.7] text-[var(--dim)]">
+                          {step.result}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </div>
+            {demo.youtubeId || demo.videoUrl ? (
+              <a
+                href={
+                  demo.youtubeId
+                    ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
+                    : demo.videoUrl
+                }
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
+              >
+                {demo.title} · 전체 영상 {demo.youtubeId ? "YouTube" : "보기"} ↗
+              </a>
+            ) : null}
+          </div>
+        ),
+      });
+    }
+    if (d.cases && d.cases.length > 0) {
+      sections.push({
+        id: "cases",
+        label: "문제 해결 사례",
+        cmd: "cat CASES.md",
+        node: (
+          <ol data-stagger className="space-y-4">
+            {d.cases.map((c, ci) => (
+              <li
+                key={c.title}
+                className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5"
+              >
+                <p className="font-mono text-[13px] font-semibold text-[var(--accent)]">
+                  사례 {ci + 1}
+                </p>
+                <h3 className="mt-1 text-balance text-[17px] font-bold leading-snug text-[var(--text)]">
+                  {c.title}
+                </h3>
+                {c.links && c.links.length > 0 ? (
+                  <div className="mt-2">
+                    <EvidenceLinks items={c.links} inline />
+                  </div>
+                ) : null}
+                <div className="mt-4 space-y-4">
+                  {(
+                    [
+                      ["문제 원인", c.causes],
+                      ["해결 과정", c.solutions],
+                      ["검증", c.checks ?? []],
+                      ["결과", c.results],
+                    ] as const
+                  )
+                    .filter(([, items]) => items.length > 0)
+                    .map(([label, items]) => (
+                      <div key={label}>
+                        <p className="text-[13px] font-semibold text-[var(--faint)]">
+                          {label}
+                        </p>
+                        <ol className="mt-2 space-y-2">
+                          {items.map((item, ii) => (
+                            <li key={item} className="flex gap-3">
+                              <span className="w-5 shrink-0 font-mono text-[13px] leading-relaxed text-[var(--faint)]">
+                                {ii + 1})
+                              </span>
+                              <span
+                                className={
+                                  label === "결과"
+                                    ? "font-semibold leading-[1.75] text-[var(--text)]"
+                                    : "leading-[1.75] text-[var(--dim)]"
+                                }
+                              >
+                                {emphasize(item)}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    ))}
+                </div>
               </li>
             ))}
-          </ul>
+          </ol>
         ),
       });
     }
-    if (d.lessons) {
+    if (d.versions && d.versions.length > 0) {
       sections.push({
-        id: "lessons",
-        label: "배운 점",
-        cmd: "cat LESSONS.md",
+        id: "versions",
+        label: "버전별 발전 과정",
+        cmd: "git log --oneline versions",
         node: (
-          <p className="leading-[1.75] text-[var(--dim)]">{emphasize(d.lessons)}</p>
-        ),
-      });
-    }
-    if (d.techChoices.length > 0) {
-      sections.push({
-        id: "tech",
-        label: "기술 선택 이유",
-        cmd: "cat TECH_CHOICES.md",
-        node: (
-          <ul
+          <ol
             data-stagger
-            className="divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)]"
+            className="relative space-y-4 pl-7 before:absolute before:bottom-6 before:left-[7px] before:top-6 before:w-px before:bg-[var(--accent-line)]"
           >
-            {d.techChoices.map((t) => (
-              <li key={t.name} className="px-4 py-3 leading-[1.75] text-[var(--dim)]">
-                <TechChip name={t.name} className="mr-2" />
-                {emphasize(t.reason)}
+            {d.versions.map((v) => (
+              <li
+                key={v.version}
+                className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5"
+              >
+                <span
+                  aria-hidden
+                  className="absolute -left-7 top-6 z-10 h-[15px] w-[15px] rounded-full border-2 border-[var(--accent)] bg-[var(--surface)]"
+                />
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-mono text-[14px] font-bold text-[var(--accent)]">
+                    {v.version}
+                  </span>
+                  <h3 className="text-[16px] font-bold text-[var(--text)]">
+                    {v.title}
+                  </h3>
+                  <span className="rounded-md border border-[var(--border)] px-2 py-0.5 text-[12px] text-[var(--dim)]">
+                    {v.status}
+                  </span>
+                </div>
+                <dl className="mt-3 grid gap-x-4 gap-y-2 sm:grid-cols-[88px_1fr]">
+                  {(
+                    [
+                      ["문제", v.problem],
+                      ["선택 이유", v.choice],
+                      ["트레이드오프", v.tradeoff],
+                      ["수치", v.metric],
+                      ["다음 단계로", v.next],
+                    ] as const
+                  )
+                    .filter(([, text]) => Boolean(text))
+                    .map(([label, text]) => (
+                      <div key={label} className="contents">
+                        <dt className="text-[13px] font-semibold text-[var(--faint)] sm:pt-0.5">
+                          {label}
+                        </dt>
+                        <dd
+                          className={
+                            label === "수치"
+                              ? "font-mono text-[14px] leading-relaxed text-[var(--text)]"
+                              : "leading-[1.75] text-[var(--dim)]"
+                          }
+                        >
+                          {emphasize(text ?? "")}
+                        </dd>
+                      </div>
+                    ))}
+                </dl>
               </li>
             ))}
-          </ul>
+          </ol>
         ),
       });
     }
-  }
-
+    if (d.works) {
+      sections.push({
+        id: "work",
+        label: "사내 실무 · 기술 중심",
+        cmd: "ls ./work",
+        node: (
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {d.works.map((w) => (
+                <div
+                  key={w.title}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4"
+                >
+                  <p className="font-semibold text-[var(--text)]">{w.title}</p>
+                  <p className="mt-2 leading-[1.75] text-[var(--dim)]">
+                    {emphasize(w.desc)}
+                  </p>
+                  <StackList items={w.stack} className="mt-3" />
+                </div>
+              ))}
+            </div>
+            {d.qa ? (
+              <div className="mt-4 space-y-2 border-t border-[var(--border-soft)] pt-4">
+                {d.qa.split("\n").map((line) => (
+                  <p key={line} className="leading-[1.75] text-[var(--dim)]">
+                    {line.replace(/^- /, "")}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            <p className="mt-4 font-mono text-[12px] text-[var(--faint)]">
+              ※ 도메인·세부 기능·정량 성과는 대외비로, 사용 기술과 구조만 기재.
+            </p>
+          </>
+        ),
+      });
+    } else {
+      if (d.features && d.features.length > 0) {
+        sections.push({
+          id: "features",
+          label: "주요 기능",
+          cmd: "cat FEATURES.md",
+          node: (
+            <div data-stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {d.features.map((f) => (
+                <div
+                  key={f.title}
+                  className="spotlight rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 transition-[translate,scale,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+                >
+                  <p className="font-semibold text-[var(--text)]">{f.title}</p>
+                  <p className="mt-2 leading-[1.75] text-[var(--dim)]">
+                    {emphasize(f.desc)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ),
+        });
+      }
+      if (d.problems.length > 0 || d.solutions.length > 0) {
+        sections.push({
+          id: "problem",
+          label: "문제 · 해결",
+          cmd: "cat PROBLEM_SOLUTION.md",
+          node: (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {d.problems.length > 0 ? (
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+                  <p className="font-semibold text-[var(--text)]">
+                    # 문제 — {d.problemTitle}
+                  </p>
+                  <Bullets items={d.problems} />
+                </div>
+              ) : null}
+              {d.solutions.length > 0 ? (
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+                  <p className="font-semibold text-[var(--text)]"># 해결 과정</p>
+                  <Bullets items={d.solutions} />
+                  {d.progress && d.progress.length > 0 ? (
+                    <div className="mt-3 border-t border-[var(--border-soft)] pt-3">
+                      <p className="font-mono text-[13px] text-[var(--faint)]">
+                        {d.progressTitle ?? "현재 진행"}
+                      </p>
+                      <Bullets items={d.progress} />
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ),
+        });
+      }
+      if (d.benchmark) {
+        const b = d.benchmark;
+        sections.push({
+          id: "benchmark",
+          label: "측정 결과",
+          cmd: "cat BENCHMARK.md",
+          node: (
+            <>
+              <p className="leading-[1.75] text-[var(--dim)]">{emphasize(b.caption)}</p>
+              <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--border)]">
+                <table className="w-full border-collapse font-mono text-[13px] tabular-nums">
+                  <thead>
+                    <tr className="bg-[var(--card-2)]">
+                      {b.headers.map((h, i) => (
+                        <th
+                          key={h}
+                          className={`whitespace-nowrap border-b border-[var(--border)] px-2 py-2 text-[12px] font-semibold text-[var(--dim)] ${i < 2 ? "text-left" : "text-right"}`}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody data-stagger>
+                    {b.rows.map((row, ri) => (
+                      <tr
+                        key={`${row.cells.join("|")}-${ri}`}
+                        className={
+                          row.cells[0]
+                            ? "border-t border-[var(--border)]"
+                            : "border-t border-[var(--border-soft)]"
+                        }
+                      >
+                        {row.cells.map((cell, ci) => (
+                          <td
+                            key={`${ci}-${cell}`}
+                            className={`whitespace-nowrap px-2 py-2 ${ci < 2 ? "text-left" : "text-right"} ${row.highlight ? "font-semibold text-[var(--text)]" : "text-[var(--dim)]"}`}
+                          >
+                            {b.bar && ci === b.bar.column ? (
+                              <span className="inline-flex flex-col items-end gap-1">
+                                <span>{cell}</span>
+                                <span
+                                  title={`${row.cells[1]} · ${b.bar.label} ${cell} (상대값, 눈금 끝 ${b.bar.max.toFixed(1)})`}
+                                  className="relative block h-1.5 w-14 rounded-full bg-[var(--border-soft)]"
+                                >
+                                  <span
+                                    data-bar
+                                    className="absolute inset-y-0 left-0 origin-left rounded-full bg-[var(--accent)]"
+                                    style={{
+                                      width: `${Math.min(100, (Number(cell) / b.bar.max) * 100)}%`,
+                                    }}
+                                  />
+                                </span>
+                              </span>
+                            ) : (
+                              cell
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {b.footnote ? (
+                <p className="mt-3 text-[13px] leading-relaxed text-[var(--faint)]">
+                  {b.footnote}
+                </p>
+              ) : null}
+            </>
+          ),
+        });
+      }
+      if (d.results.length > 0) {
+        sections.push({
+          id: "results",
+          label: "결과",
+          cmd: "cat RESULTS.md",
+          node: (
+            <ul className="space-y-3">
+              {d.results.map((r) => (
+                <li key={r} className="flex gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--c-cat-soft)]">
+                    <Check size={13} className="text-[var(--c-cat)]" />
+                  </span>
+                  <span className="leading-[1.75] text-[var(--text)]">
+                    {emphasize(r)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ),
+        });
+      }
+      if (d.lessons) {
+        sections.push({
+          id: "lessons",
+          label: "배운 점",
+          cmd: "cat LESSONS.md",
+          node: (
+            <p className="leading-[1.75] text-[var(--dim)]">{emphasize(d.lessons)}</p>
+          ),
+        });
+      }
+      if (d.techChoices.length > 0) {
+        sections.push({
+          id: "tech",
+          label: "기술 선택 이유",
+          cmd: "cat TECH_CHOICES.md",
+          node: (
+            <ul
+              data-stagger
+              className="divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)]"
+            >
+              {d.techChoices.map((t) => (
+                <li key={t.name} className="px-4 py-3 leading-[1.75] text-[var(--dim)]">
+                  <TechChip name={t.name} className="mr-2" />
+                  {emphasize(t.reason)}
+                </li>
+              ))}
+            </ul>
+          ),
+        });
+      }
+    }
   }
 
   // case-driven pages lead with problem solving; intro sections move down
@@ -854,9 +1179,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
         title={`~/heo-geon/projects/${project.slug} — zsh`}
         branch={`feat/${project.slug}`}
       >
-        <h1 className="text-[22px] font-bold text-[var(--text)]">
-          {project.title}
-        </h1>
+        <h1 className="text-[22px] font-bold text-[var(--text)]">{project.title}</h1>
         <p className="mt-2 text-[var(--dim)]">{project.description}</p>
         <LivePrompt />
       </TermWindow>
@@ -975,15 +1298,21 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             <span className="font-semibold text-[var(--text)]">{d.role}</span>
             {d.period ? (
               <>
-                <span aria-hidden className="text-[var(--faint)]">·</span>
+                <span aria-hidden className="text-[var(--faint)]">
+                  ·
+                </span>
                 <span>{d.period}</span>
               </>
             ) : null}
-            <span aria-hidden className="text-[var(--faint)]">·</span>
+            <span aria-hidden className="text-[var(--faint)]">
+              ·
+            </span>
             <span>{project.type}</span>
             {d.award ? (
               <>
-                <span aria-hidden className="text-[var(--faint)]">·</span>
+                <span aria-hidden className="text-[var(--faint)]">
+                  ·
+                </span>
                 <span>
                   <span className="text-[var(--hue-amber)]">★</span> {d.award}
                 </span>
@@ -1011,10 +1340,15 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
             ))}
           </nav>
           {d.metrics && d.metrics.length > 0 ? (
-            <dl data-stagger className="reveal mt-5 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2">
+            <dl
+              data-stagger
+              className="reveal mt-5 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2"
+            >
               {d.metrics.map((m) => (
                 <div key={m.label} className="flex flex-col bg-[var(--card)] px-4 py-3">
-                  <dt className="text-[12px] font-semibold text-[var(--faint)]">{m.label}</dt>
+                  <dt className="text-[12px] font-semibold text-[var(--faint)]">
+                    {m.label}
+                  </dt>
                   <dd
                     data-countup
                     className="mt-1 font-mono text-[22px] font-bold leading-tight text-[var(--text)]"
@@ -1042,7 +1376,9 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
 
           {d.evidence && d.evidence.length > 0 ? (
             <div className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-              <span className="text-[13px] font-semibold text-[var(--faint)]">근거</span>
+              <span className="text-[13px] font-semibold text-[var(--faint)]">
+                근거
+              </span>
               <EvidenceLinks items={d.evidence} inline />
             </div>
           ) : null}
@@ -1054,11 +1390,11 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 <span
                   key={s}
                   className="rounded-md border px-2 py-1 font-mono text-[12px]"
-                    style={{
-                      color: stackHue(s),
-                      borderColor: `color-mix(in srgb, ${stackHue(s)} 32%, transparent)`,
-                      background: `color-mix(in srgb, ${stackHue(s)} 9%, transparent)`,
-                    }}
+                  style={{
+                    color: stackHue(s),
+                    borderColor: `color-mix(in srgb, ${stackHue(s)} 32%, transparent)`,
+                    background: `color-mix(in srgb, ${stackHue(s)} 9%, transparent)`,
+                  }}
                 >
                   {s}
                 </span>
@@ -1075,7 +1411,6 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               </a>
             ) : null}
           </div>
-
 
           {/* sections */}
           <div className="mt-8 space-y-12 md:mt-12">
@@ -1100,7 +1435,9 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 className="text-[14px] font-semibold text-[var(--dim)] transition hover:text-[var(--accent)]"
               >
                 다음 프로젝트 · {serviceLabel(next.slug, next.title)}{" "}
-                <span aria-hidden className="text-[var(--accent)]">→</span>
+                <span aria-hidden className="text-[var(--accent)]">
+                  →
+                </span>
               </Link>
             ) : null}
           </nav>
