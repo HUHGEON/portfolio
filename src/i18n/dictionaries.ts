@@ -149,18 +149,34 @@ const heogeon: Dictionary = {
     collapseSidebar: "사이드바 닫기",
   },
   home: {
-    eyebrow: "Backend · API · Database · Realtime",
+    eyebrow: "Backend · API · Database · Async · Realtime",
     title: "백엔드를 만들고, 데이터로 결과를 검증합니다.",
     subtitle: "저는 화면 뒤에서 데이터가 흐르는 구조를 설계하는 백엔드 개발자입니다.",
     slogan: {
       emphasis: "서비스의 가치는 결국 안정적인 서버와 좋은 데이터 설계에서 나옵니다.",
       body: "저는 화면 뒤에서 **데이터가 흐르는 구조**를 설계하는 일에 집중합니다.",
       action:
-        "**API 설계와 ERD·DB 모델링**부터 캐싱·인덱스까지, 서버의 뒷단을 탄탄하게 만드는 것.",
+        "**API 설계와 ERD·DB 모델링**부터 캐싱 · 비동기 처리 · 장애 복구까지, 서버의 뒷단을 탄탄하게 만드는 것.",
       closing: "복잡한 요구사항을 **명확한 데이터 모델과 안정적인 API**로 풀어내는 것.",
       final: "그것이 제가 백엔드 개발자로서 추구하는 방향입니다.",
     },
     proficiency: [
+      {
+        text: "사용자에게 응답을 돌려주는 순간과 외부 시스템에 등록이 서는 순간을 떼어 놓고, Transactional Outbox · SQS · 세대 재시도로 외부가 느리거나 실패해도 예약을 최종 상태까지 보낼 수 있습니다.",
+        projects: ["nova"],
+      },
+      {
+        text: "1인 1매 · 빈틈없는 순번 · 멱등 재전송처럼 경합에서 깨지기 쉬운 규칙을 앱 검사가 아니라 생성 칼럼 UNIQUE 와 회차 행 잠금으로 DB 가 지키게 설계할 수 있습니다.",
+        projects: ["nova", "coupon-yaho"],
+      },
+      {
+        text: "잠금 위에서 한쪽을 멈춰 세우는 결정적 재현 시험으로 교착 · 경합 결함을 운영 전에 잡고, 돌연변이 시험으로 그 시험이 결함을 실제로 잡아내는지까지 확인할 수 있습니다.",
+        projects: ["nova"],
+      },
+      {
+        text: "수치가 이상할 때 시스템보다 재는 쪽을 먼저 의심해, 잘린 지표 라벨이나 컨테이너가 잘못 보고한 CPU 같은 계기 오류를 걸러낼 수 있습니다.",
+        projects: ["nova"],
+      },
       {
         text: "요청이 동시에 몰리는 발급 처리에서 조건부 원자 UPDATE·Redis Lua 선점으로 재고 정합성을 지키고 개선 효과를 부하 측정 수치로 검증할 수 있습니다.",
         projects: ["coupon-yaho"],
@@ -179,7 +195,7 @@ const heogeon: Dictionary = {
       },
       {
         text: "느린 외부 호출이 커넥션 풀을 고갈시키지 않도록 트랜잭션 경계를 나누고 장애 시 fail-open · 폴백 정책을 설계할 수 있습니다.",
-        projects: ["haeyaji", "live-chat"],
+        projects: ["nova", "haeyaji", "live-chat"],
       },
       {
         text: "MongoDB text · TTL · unique 복합 인덱스와 aggregation으로 검색 · 추천 · 중복 방지 요구사항을 데이터 모델 수준에서 해결할 수 있습니다.",

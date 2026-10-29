@@ -26,6 +26,7 @@ export function emphasize(text: string): ReactNode {
 
 /** Human Korean service label per project (shown instead of the git-style slug). */
 export const SERVICE_LABEL: Record<string, string> = {
+  nova: "스마트폰 사전예약",
   "coupon-yaho": "선착순 쿠폰 발급",
   "voice-kiosk": "음성인식 키오스크",
   "live-chat": "라이브 채팅 서버",
