@@ -799,6 +799,41 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
         ),
       });
     }
+    if (d.shots && d.shots.length > 0) {
+      const shots = d.shots;
+      sections.push({
+        id: "shots",
+        label: d.shotsTitle ?? "화면",
+        cmd: "open screenshots/",
+        node: (
+          <div className="grid gap-7">
+            {d.shotsLead ? (
+              <p className="text-[15px] leading-relaxed text-[var(--dim)]">
+                {emphasize(d.shotsLead)}
+              </p>
+            ) : null}
+            {shots.map((shot, i) => (
+              <figure key={shot.src} className="m-0">
+                <p className="mb-2 font-mono text-[13px] text-[var(--faint)]">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <Image
+                  src={assetPath(shot.src)}
+                  alt={shot.alt}
+                  width={shot.width}
+                  height={shot.height}
+                  unoptimized
+                  className="block h-auto w-full rounded-lg border border-[var(--border)]"
+                />
+                <figcaption className="mt-2 text-[14px] leading-relaxed text-[var(--dim)]">
+                  {emphasize(shot.caption)}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        ),
+      });
+    }
     if (d.cases && d.cases.length > 0) {
       sections.push({
         id: "cases",
@@ -1089,9 +1124,9 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                   {b.footnote}
                 </p>
               ) : null}
-              {d.shots && d.shots.length > 0 ? (
+              {d.benchmarkShots && d.benchmarkShots.length > 0 ? (
                 <div className="mt-6 grid gap-4">
-                  {d.shots.map((shot) => (
+                  {d.benchmarkShots.map((shot) => (
                     <figure key={shot.src} className="m-0">
                       <Image
                         src={assetPath(shot.src)}
@@ -1172,6 +1207,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
       "architecture",
       "infra",
       "demo",
+      "shots",
       "cases",
       "versions",
       "benchmark",

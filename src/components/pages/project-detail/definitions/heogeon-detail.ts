@@ -94,7 +94,16 @@ export type HeoProjectDetail = {
     caption: string;
     width: number;
     height: number;
-  }[]; // 측정 결과 아래에 붙는 관측 화면 캡처
+  }[]; // 자체 섹션으로 보여 줄 화면 캡처
+  shotsTitle?: string;
+  shotsLead?: string;
+  benchmarkShots?: {
+    src: string;
+    alt: string;
+    caption: string;
+    width: number;
+    height: number;
+  }[]; // 측정 결과 표 아래 근거 화면
   architecture: Architecture;
   problemTitle: string;
   problems: string[];
@@ -763,7 +772,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
             href: "https://github.com/Nova-Grandis/nova-infra/pull/194",
           },
           {
-            label: "팀의 후속 hotfix — JVM CPU 인식 · 용량 (PR #195)",
+            label: "팀의 후속 hotfix · JVM CPU 인식과 용량 (PR #195)",
             href: "https://github.com/Nova-Grandis/nova-infra/pull/195",
           },
         ],
@@ -923,10 +932,39 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       footnote:
         "부하 발생기 k6 태스크 6대(4 vCPU) · 대기열 8대 · 접수 5대(촬영 전 수동 상향) · RDS db.t4g.large 단일 AZ · Valkey cache.t4g.small 1노드. 같은 10분 구간을 Grafana 로 보면 요청 12만 8천 건, 5xx 0건, 0.5초 초과 0.0102% 입니다. 이 회차의 외부 Mock 은 정상 조건(지연 200ms · 실패 0)이었고, 외부 지연과 실패는 따로 걸어 재처리를 확인했습니다.",
     },
+    shotsTitle: "장애를 걸어 보면",
+    shotsLead:
+      "이 시스템이 풀려고 한 문제는 몰림이 아니라 외부가 느리거나 실패할 때 예약을 어떻게 끝까지 보내느냐다. 그래서 운영 환경에서 외부 예약 시스템의 실패율을 100% 로 올려 놓고, 접수가 계속되는지 · 사용자가 무엇을 보는지 · 끝내 실패한 건을 어떻게 되살리는지를 확인했다.",
     shots: [
       {
+        src: "/shots/nova-fault-1.jpg",
+        alt: "관리자 Mock 설정 화면에서 실패율을 100% 로 올린 모습",
+        caption:
+          "외부 예약 시스템의 실패율을 100% 로 올린다. 지연과 실패율은 관리자 화면에서 바로 바꾸고, 바뀐 설정은 설정 버전으로 남는다. 운영 중인 서비스에 고장을 일부러 거는 것이다.",
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: "/shots/nova-fault-2.jpg",
+        alt: "100% 실패 중에 접수한 구매자의 예약 처리 중 화면",
+        caption:
+          '같은 시각 구매자 화면. 외부 등록이 한 건도 성공하지 못하는 중인데 예약 접수는 이미 완료이고, 다음 단계만 진행 중이다. 화면은 "실패하면 자동으로 다시 시도하는 중이니 화면을 닫아도 돼요" 라고 말한다. 접수와 외부 등록을 떼어 놓았기 때문에 외부 장애가 사용자 응답으로 번지지 않는다.',
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: "/shots/nova-fault-3.jpg",
+        alt: "DEAD_LETTER 로 넘어간 건을 관리자가 재처리하는 화면",
+        caption:
+          "재시도를 다 쓰면 그냥 버리지 않고 사람에게 넘긴다. 12번 시도 · 30분 6초 뒤 DEAD_LETTER 로 넘어간 1건이 운영 대시보드 맨 위에 뜨고, 외부를 정상으로 돌린 뒤 재처리하기 한 번으로 등록이 끝났다. 실패를 잃지 않는 것이 이 구조의 목적이다.",
+        width: 1600,
+        height: 1000,
+      },
+    ],
+    benchmarkShots: [
+      {
         src: "/shots/nova-grafana-summary.png",
-        alt: "Grafana nova 개요 — 몰림 10분 구간 요약 수치",
+        alt: "Grafana nova 개요의 몰림 10분 구간 요약 수치",
         caption:
           "위 표의 근거. 몰림이 지난 10분(11:02~11:12)을 Grafana 에서 다시 본 것이다. 요청 128K, 5xx 건수 0 · 비율 0%, 0.5초를 넘긴 요청 0.0102%, 지금 5xx 를 내는 서비스 0.",
         width: 1800,
@@ -936,7 +974,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         src: "/shots/nova-grafana-5xx-p95.png",
         alt: "서비스별 5xx 와 p95 응답 시간",
         caption:
-          "같은 구간을 서비스별로 쪼갠 것. 5xx 는 전 구간 0 이고, p95 는 외부 예약 Mock 이 약 450ms 로 가장 높다 — 외부가 느린 것이지 우리가 느린 것이 아니라는 뜻이다. 접수(preorder)는 200ms 아래, 대기열은 입장이 끝나는 11:09 에 한 번 솟았다가 내려온다. 점선은 0.5초 기준선.",
+          "같은 구간을 서비스별로 쪼갠 것. 5xx 는 전 구간 0 이고, 응답 시간이 가장 높은 선은 외부 예약 시스템이다. 외부가 얼마나 걸리든 사용자가 기다리는 접수(preorder)는 200ms 아래로 유지된다. 두 선의 간격이 접수와 외부 등록을 떼어 놓은 결과다. 대기열은 입장이 끝나는 11:09 에 한 번 솟았다가 내려온다. 점선은 0.5초 기준선.",
         width: 1800,
         height: 552,
       },
