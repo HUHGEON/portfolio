@@ -189,13 +189,13 @@ const heogeon: Dictionary = {
     techFocus: {
       buildTitle: "What I Build",
       buildItems: [
-        "Backend API",
+        "대규모 트래픽 백엔드",
+        "비동기 처리와 재시도",
         "ERD · DB 설계",
         "실시간 채팅 서버",
-        "데이터 파이프라인",
       ],
       stackTitle: "Primary Stack",
-      stacks: ["Node.js", "Spring", "MySQL", "MongoDB", "Redis"],
+      stacks: ["Spring Boot", "MySQL", "Redis", "AWS SQS", "ECS Fargate"],
     },
     nodeTitles: {
       profile: "Profile",
@@ -229,7 +229,7 @@ const heogeon: Dictionary = {
           period: "2025 ~ 2026",
         },
       ],
-      skills: ["Node.js", "Spring", "MySQL"],
+      skills: ["Spring Boot", "MySQL", "AWS"],
     },
     projectSectionTitle: "Projects",
     projectLinks: {
@@ -355,20 +355,39 @@ const heogeon: Dictionary = {
     title: "주요 기술 스택",
     groups: [
       {
-        title: "Backend",
-        items: ["Node.js", "Express", "Spring", "FastAPI"],
-      },
-      {
-        title: "Database",
-        items: ["MySQL", "MongoDB", "Redis"],
-      },
-      {
         title: "Language",
         items: ["Java", "JavaScript", "Python"],
       },
       {
-        title: "Tools",
-        items: ["Docker", "Git", "Swagger"],
+        title: "Backend",
+        items: [
+          "Spring Boot",
+          "Spring WebFlux",
+          "Spring Batch",
+          "Node.js",
+          "Express",
+          "FastAPI",
+        ],
+      },
+      {
+        title: "Data",
+        items: ["MySQL", "MongoDB", "Redis", "Valkey", "QueryDSL"],
+      },
+      {
+        title: "Async",
+        items: ["AWS SQS", "Kafka"],
+      },
+      {
+        title: "Infra",
+        items: ["ECS Fargate", "Terraform", "Atlantis", "Docker", "GitHub Actions"],
+      },
+      {
+        title: "Monitor",
+        items: ["Grafana", "OpenTelemetry", "Prometheus"],
+      },
+      {
+        title: "Testing",
+        items: ["k6", "Testcontainers", "JUnit", "Jest"],
       },
     ],
   },

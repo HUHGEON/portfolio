@@ -69,7 +69,7 @@ export function stackHue(tech: string): string {
   if (/(node|express|spring|fastapi|nest|webflux|websocket|flask|django)/.test(t))
     return "var(--hue-blue)";
   if (
-    /(docker|git|swagger|jest|kafka|prometheus|k6|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg|sqs|terraform|fargate|flyway|opentelemetry|grafana)/.test(
+    /(docker|git|swagger|jest|kafka|prometheus|k6|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg|sqs|terraform|atlantis|fargate|flyway|opentelemetry|grafana|testcontainers|junit|github actions)/.test(
       t,
     )
   )
