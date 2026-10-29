@@ -223,7 +223,7 @@ function ProfileSheet({
             {home.title}
           </p>
           <div className="mt-3 space-y-1.5">
-            {about.paragraphs.map((p) => (
+            {about.paragraphs.slice(0, 1).map((p) => (
               <p key={p} className="text-[12px] leading-[1.7] text-[var(--dim)]">
                 {p}
               </p>
@@ -315,7 +315,7 @@ function ProfileSheet({
       <div className="mt-5">
         <Heading>할 수 있는 것</Heading>
         <ul className="space-y-1.5">
-          {home.proficiency.map((item) => (
+          {home.proficiency.slice(0, 4).map((item) => (
             <li key={item.text} className="flex gap-3 text-[11.5px] leading-[1.6]">
               <span className="flex-1 text-[var(--dim)]">{emphasize(item.text)}</span>
               <span className="w-[150px] shrink-0 text-right text-[10.5px] text-[var(--faint)]">
