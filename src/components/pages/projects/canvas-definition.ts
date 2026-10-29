@@ -25,6 +25,21 @@ type ProjectsCanvasDefinition = {
 };
 
 const projectOverviewMeta: Record<string, ProjectOverviewMeta> = {
+  nova: {
+    subtitle: "NOVA · Smartphone Pre-order",
+    summary:
+      "오픈 10초에 5,000명이 몰리는 스마트폰 사전예약 서비스입니다.\n\n예약을 확정하는 외부 시스템이 평균 0.5초 걸리고 20건에 1건 실패해서, 접수 완료와 외부 등록 완료를 분리하고 Outbox · SQS · 세대 재시도로 그 사이를 책임지게 했습니다.",
+    highlights: [
+      "5,000명 10초 몰림 5xx 0건",
+      "접수 응답 중앙값 113ms",
+      "커밋 677/1,420 최다 기여",
+    ],
+    stack: ["Spring Boot 4.1", "MySQL 8.4", "AWS SQS", "ECS Fargate"],
+    icon: {
+      src: "/icons/tech/spring.svg",
+      alt: "스마트폰 사전예약 NOVA",
+    },
+  },
   "voice-kiosk": {
     subtitle: "AI Voice Kiosk Backend",
     summary:

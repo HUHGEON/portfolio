@@ -696,7 +696,23 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           </>
         ),
       });
-    } else if (d.architecture.steps.length > 0) {
+    }
+    if (d.infraDiagramKey && ARCH_SPECS[d.infraDiagramKey]) {
+      sections.push({
+        id: "infra",
+        label: "인프라",
+        cmd: "terraform graph",
+        node: (
+          <ArchViewer
+            spec={ARCH_SPECS[d.infraDiagramKey]}
+            diagramKey={d.infraDiagramKey}
+            label={`${project.title} 인프라`}
+            steps={d.infraSteps ?? []}
+          />
+        ),
+      });
+    }
+    if (!(spec && d.diagramKey) && d.architecture.steps.length > 0) {
       sections.push({
         id: "flow",
         label: "동작 흐름",
@@ -730,9 +746,9 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 poster={assetPath(demo.poster)}
                 width={demo.width}
                 height={demo.height}
-                autoPlay
-                muted
-                loop
+                autoPlay={!demo.fullLength}
+                muted={!demo.fullLength}
+                loop={!demo.fullLength}
                 playsInline
                 controls
                 controlsList="nodownload noremoteplayback"
@@ -768,13 +784,14 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 href={
                   demo.youtubeId
                     ? `https://www.youtube.com/watch?v=${demo.youtubeId}`
-                    : demo.videoUrl
+                    : assetPath(demo.videoUrl ?? "")
                 }
                 target="_blank"
                 rel="noreferrer"
                 className="mt-2 inline-block text-[13px] text-[var(--dim)] underline decoration-[var(--border)] underline-offset-2 transition hover:text-[var(--accent)]"
               >
-                {demo.title} · 전체 영상 {demo.youtubeId ? "YouTube" : "보기"} ↗
+                {demo.title} · 전체 영상{" "}
+                {demo.youtubeId ? "YouTube" : "보기 (소리 포함)"} ↗
               </a>
             ) : null}
           </div>
@@ -1133,6 +1150,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
   if (d?.cases && d.cases.length > 0) {
     const order = [
       "architecture",
+      "infra",
       "demo",
       "cases",
       "versions",

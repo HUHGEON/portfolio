@@ -2,12 +2,10 @@ import { Fragment, type ReactNode } from "react";
 import { MobileNav } from "@/components/shell/mobile-nav";
 
 // ---- scan-reading emphasis: numbers with units read first (results, not tool names) ----
-const EMPHASIS_UNIT = "(?:ms|req\\/s|%|건|회차|회|만|행|시간|초|개|종|배|명|vCPU|MB|GB)";
+const EMPHASIS_UNIT =
+  "(?:ms|req\\/s|%|건|회차|회|만|행|시간|초|개|종|배|명|vCPU|MB|GB)";
 const EMPHASIS_NUM = `(?<![\\w.\\-/~])(?:\\d+\\/\\d+|(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?(?:\\s?${EMPHASIS_UNIT})?)(?![\\w])`;
-const EMPHASIS_RE = new RegExp(
-  `(${EMPHASIS_NUM})`,
-  "g",
-);
+const EMPHASIS_RE = new RegExp(`(${EMPHASIS_NUM})`, "g");
 // a bare single digit ("1인 1매") stays plain; units, separators or 2+ digits are emphasized
 const isMeaningfulNumber = (part: string) =>
   /[,./]/.test(part) || /\d\s?\D/.test(part) || /^\d{2,}/.test(part);
@@ -41,7 +39,11 @@ export const serviceLabel = (slug: string, fallback: string) =>
 
 /** Project branches — the single grouping used by the sidebar, projects page and home order. */
 export const PROJECT_GROUPS: { id: string; label: string; slugs: string[] }[] = [
-  { id: "traffic", label: "대규모 트래픽", slugs: ["coupon-yaho", "live-chat"] },
+  {
+    id: "traffic",
+    label: "대규모 트래픽",
+    slugs: ["nova", "coupon-yaho", "live-chat"],
+  },
   { id: "llm", label: "LLM 활용", slugs: ["voice-kiosk", "haeyaji"] },
   { id: "web", label: "웹 백엔드", slugs: ["blog-platform", "zogakzip"] },
   { id: "intern", label: "실무", slugs: ["media-inference"] },
@@ -61,14 +63,13 @@ export function groupProjects<T extends { slug: string }>(items: T[]) {
 export function stackHue(tech: string): string {
   const t = tech.toLowerCase();
   if (/(gpt|ollama|exaone|openai|llm)/.test(t)) return "var(--hue-purple)";
-  if (/(javascript|typescript|java|python|kotlin)/.test(t))
-    return "var(--hue-green)";
-  if (/(mysql|mongo|redis|postgres|mariadb|sqlite)/.test(t))
+  if (/(javascript|typescript|java|python|kotlin)/.test(t)) return "var(--hue-green)";
+  if (/(mysql|mongo|redis|valkey|postgres|mariadb|sqlite)/.test(t))
     return "var(--hue-amber)";
   if (/(node|express|spring|fastapi|nest|webflux|websocket|flask|django)/.test(t))
     return "var(--hue-blue)";
   if (
-    /(docker|git|swagger|jest|kafka|prometheus|k6|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg)/.test(
+    /(docker|git|swagger|jest|kafka|prometheus|k6|querydsl|multer|moment|mecab|jwt|streamlit|pandas|numpy|matplotlib|altair|scipy|ffmpeg|sqs|terraform|fargate|flyway|opentelemetry|grafana)/.test(
       t,
     )
   )

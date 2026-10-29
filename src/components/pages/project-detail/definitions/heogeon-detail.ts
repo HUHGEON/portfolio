@@ -45,6 +45,7 @@ export type HeoProjectDetail = {
     title: string;
     video: string; // 자동재생 반복 mp4
     poster: string;
+    fullLength?: boolean; // 전체 시연본 — 자동재생 · 무음 · 반복을 끄고 소리를 살린다
     width: number;
     height: number;
     youtubeId?: string; // 없으면 원본 링크 대신 videoUrl 사용
@@ -55,6 +56,8 @@ export type HeoProjectDetail = {
   award?: string;
   repoNote?: string;
   diagramKey?: string; // when set, render the rich ArchitectureDiagram instead of the grid
+  infraDiagramKey?: string; // 두 번째 다이어그램 — 서비스 구조와 따로 보여 줄 인프라 구성
+  infraSteps?: string[]; // 인프라 다이어그램 아래에 붙는 설명
   works?: { title: string; desc: string; stack: string[] }[]; // résumé-style experience page
   qa?: string;
   goals?: string[]; // 프로젝트 목표
@@ -567,6 +570,399 @@ export function buildHeoProjectDetail(
 // ------------------------------------------------------------------
 
 export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
+  nova: {
+    diagramKey: "nova",
+    infraDiagramKey: "nova-infra",
+    infraSteps: [
+      "서비스 하나의 요구를 service.yml 한 장에 적으면 Terraform 이 보안 그룹 · IAM 역할 · DB 계정 · ALB 경로를 함께 만든다. 적지 않은 호출 대상과 큐는 보안 그룹과 IAM 에서 막힌다",
+      "최대 대수 × 커넥션 풀이 RDS 연결 한도를 넘으면 plan 단계에서 적용이 멈춘다. 서비스를 늘리다 DB 연결이 넘치는 설정은 적용되지 않는다",
+      "dev 에 머지되면 검사를 다시 돌고, 통과하면 GitHub App 이 main 으로 승격한다. main push 가 Flyway 마이그레이션을 먼저 실행한 뒤 바뀐 서비스만 배포한다",
+      "앱은 전부 Fargate Spot 이다. 관측 스택만 EC2 인데, WAL 과 TSDB 가 재시작에도 남는 디스크에 있어야 하고 Fargate 디스크는 태스크와 함께 사라지기 때문이다",
+      "단일 AZ · NAT 인스턴스 · 인터페이스 엔드포인트 끔은 모두 비용 결정이고, 되돌리는 변수를 코드에 남겨 두었다",
+    ],
+    hook: "접수 완료와 외부 등록 완료를 분리해, 오픈 10초에 5,000명이 몰려도 접수는 즉시 끝내고 외부 등록은 느리거나 실패해도 끝까지 책임지는 사전예약 시스템입니다.",
+    description:
+      "LG유플러스 유레카 최종 융합 프로젝트에서 7인 팀이 만든 스마트폰 사전예약 서비스입니다. 예약을 최종 확정하는 외부 예약 시스템은 평균 0.5초가 걸리고 20건에 1건은 실패합니다. 두 일을 한 트랜잭션에 묶으면 둘 다 무너지므로, 사용자에게 응답을 돌려주는 순간과 외부에 등록이 서는 순간을 떼어 놓고 그 사이를 Transactional Outbox · SQS · 세대 재시도가 책임지게 했습니다. 서비스 8개와 배치 2개를 ECS Fargate 에 올리고 Terraform · Atlantis 로 운영했습니다. 저는 백엔드 저장소 커밋 677/1,420 으로 최다 기여했고 회원 인증 · 상품 · 리뷰 · 장바구니 · 럭키드로우와 공통 모듈(JWT 검증 · 읽기 캐시)을 맡았습니다.",
+    role: "백엔드 · 인증 · 상품 · 장바구니 · 드로우 · 공통 모듈 (7인 팀)",
+    period: "2026.09 ~ 10",
+    evidence: [
+      {
+        label: "Nova-Grandis 조직 (저장소 8개 공개)",
+        href: "https://github.com/Nova-Grandis",
+      },
+      {
+        label: "백엔드 모노레포 · 설계 문서",
+        href: "https://github.com/Nova-Grandis/be",
+      },
+      {
+        label: "부하 시험 도구 (Go · k6)",
+        href: "https://github.com/Nova-Grandis/nova-loadtest",
+      },
+      {
+        label: "인프라 (Terraform · Atlantis)",
+        href: "https://github.com/Nova-Grandis/nova-infra",
+      },
+    ],
+    demo: {
+      title: "운영 환경 시연 · 6분 03초",
+      video: "/demos/nova-full.mp4",
+      poster: "/demos/nova.jpg",
+      fullLength: true,
+      width: 1920,
+      height: 1080,
+      caption:
+        "자막과 음성이 있는 전체 시연본입니다. 운영 환경을 그대로 썼고, 구매자 화면과 관리자 화면을 나란히 띄워 같은 사건을 양쪽에서 봅니다. 접수가 끝난 순간에도 외부 등록은 아직 대기 중이라는 것이 이 시스템의 핵심입니다.",
+      steps: [
+        {
+          say: "0:22 시연 조건",
+          result:
+            "외부 예약 시스템 Mock 을 과제 조건인 평균 0.5초 · 실패 5% 로 걸고 시작한다",
+        },
+        {
+          say: "0:30 오픈 몰림",
+          result:
+            "부하 도구가 사람을 밀어 넣는 동안 관리자 화면의 대기 인원이 2,619명에서 4,822명으로 늘고, 구매자는 자기 순번을 본다",
+        },
+        {
+          say: "2:00 처리 서버 장애",
+          result:
+            "외부 등록을 맡는 워커를 모두 내려도 접수는 계속된다. 첫 시도는 응답을 받지 못한 채 끝난다",
+        },
+        {
+          say: "2:56 두 번 등록됐을까",
+          result:
+            "같은 멱등키로 외부 원장을 조회해 등록이 한 건뿐임을 확인한다. 응답을 못 받은 것과 등록이 안 된 것은 다르다",
+        },
+        {
+          say: "3:52 운영 현황",
+          result:
+            "10분 구간 요청 12만 8천 건, 서버 오류 0건, 0.5초를 넘긴 요청 0.0102%",
+        },
+        {
+          say: "4:08 DLQ 와 재처리",
+          result:
+            "재시도로도 넘기지 못한 메시지를 따로 모아 두고, 외부를 정상으로 돌린 뒤 관리자가 다시 보낸다",
+        },
+      ],
+    },
+    metrics: [
+      {
+        value: "113ms",
+        label: "몰림 중 접수 응답",
+        note: "7건 중앙값(64~319ms) · 5,000명 진입 중 · 클라이언트 왕복 측정",
+      },
+      {
+        value: "5xx 0건",
+        label: "5,000명 10초 몰림",
+        note: "10분 구간 요청 12만 8천 건 · 0.5초 초과 0.0102%",
+      },
+      {
+        value: "4/4 → 0/4",
+        label: "동시 접수 데드락",
+        note: "REPEATABLE READ 4회 전부 교착 · READ COMMITTED 4회 전부 통과",
+      },
+      {
+        value: "677 / 1,420",
+        label: "백엔드 저장소 커밋",
+        note: "최다 기여 · 시험 4,088개 · 마이그레이션 80개",
+      },
+    ],
+    cases: [
+      {
+        title:
+          "장바구니 주문과 결제 반영이 재고 행을 반대 순서로 잠그던 교착을 재현 시험으로 찾아 수정, 처음 의심한 원인은 범인이 아니었음을 시험으로 가려냄",
+        links: [
+          {
+            label: "재고 잠금 순서 통합 (PR #161)",
+            href: "https://github.com/Nova-Grandis/be/pull/161",
+          },
+        ],
+        causes: [
+          "앞 주문의 재고 반환과 새 주문의 재고 확보를 각각 따로 정렬해 두 번 잠가, 두 경로가 같은 옵션 두 개를 반대 순서로 집을 수 있었음",
+          "잠금 정렬에 쓰던 UUID.compareTo 가 부호 있는 비교라 DB 의 BINARY(16) 바이트 순서와 어긋날 수 있었음",
+        ],
+        solutions: [
+          "반환과 확보를 옵션별 순증감 하나로 합쳐 바이트 오름차순으로 한 번만 잠그게 변경",
+          "비교기를 부호 없는 비교로 바꿔 DB 의 ORDER BY option_id 와 같은 순서를 보장",
+        ],
+        checks: [
+          "한쪽이 첫 행을 쥔 채 상대가 그 잠금에서 기다리는 것을 PROCESSLIST 로 확인한 뒤 놓아 주는 결정적 재현 시험 작성",
+          "지금 시각의 UUID v7 에서는 compareTo 와 바이트 순서가 같아 통합 시험으로 두 원인을 가를 수 없다는 사실을 코드 주석과 시험에 남김",
+        ],
+        results: [
+          "교착을 실제로 만든 원인은 '따로 두 번 정렬' 쪽이었고, compareTo 는 상위 비트가 1인 id 에서만 드러나는 아직 터지지 않은 결함이었음",
+          "개인 기술 정리 문서에 compareTo 를 재현된 원인으로 적어 둔 것을 코드 기준으로 정정",
+        ],
+      },
+      {
+        title:
+          "빈 장바구니에 동시에 담으면 상한 50줄을 넘기던 결함을 멈춤 주입 시험으로 재현해 수정",
+        links: [
+          {
+            label: "동시 수정 결함 수정 (PR #172)",
+            href: "https://github.com/Nova-Grandis/be/pull/172",
+          },
+        ],
+        causes: [
+          "같은 회원의 장바구니 쓰기는 그 회원의 줄 전부를 FOR UPDATE 로 잠가 직렬화하는데, 빈 장바구니에는 잠글 줄이 없어 아무것도 잠기지 않음",
+          "빈 장바구니를 읽고 멈춘 담기와 그사이 50줄을 담은 요청이 겹치면 51줄이 됨",
+        ],
+        solutions: [
+          "넣은 뒤 같은 트랜잭션에서 다시 잠가 세고 50을 넘으면 롤백",
+          "같은 옵션·보증 조합은 UNIQUE, 수량은 CHECK 1~99 로 DB 가 최종 보장",
+        ],
+        checks: [
+          "고치기 전에는 실패하고 고친 뒤에는 통과하는 멈춤 주입 재현 시험을 먼저 작성",
+        ],
+        results: ["동시 담기에서 400 응답과 50줄로 끝남"],
+      },
+      {
+        title:
+          "읽기 캐시 세대 키가 사라지면 지운 줄 알았던 옛 값이 되살아나던 것을 Valkey 재현으로 찾아 수정",
+        links: [
+          {
+            label: "캐시 세대 소실·복원 대응 (PR #332)",
+            href: "https://github.com/Nova-Grandis/be/pull/332",
+          },
+          {
+            label: "목록·카테고리 캐시를 메모리로 (PR #253)",
+            href: "https://github.com/Nova-Grandis/be/pull/253",
+          },
+        ],
+        causes: [
+          "목록·검색은 조건마다 키가 달라 쓰기 한 번에 키를 전부 찾아 지울 수 없어, 값 키에 세대 번호를 넣고 커밋 뒤에만 번호를 올리는 방식을 씀",
+          "세대 키가 제거 정책이나 노드 재시작으로 사라지면 0 부터 다시 시작해, 이미 저장돼 있던 옛 세대의 값이 다시 유효해짐",
+          "스냅샷에서 DUMP·RESTORE 로 되돌린 경우에도 같은 문제가 발생",
+        ],
+        solutions: [
+          "없는 세대는 0 이 아니라 현재 시각에서 시작하게 하고, 본 번호보다 작아진 세대는 본 번호 + 1 로 올림",
+          "세대 올리기가 실패하면 메모리에 미뤄 두고 재시도",
+        ],
+        checks: [
+          "Valkey 9 에서 세대 키 삭제와 DUMP·RESTORE 복원을 모두 재현",
+          "돌연변이 시험으로 보정 로직을 빼면 시험이 떨어지는지 확인",
+        ],
+        results: [
+          "세대 소실과 스냅샷 복원 뒤에도 옛 값이 나오지 않음",
+          "같은 계열 작업에서 목록·카테고리 캐시를 Redis 에서 인스턴스 메모리로 옮김 (같은 조건 측정 목록 1.05ms → 0.005ms, 카테고리 0.40ms → 0.001ms)",
+        ],
+      },
+      {
+        title:
+          "부하 시험에서 catalog 네 대 중 한 대만 막히는 것을 태스크별 지표로 확인해 ALB 분배를 바꾸고, 대시보드 CPU 50%가 실제로는 포화였다는 것을 팀이 함께 찾아냄",
+        links: [
+          {
+            label: "ALB 를 처리 중 요청이 적은 태스크로 (PR #194)",
+            href: "https://github.com/Nova-Grandis/nova-infra/pull/194",
+          },
+          {
+            label: "팀의 후속 hotfix — JVM CPU 인식 · 용량 (PR #195)",
+            href: "https://github.com/Nova-Grandis/nova-infra/pull/195",
+          },
+        ],
+        causes: [
+          "증설 뒤에도 느린 응답이 남아 처음에는 증설이 늦은 것으로 판단",
+          "태스크별로 보니 네 대 중 한 대만 톰캣 처리 중 요청 200(스레드 상한)에 걸려 막혔고 나머지 세 대는 0.5초 초과 0%",
+          "팀이 같이 확인한 결과 Fargate 가 1 vCPU 태스크에 CPU 2개를 보여 줘서 JVM CPU 지표가 포화에서도 0.50 에 멈춰 있었음",
+        ],
+        solutions: [
+          "ALB 분배를 라운드로빈에서 처리 중 요청이 적은 태스크로 보내는 방식으로 변경",
+          "팀이 이어서 catalog 를 2 vCPU 로 올리고 -XX:ActiveProcessorCount 를 고정, 공개 GET 을 CloudFront 가 캐시하게 함",
+        ],
+        checks: [
+          "가용 영역 차이는 host.name IP 로 확인해 배제",
+          "대상별 요청 수를 세어 새로 뜬 태스크에 몰린 것이 아님을 확인 (원래 태스크 12.7만·10.3만 대 새 태스크 3.4만·4.8만)",
+          "처음엔 'Redis 시간 초과로 목록이 DB 로 몰린다'로 설명했으나, 코드를 보니 목록·카테고리는 Redis 가 아니라 인스턴스 메모리 캐시였음",
+        ],
+        results: [
+          "변경 뒤 실행에서 분 단위 p95 9~29ms. 같은 PR 에 CDN 캐시도 함께 들어가 ALB 분배 단독 효과는 따로 떼어 적지 않았다",
+          "합산 지표만 봤으면 네 대가 고르게 일하는 것으로 보였다. 태스크 단위로 쪼개 본 것이 원인을 찾은 지점이다",
+        ],
+      },
+      {
+        title:
+          "5,000명 시험에서 842명이 처리 기한에 끊긴 원인이 시스템이 아니라 시험 계획의 가정이었음을 찾아 판정 기준을 실제 설정값 기반으로 수정",
+        links: [
+          {
+            label: "처리 기한을 실제 입장 속도로 계산 (PR #19)",
+            href: "https://github.com/Nova-Grandis/nova-loadtest/pull/19",
+          },
+        ],
+        causes: [
+          "시험 계획이 대기열 입장 속도를 초당 150명으로 가정하고 처리 기한을 3분 40초로 잡음",
+          "운영 관리자 설정은 초당 20명이었고, 5,000명이 입장만 하는 데 250초가 필요",
+          "줄에 남은 842명이 기한에 끊겨 시스템 문제가 아닌데도 fail 로 판정",
+        ],
+        solutions: [
+          "워크플로가 입장 속도를 입력으로 받아 최소 처리 시간·기한·판정 구간을 그 값으로 계산하게 변경",
+        ],
+        checks: ["입장 속도 20 으로 기한 7분 16초를 계산해 같은 5,000명 시험 재실행"],
+        results: [
+          "분 단위 p95 29~61ms, p99 177~211ms, 5xx 0.00% 로 통과",
+          "시험 도구가 시스템을 잘못 판정하던 것을 잡았다. 이후 실행부터 판정 기준이 운영 설정을 따라간다",
+        ],
+      },
+    ],
+    versions: [
+      {
+        version: "v1",
+        title: "오토스케일링에 맡김",
+        status: "구현",
+        problem: "오픈 순간의 유입을 지표 기반 자동 증설이 받아 주기를 기대",
+        choice:
+          "CPU·요청 수 지표로 ECS 서비스를 자동 증설. 운영 비용이 들지 않고 평상시에는 충분",
+        tradeoff: "증설 판단이 1분 지표 기준이라 10초짜리 몰림에는 반응 자체가 늦음",
+        metric: "60초 몰림이 끝난 뒤에야 새 태스크가 뜸 (10-22 시험)",
+        next: "몰림이 끝난 뒤 증설되는 구조로는 오픈 순간을 받을 수 없음",
+      },
+      {
+        version: "v2",
+        title: "회차 일정에 맞춘 사전 증설",
+        status: "구현",
+        problem: "지표를 보고 늘리는 방식은 10초 몰림보다 항상 늦음",
+        choice:
+          "회차 오픈 15분 전부터 예상 방문자 수를 기준으로 대기열·접수 서비스 대수를 미리 올림. 몰림이 오기 전에 용량이 서 있게 하는 것이 유일한 대책이라고 판단",
+        tradeoff:
+          "예상 방문자 수가 비어 있는 회차는 1대로 계산돼 아무것도 늘지 않음. 실제로 그 상태에서 대기열 1대가 포화해 503 이 210건 발생",
+        metric: "대기열 2 vCPU 1대가 초당 약 500건 진입에 CPU 87~98%",
+        next: "앞단 대수만 늘려서는 뒤쪽 접수 서버가 받을 수 있는 양을 모름",
+      },
+      {
+        version: "v3",
+        title: "접수 가용량 기반 입장 속도",
+        status: "구현",
+        problem: "대기열이 뒤쪽 접수 서버 용량을 모른 채 사람을 들여보냄",
+        choice:
+          "접수 서버 태스크가 공유 저장소에 초당 처리 가능 수를 적고, 대기열 리더가 그 합으로 전체 입장 속도 상한을 1초마다 다시 계산",
+        tradeoff:
+          "입장 속도가 접수 서버의 자기 보고에 기대므로, 보고값이 실제 처리량과 어긋나면 입장 속도도 같이 어긋난다",
+        metric:
+          "입장 속도 20 기준 5,000명 10초 몰림에서 5xx 0.00% · 분 단위 p95 29~61ms (1회)",
+      },
+    ],
+    goals: [
+      "오픈 10초에 5,000명이 몰려도 접수를 받아내고, 외부 등록이 느리거나 실패해도 예약을 최종 상태까지 보낸다",
+      "같은 요청이 여러 번 와도, 서버가 중간에 죽어도 예약이 두 번 생기거나 사라지지 않는다",
+      "운영 중 생긴 어긋남을 사람이 발견하기 전에 정합성 검사가 먼저 찾아낸다",
+    ],
+    features: [
+      {
+        title: "입장 대기열",
+        desc: "Redis ZSET 과 Lua 로 순서를 원자적으로 매기고, 리더 한 대가 1초마다 상품별 입장 속도를 나눈다. 입장권은 HMAC 서명이라 접수 서버가 저장소를 보지 않고 검증한다",
+      },
+      {
+        title: "사전예약 접수",
+        desc: "회원당 진행 중 예약 1건은 생성 칼럼 UNIQUE, 모델별 빈틈없는 순번은 회차 행 잠금, 재전송은 멱등키 UNIQUE 가 막는다. 앱이 틀려도 두 번째 행은 DB 가 거절한다",
+      },
+      {
+        title: "비동기 확정 처리",
+        desc: "예약 · 작업 · 이벤트를 한 트랜잭션에 커밋하고 커밋 뒤 발행한다. 워커는 DB 를 쓰지 않고 시도 횟수를 메시지에 싣고 다니며, 응답을 모른 차례 다음에는 다시 등록하지 않고 같은 키로 먼저 조회한다",
+      },
+      {
+        title: "정합성 검사",
+        desc: "한 스냅샷 트랜잭션에서 예약을 읽고 외부 원장 목록과 맞대어 19종을 대조한다. 외부 쪽 최근 변경은 판정을 미뤄 진행 중인 정상 건을 어긋남으로 잡지 않는다",
+      },
+      {
+        title: "주문 · 결제",
+        desc: "재고는 조건부 UPDATE 와 DB CHECK 로 초과 판매를 막고, 결제는 외부 결제사를 부르기 전에 UNIQUE 로 두 번째 승인 시작 자체를 차단한다",
+      },
+      {
+        title: "인프라와 배포",
+        desc: "서비스 하나의 요구를 service.yml 한 장에 적으면 Terraform 이 보안 그룹 · IAM 역할 · DB 계정 · ALB 경로를 함께 만든다. 적지 않은 호출 대상과 큐는 보안 그룹과 IAM 에서 막히고, 최대 대수 × 커넥션 풀이 DB 연결 한도를 넘으면 plan 단계에서 적용이 멈춘다. dev 에 머지되면 검사를 다시 돌고 통과할 때만 main 으로 승격해 마이그레이션을 먼저 실행한 뒤 바뀐 서비스만 배포한다",
+      },
+      {
+        title: "관측",
+        desc: "앱은 관측 저장소로 바로 보내지 않고 별도 게이트웨이를 거친다. 게이트웨이가 개인정보를 가리고, 샘플링하기 전에 요청 수와 오류율을 먼저 집계해 버려진 트레이스까지 세고, 그다음 꼬리 샘플링을 한다. 관측 서버를 다시 배포하는 동안에는 메모리 큐에 들고 최대 15분까지 재시도해 배포 한 번으로 데이터가 사라지지 않는다",
+      },
+      {
+        title: "동시성 검증",
+        desc: "경합을 결정적으로 재현한다. 한쪽을 잠금 위에서 멈춰 세우고 PROCESSLIST 로 상대가 그 잠금을 기다리는 것을 확인한 뒤 놓아 주는 시험을 먼저 쓰고, 그다음 고친다. 재고 교착 · 빈 장바구니 51줄 · 리프레시 토큰 8중 회전이 모두 이 방식으로 운영 전에 잡혔다",
+      },
+      {
+        title: "시험 환경",
+        desc: "모듈 13곳에 시험 4,088개와 마이그레이션 80개가 CI 필수 검사로 돈다. Testcontainers 로 실제 MySQL 8.4 에 붙어 격리 수준과 갭 락까지 그대로 겪고, ArchUnit 이 모듈 경계와 잠금 순서를 코드로 강제하며, 돌연변이 시험이 시험 자체가 결함을 잡아내는지 확인한다",
+      },
+      {
+        title: "럭키드로우",
+        desc: "추첨 전에 외부가 받은 응모 수와 결제 완료 수를 대조해 같을 때만 추첨을 요청하고, 결과 반영은 조건부 UPDATE 하나라 한 번만 반영된다",
+      },
+    ],
+    architecture: {
+      nodes: [],
+      edges: [],
+      steps: [
+        "오픈 순간 몰린 요청은 대기열이 Redis ZSET 에 줄로 세우고, 리더 한 대가 1초마다 상품별 입장 속도를 나눠 차례가 된 사람에게 120초짜리 HMAC 입장권을 준다",
+        "접수 서버는 입장권을 저장소 조회 없이 서명만으로 확인하고, 회차 행을 잠가 순번을 매긴 뒤 예약 · 등록 작업 · Outbox 이벤트를 한 트랜잭션에 커밋한다. 여기까지가 사용자가 기다리는 구간이다",
+        "커밋 직후 Outbox 가 SQS 로 발행하고, 놓친 행은 릴레이가 주워 보낸다. 큐는 11개이고 전부 DLQ 를 달고 있다",
+        "워커가 외부 예약 시스템에 등록한다. DB 를 쓰지 않고 시도 횟수를 메시지에 싣고 다니며, 응답을 모르면 다음 차례에 같은 키로 먼저 조회해 두 번 등록되지 않게 한다. 세대를 다 쓰면 DLQ 로 가고 관리자가 재처리한다",
+        "주문 · 상품 · 회원 서비스는 같은 엣지를 거쳐 들어오고, 결제 결과와 드로우 결과도 SQS 로 흐른다",
+        "배치가 매일 예약과 외부 원장을 대조하고 재고 장부를 맞춰, 운영 중 생긴 어긋남을 사람보다 먼저 찾는다",
+        "서비스는 모두 service.yml 한 장으로 선언하고 Terraform 과 Atlantis 가 적용한다. 지표 · 로그 · 트레이스는 앱에서 바로 보내지 않고 게이트웨이를 한 번 거쳐 자체 운영 LGTM 으로 들어간다",
+      ],
+    },
+    problemTitle: "",
+    problems: [],
+    solutions: [],
+    benchmark: {
+      caption:
+        "5,000명을 10초에 밀어 넣은 시험(k6, 도착률 고정 초당 500명)의 1분 단위 진행 값입니다. 대기열 입장 속도를 운영 설정과 같은 초당 20명으로 두고 처리 기한을 7분 16초로 계산했습니다.",
+      headers: ["경과", "초당 처리", "p95", "p99", "5xx", "남은 VU"],
+      rows: [
+        { cells: ["1:00", "746.3", "39ms", "177ms", "0.00%", "4,082"] },
+        { cells: ["2:00", "505.8", "29ms", "181ms", "0.00%", "2,887"] },
+        { cells: ["3:00", "452.4", "30ms", "181ms", "0.00%", "1,687"] },
+        { cells: ["4:01", "316.5", "61ms", "211ms", "0.00%", "286"], highlight: true },
+      ],
+      footnote:
+        "부하 발생기 k6 태스크 6대(4 vCPU) · 대기열 8대 · 접수 5대(촬영 전 수동 상향) · RDS db.t4g.large 단일 AZ · Valkey cache.t4g.small 1노드. 같은 10분 구간을 Grafana 로 보면 요청 12만 8천 건, 5xx 0건, 0.5초 초과 0.0102% 입니다. 이 회차의 외부 Mock 은 정상 조건(지연 200ms · 실패 0)이었고, 외부 지연과 실패는 따로 걸어 재처리를 확인했습니다.",
+    },
+    results: [],
+    lessons:
+      "가장 많이 배운 것은 계기를 먼저 의심해야 한다는 것입니다. 대기열이 느릴 때 공용 저장소를 두 번 의심했지만 두 번 다 측정으로 배제됐고 원인은 앱의 CPU 포화였습니다. 대시보드가 CPU 50% 라고 하던 태스크는 실제로는 포화 상태였고, '1만 명 중 0명 처리'라는 결과는 시스템이 아니라 수집 설정이 라벨을 잘라낸 탓이었습니다. 숫자가 이상하면 시스템보다 재는 쪽을 먼저 보는 습관이 생겼고, 그래서 이 페이지의 수치에도 측정 조건을 같이 적었습니다. 반대로 동시성 결함은 운영에서 터지기 전에 재현 시험으로 먼저 잡을 수 있었는데, 멈춤을 주입해 경합을 결정적으로 재현하는 시험을 먼저 쓰고 고치는 순서가 효과적이었습니다.",
+    techChoices: [
+      {
+        name: "AWS SQS · Transactional Outbox",
+        reason:
+          "접수 트랜잭션 안에서 외부를 부르지 않으려고 이벤트를 같은 트랜잭션에 적고 커밋 뒤 발행. 큐마다 DLQ 를 달아 실패를 잃지 않게 함",
+      },
+      {
+        name: "MySQL 8.4 · 생성 칼럼",
+        reason:
+          "1인 1매 · 순번 · 멱등키의 최종 보장을 앱이 아니라 DB 제약에 둠. 부분 인덱스가 없어 조건부 유일은 생성 칼럼 + UNIQUE 로 표현",
+      },
+      {
+        name: "READ COMMITTED",
+        reason:
+          "없는 행을 잠금 읽기로 확인한 뒤 INSERT 하는 절차가 REPEATABLE READ 에서 갭 락으로 교착. 실측 4회 전부 교착, READ COMMITTED 4회 전부 통과",
+      },
+      {
+        name: "Valkey · Lua",
+        reason:
+          "대기열 순서 매기기와 입장 커서를 한 스크립트 안에서 원자적으로 처리. Redis 호환이면서 같은 노드 타입 기준 20% 저렴",
+      },
+      {
+        name: "RS256 · JWKS",
+        reason:
+          "공유 비밀이면 검증하는 모든 서비스가 발급도 할 수 있고, 공개키를 설정에 고정하면 키 교체 때 전부 재배포해야 함",
+      },
+      {
+        name: "ECS Fargate · Terraform · Atlantis",
+        reason:
+          "서비스 하나의 요구를 파일 하나에 적으면 보안 그룹 · IAM · DB 계정 · 경로가 함께 생성되게 하고, 최대 대수 × 풀 이 DB 연결 한도를 넘으면 plan 단계에서 막히게 함",
+      },
+      {
+        name: "Testcontainers · ArchUnit",
+        reason:
+          "격리 수준과 갭 락은 DB 가 정하는 동작이라 실제 MySQL 에서만 드러난다. 잠금 순서처럼 사람이 지켜야 하는 규칙은 관례 대신 시험으로 강제한다",
+      },
+      {
+        name: "k6 · OpenTelemetry · LGTM",
+        reason:
+          "운영 환경을 실제로 때려 보고 그 순간의 트레이스 · 지표 · 프로파일을 같이 보려고 자체 운영. 판정은 태스크별 요약이 아니라 전체 히스토그램으로 계산",
+      },
+    ],
+  },
+
   "voice-kiosk": {
     logo: "/logos/voice-kiosk.png",
     diagramKey: "voice-kiosk",
@@ -582,17 +978,31 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       width: 360,
       height: 642,
       youtubeId: "QMuGDGB1Jsw",
-      caption: "한 번의 주문 대화를 이어서 진행한 장면입니다. NLP 서버가 발화마다 의도를 해석해 추천 · 옵션 선택 · 장바구니 · 결제로 연결합니다.",
+      caption:
+        "한 번의 주문 대화를 이어서 진행한 장면입니다. NLP 서버가 발화마다 의도를 해석해 추천 · 옵션 선택 · 장바구니 · 결제로 연결합니다.",
       steps: [
         { say: "“인기 메뉴 보여 줘”", result: "추천 의도 → 인기 메뉴 목록 표시" },
-        { say: "“아이스 아메리카노 미디움 사이즈로 주문해 줘”", result: "주문 의도 + 온도·크기 옵션 추출 → 장바구니 담기" },
-        { say: "“미디움으로 해 줘”", result: "이어서 담은 카페라떼의 사이즈를 묻는 안내에 답해 빠진 옵션을 채우고 장바구니에 추가 (멀티턴)" },
+        {
+          say: "“아이스 아메리카노 미디움 사이즈로 주문해 줘”",
+          result: "주문 의도 + 온도·크기 옵션 추출 → 장바구니 담기",
+        },
+        {
+          say: "“미디움으로 해 줘”",
+          result:
+            "이어서 담은 카페라떼의 사이즈를 묻는 안내에 답해 빠진 옵션을 채우고 장바구니에 추가 (멀티턴)",
+        },
         { say: "“결제해 줘”", result: "결제 의도 → 주문 완료" },
       ],
     },
     evidence: [
-      { label: "NLP 서버 의도 해석 코드", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/app/services/openai_client.py" },
-      { label: "NLP 서버 README", href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/README.md" },
+      {
+        label: "NLP 서버 의도 해석 코드",
+        href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/app/services/openai_client.py",
+      },
+      {
+        label: "NLP 서버 README",
+        href: "https://github.com/Say-It-It-s-OK/nlp/blob/main/README.md",
+      },
     ],
     award: "명지대 캡스톤디자인 금상",
     goals: [
@@ -717,8 +1127,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     techChoices: [
       {
         name: "FastAPI · Uvicorn",
-        reason:
-          "async 라우터로 LLM·백엔드 호출 대기를 비동기로 처리(NLP 서버)",
+        reason: "async 라우터로 LLM·백엔드 호출 대기를 비동기로 처리(NLP 서버)",
       },
       {
         name: "gpt-4o-mini",
@@ -737,8 +1146,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         name: "Swagger",
-        reason:
-          "라우트 JSDoc으로 API 명세를 자동 생성해 프론트·NLP와 규격 공유",
+        reason: "라우트 JSDoc으로 API 명세를 자동 생성해 프론트·NLP와 규격 공유",
       },
     ],
   },
@@ -751,8 +1159,14 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     role: "sapari(라이브 스트리밍·커머스) 채팅 서버 담당 · 진행 중 · 도메인 확장 예정",
     period: "2026.06 ~ 진행 중",
     evidence: [
-      { label: "크로스 Pod 전달 통합 테스트", href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/apps/streaming-app/src/test/java/com/sapari/streamingapp/websocket/CrossPodBroadcastTest.java" },
-      { label: "채팅 모듈 설계 노트 (전달 보장 수준)", href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md" },
+      {
+        label: "크로스 Pod 전달 통합 테스트",
+        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/apps/streaming-app/src/test/java/com/sapari/streamingapp/websocket/CrossPodBroadcastTest.java",
+      },
+      {
+        label: "채팅 모듈 설계 노트 (전달 보장 수준)",
+        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md",
+      },
     ],
     goals: [
       "여러 Pod에 흩어진 시청자에게 메시지를 중계하는, 수평 확장 가능한 stateless 채팅 서버",
@@ -916,15 +1330,35 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       videoUrl: "https://haeyaji.github.io/haeyaji-pages/demo.mp4",
       caption: "팀 시연 영상에서 날씨 · 추천 · 개인화 장면만 잘랐습니다.",
       steps: [
-        { say: "날씨 홈", result: "현재 위치의 날씨와 주간 예보, 오늘 할 일을 한 화면에 표시" },
-        { say: "지도 추천", result: "현재 위치 기준으로 주변 장소를 거리순으로 정리, 장소를 누르면 사진 · 메뉴 · 후기 확인" },
-        { say: "추천 도우미", result: "대화 내용에서 관심 카테고리를 기록하고 쌓인 취향을 바탕으로 맞춤 추천" },
-        { say: "일정 추가", result: "마음에 드는 곳을 일정에 추가하면 오늘 할 일에 바로 반영" },
+        {
+          say: "날씨 홈",
+          result: "현재 위치의 날씨와 주간 예보, 오늘 할 일을 한 화면에 표시",
+        },
+        {
+          say: "지도 추천",
+          result:
+            "현재 위치 기준으로 주변 장소를 거리순으로 정리, 장소를 누르면 사진 · 메뉴 · 후기 확인",
+        },
+        {
+          say: "추천 도우미",
+          result:
+            "대화 내용에서 관심 카테고리를 기록하고 쌓인 취향을 바탕으로 맞춤 추천",
+        },
+        {
+          say: "일정 추가",
+          result: "마음에 드는 곳을 일정에 추가하면 오늘 할 일에 바로 반영",
+        },
       ],
     },
     evidence: [
-      { label: "시나리오 채점 결과 59/80", href: "https://github.com/haeyaji/haeyaji-nlp/blob/main/eval/results.md" },
-      { label: "도메인 가드 강화 · 한계 (PR #12)", href: "https://github.com/haeyaji/haeyaji-nlp/pull/12" },
+      {
+        label: "시나리오 채점 결과 59/80",
+        href: "https://github.com/haeyaji/haeyaji-nlp/blob/main/eval/results.md",
+      },
+      {
+        label: "도메인 가드 강화 · 한계 (PR #12)",
+        href: "https://github.com/haeyaji/haeyaji-nlp/pull/12",
+      },
     ],
     goals: [
       "작은 로컬 LLM에 규칙·RAG를 붙인 ‘오늘 뭐 할지’ 추천 서버 구현",
@@ -1076,14 +1510,31 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       width: 1440,
       height: 900,
       steps: [
-        { say: "스토리", result: "로그인 후 이미지 스토리를 올리고 상세 화면에서 확인" },
-        { say: "검색 · 상세", result: "‘강아지’로 검색해 글을 열고 좋아요 · 댓글 작성, 하단에 형태소 분석으로 찾은 유사 강아지 글 표시" },
-        { say: "팔로우 · 쪽지", result: "작성자 페이지에서 팔로우한 뒤 쪽지를 보내고 보낸 쪽지함에서 확인" },
-        { say: "새 글 작성", result: "이미지와 함께 강아지 산책 글을 올리자 기존 강아지 글들이 유사 글로 추천" },
+        {
+          say: "스토리",
+          result: "로그인 후 이미지 스토리를 올리고 상세 화면에서 확인",
+        },
+        {
+          say: "검색 · 상세",
+          result:
+            "‘강아지’로 검색해 글을 열고 좋아요 · 댓글 작성, 하단에 형태소 분석으로 찾은 유사 강아지 글 표시",
+        },
+        {
+          say: "팔로우 · 쪽지",
+          result: "작성자 페이지에서 팔로우한 뒤 쪽지를 보내고 보낸 쪽지함에서 확인",
+        },
+        {
+          say: "새 글 작성",
+          result:
+            "이미지와 함께 강아지 산책 글을 올리자 기존 강아지 글들이 유사 글로 추천",
+        },
       ],
     },
     evidence: [
-      { label: "README · 기능별 구성", href: "https://github.com/HUHGEON/Blog-Platform/blob/main/README.md" },
+      {
+        label: "README · 기능별 구성",
+        href: "https://github.com/HUHGEON/Blog-Platform/blob/main/README.md",
+      },
     ],
     goals: [
       "엔드포인트마다 다른 인증 요구 수준을 미들웨어 분리로 해결",
@@ -1208,8 +1659,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         name: "mecab-ya",
-        reason:
-          "형태소 분석으로 한국어 명사를 추출해 유사글 추천 키워드 생성",
+        reason: "형태소 분석으로 한국어 명사를 추출해 유사글 추천 키워드 생성",
       },
       {
         name: "multer · bcryptjs",
@@ -1233,8 +1683,14 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     role: "게시글 API · 이미지 업로드 · KST 시간대 처리 (2인 팀)",
     period: "2024.08 ~ 2024.09",
     evidence: [
-      { label: "태그 검색 (PR #19)", href: "https://github.com/ZOGAKZIP-4team/BE/pull/19" },
-      { label: "시간대 변경 (PR #9)", href: "https://github.com/ZOGAKZIP-4team/BE/pull/9" },
+      {
+        label: "태그 검색 (PR #19)",
+        href: "https://github.com/ZOGAKZIP-4team/BE/pull/19",
+      },
+      {
+        label: "시간대 변경 (PR #9)",
+        href: "https://github.com/ZOGAKZIP-4team/BE/pull/9",
+      },
     ],
     award: "코드잇 데모데이 대상",
     goals: [
@@ -1351,13 +1807,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
       {
         name: "moment-timezone",
-        reason:
-          "저장·응답 시각을 KST로 통일해 시간대 오차 제거",
+        reason: "저장·응답 시각을 KST로 통일해 시간대 오차 제거",
       },
       {
         name: "Multer",
-        reason:
-          "multipart 이미지 업로드·디스크 저장·파일 필터링을 표준 방식으로 처리",
+        reason: "multipart 이미지 업로드·디스크 저장·파일 필터링을 표준 방식으로 처리",
       },
     ],
   },
@@ -1378,9 +1832,21 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       youtubeId: "hS4aFDgdmNM",
       caption: "팀 시연 영상에서 대기열 · 발급 관제 · 검증 배치 장면만 잘랐습니다.",
       steps: [
-        { say: "대기열 입장", result: "혼잡 시 번호표와 앞선 인원 · 예상 대기 시간을 보여 주고, 차례가 오면 3분 유효한 입장 토큰 발급" },
-        { say: "발급 관제", result: "관리자 화면에서 재고가 1초마다 갱신되며 10,000장 발급 완료까지 실시간 확인" },
-        { say: "검증 배치", result: "오류 700건을 심은 데이터에서 기대한 800건을 판정하고, 정상 데이터 300만 행에서는 0건 확인" },
+        {
+          say: "대기열 입장",
+          result:
+            "혼잡 시 번호표와 앞선 인원 · 예상 대기 시간을 보여 주고, 차례가 오면 3분 유효한 입장 토큰 발급",
+        },
+        {
+          say: "발급 관제",
+          result:
+            "관리자 화면에서 재고가 1초마다 갱신되며 10,000장 발급 완료까지 실시간 확인",
+        },
+        {
+          say: "검증 배치",
+          result:
+            "오류 700건을 심은 데이터에서 기대한 800건을 판정하고, 정상 데이터 300만 행에서는 0건 확인",
+        },
       ],
     },
     metrics: [
@@ -1406,8 +1872,14 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         title:
           "오류 700건을 심은 데이터셋으로 검증 배치가 실제로 오류를 찾아내는지 확인, 누락 0 · 오탐 0",
         links: [
-          { label: "검증 배치 정답 양방향 대조 (PR #15)", href: "https://github.com/coupon-yaho/cy-be/pull/15" },
-          { label: "시드 생성기 실행 결과", href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md" },
+          {
+            label: "검증 배치 정답 양방향 대조 (PR #15)",
+            href: "https://github.com/coupon-yaho/cy-be/pull/15",
+          },
+          {
+            label: "시드 생성기 실행 결과",
+            href: "https://github.com/coupon-yaho/cy-seed-data-generator/blob/main/README.md",
+          },
         ],
         causes: [
           "검증 배치 결과 0건이 오류가 없어서인지 검증기가 못 찾아서인지 구분할 근거가 없음",
@@ -1432,7 +1904,12 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         title:
           "팀에서 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 바꿔 500 req/s 중앙값 1초 이상 회차 4/7 → 0/7, 성공 응답 p99 2,240ms → 802ms",
-        links: [{ label: "부하 시험 결과 DB 대조 (PR #304)", href: "https://github.com/coupon-yaho/cy-be/pull/304" }],
+        links: [
+          {
+            label: "부하 시험 결과 DB 대조 (PR #304)",
+            href: "https://github.com/coupon-yaho/cy-be/pull/304",
+          },
+        ],
         causes: [
           "재고 행이 회차당 하나뿐이라 모든 발급이 같은 잠금을 순서대로 통과하고 FOR UPDATE는 조회 시점부터 INSERT까지 임계구간에 넣어 잠금 구간이 김",
           "도착률을 올리자 450 req/s부터 성공 응답 중앙값이 1초 이상인 회차가 나왔고(1/7), 500 req/s에선 7회 중 4회로 늘어남",
@@ -1477,8 +1954,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         version: "v1.1",
         title: "비관적 락",
         status: "구현",
-        problem:
-          "동시 요청이 회차당 재고 행 하나를 두고 경쟁해 정합성 확보가 먼저",
+        problem: "동시 요청이 회차당 재고 행 하나를 두고 경쟁해 정합성 확보가 먼저",
         choice:
           "SELECT … FOR UPDATE로 재고 행을 잠근 뒤 검사·차감. DB가 정확성을 보장하는 가장 단순한 방식이라 이후 버전 비교의 기준선으로 삼음",
         tradeoff:
@@ -1491,22 +1967,19 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         version: "v1.2",
         title: "조건부 원자 UPDATE",
         status: "구현 · 제품 코드",
-        problem:
-          "요청마다 잠금 조회와 차감 UPDATE로 두 번 왕복하며 잠금을 오래 잡음",
+        problem: "요청마다 잠금 조회와 차감 UPDATE로 두 번 왕복하며 잠금을 오래 잡음",
         choice:
           "UPDATE … WHERE active_count < total_quantity 한 문장으로 검사와 차감을 합치고 영향 행이 0이면 소진 판정. 잠금이 UPDATE에서 시작돼 구간이 짧아짐",
         tradeoff:
           "재고 행 하나를 두고 경쟁하는 구조와 요청별 동기 DB 트랜잭션은 그대로 남음",
-        metric:
-          "500 req/s 성공 p95 641ms · p99 802ms · 중앙값 1초 이상 회차 0/7",
+        metric: "500 req/s 성공 p95 641ms · p99 802ms · 중앙값 1초 이상 회차 0/7",
         next: "경합 지점이 여전히 DB의 재고 행 하나라 재고 카운트를 DB 밖으로 옮김",
       },
       {
         version: "v2.1",
         title: "Redis Lua 원자 선점",
         status: "구현",
-        problem:
-          "DB에 직렬 구간이 남아 있으면 커넥션을 늘려도 처리량이 늘지 않음",
+        problem: "DB에 직렬 구간이 남아 있으면 커넥션을 늘려도 처리량이 늘지 않음",
         choice:
           "Lua 스크립트 5종(claim · complete · compensate · restore · reclaim)이 회차 상태 · 등급 · 1인 1매 · 재고를 한 번에 판정하고 차감. 발급은 선점 → 트랜잭션 → 완료 CAS 세 단계로 분리",
         tradeoff:
@@ -1519,8 +1992,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         version: "v2.2",
         title: "적응형 대기열",
         status: "핵심 경로 구현",
-        problem:
-          "순간적으로 몰리는 유입이 애플리케이션과 DB에 함께 과부하를 줌",
+        problem: "순간적으로 몰리는 유입이 애플리케이션과 DB에 함께 과부하를 줌",
         choice:
           "게이트웨이를 별도 서비스로 분리한 이유는 세 가지. 경계(입장만 담당, 재고 차감은 쿠폰 서비스만) · 스택(입장은 WebFlux, 발급은 MVC + JPA라 한 프로세스에 두면 블로킹이 이벤트 루프를 막음) · 장애 격리(뒷단이 멈춰도 대기열 유지)",
         tradeoff:

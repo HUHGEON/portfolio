@@ -7,6 +7,28 @@
 export type ArchStoryStep = { nodes: string[]; edges?: number[]; reverse?: number[] };
 
 export const ARCH_STORIES: Record<string, ArchStoryStep[]> = {
+  nova: [
+    {
+      nodes: [
+        "user",
+        "edge/0",
+        "waitingroom/0",
+        "waitingroom/1",
+        "waitingroom/2",
+        "valkey/0",
+      ],
+      edges: [0, 1, 4],
+    },
+    {
+      nodes: ["preorder/0", "preorder/1", "preorder/2", "mysql/0", "mysql/1"],
+      edges: [5, 2, 6, 7],
+    },
+    { nodes: ["sqs/0", "sqs/1"], edges: [8] },
+    { nodes: ["worker/0", "worker/1", "external/0"], edges: [10, 11] },
+    { nodes: ["domain/0", "domain/1", "domain/2", "sqs/0"], edges: [3, 9] },
+    { nodes: ["batch/0", "batch/1", "mysql/0", "external/0"], edges: [12, 13] },
+    { nodes: ["deploy/0", "deploy/1", "deploy/2", "obs/0", "obs/1", "obs/3"] },
+  ],
   "coupon-yaho": [
     { nodes: ["user", "gateway/0"], edges: [0] },
     { nodes: ["coupon/0", "coupon/1", "coupon/2"], edges: [1, 2] },

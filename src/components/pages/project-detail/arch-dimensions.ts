@@ -17,6 +17,8 @@ export const ARCH_DIMENSIONS: Record<string, { w: number; h: number }> = {
   "blog-platform": { w: 1250, h: 620 },
   zogakzip: { w: 1580, h: 560 },
   "coupon-yaho": { w: 1400, h: 860 },
+  nova: { w: 1750, h: 940 },
+  "nova-infra": { w: 1640, h: 1000 },
   "media-inference": { w: 1550, h: 620 },
   "intern-arch": { w: 1440, h: 840 },
 };

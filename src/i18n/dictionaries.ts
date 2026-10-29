@@ -240,13 +240,40 @@ const heogeon: Dictionary = {
     },
     featuredProjects: [
       {
+        slug: "nova",
+        title: "스마트폰 사전예약 (NOVA)",
+        description:
+          "오픈 10초에 5,000명이 몰리는 스마트폰 사전예약 서비스입니다. 예약을 확정하는 외부 예약 시스템이 평균 0.5초 걸리고 20건에 1건 실패해서, 접수 완료와 외부 등록 완료를 떼어 놓고 그 사이를 Outbox · SQS · 재시도로 책임지게 했습니다.",
+        lead: {
+          headline: "5,000명 10초 몰림에서 5xx 0건",
+          detail:
+            "요청 12.8만 건 · 0.5초 초과 0.0102% · 접수 응답 중앙값 113ms (7건 중앙값)",
+          role: "담당: 회원 인증 · 상품 · 리뷰 · 장바구니 · 럭키드로우 · 공통 모듈(JWT 검증 · 읽기 캐시)",
+        },
+        highlights: [
+          "백엔드 저장소 커밋 677/1,420으로 최다 기여, 재현 시험으로 운영 전에 잡은 동시성 결함 4종(재고 잠금 순서 · 빈 장바구니 경합 · 캐시 세대 소실 · 토큰 회전) 수정",
+          "부하 시험에서 catalog 네 대 중 한 대만 막히는 것을 태스크별 지표로 확인해 ALB 분배를 처리 중 요청이 적은 쪽으로 변경, 대기열 입장 속도 가정이 틀려 끊기던 시험 판정을 실제 설정값 기반 계산으로 수정",
+        ],
+        stack: [
+          "Java 25",
+          "Spring Boot 4.1",
+          "MySQL 8.4",
+          "Valkey",
+          "AWS SQS",
+          "ECS Fargate",
+        ],
+        iconSrc: "",
+        iconAlt: "스마트폰 사전예약 NOVA 아이콘",
+      },
+      {
         slug: "coupon-yaho",
         title: "선착순 쿠폰 발급 시스템",
         description:
           "통신사 브랜드데이 선착순 쿠폰 발급 시스템입니다. 병목을 측정하면서 MySQL 락 → 조건부 원자 UPDATE → Redis Lua 선점 → 적응형 대기열 순으로 구조를 개선했고 발급 결과는 이력 재생 배치로 검증합니다.",
         lead: {
           headline: "534만 행 이력 검증 배치",
-          detail: "오류 700건을 주입한 데이터에서 기대 검출 800행 확인 · 누락 0 · 오탐 0",
+          detail:
+            "오류 700건을 주입한 데이터에서 기대 검출 800행 확인 · 누락 0 · 오탐 0",
           role: "담당: 검증 배치 · 시드 생성기 · 부하 테스트 결과 DB 대조",
         },
         highlights: [
@@ -295,19 +322,6 @@ const heogeon: Dictionary = {
         stack: ["FastAPI", "Ollama · EXAONE", "Spring Boot", "MySQL", "Redis"],
         iconSrc: "/logos/haeyaji.png",
         iconAlt: "해야지 로고",
-      },
-      {
-        slug: "blog-platform",
-        title: "Blog Platform 백엔드",
-        description:
-          "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다.",
-        highlights: [
-          "JWT 인증·Multer 업로드를 미들웨어로 분리해 라우터 전반에서 재사용",
-          "게시글 본문을 한국어 형태소 분석해 명사를 추출하고 검색·태그 키워드로 활용",
-        ],
-        stack: ["Express", "MongoDB", "JWT"],
-        iconSrc: "",
-        iconAlt: "Blog Platform 백엔드 아이콘",
       },
       {
         slug: "media-inference",
@@ -381,13 +395,40 @@ const heogeon: Dictionary = {
   },
   projects: [
     {
+      slug: "nova",
+      title: "스마트폰 사전예약 (NOVA)",
+      type: "팀 프로젝트",
+      description:
+        "오픈 10초에 5,000명이 몰리는 스마트폰 사전예약 서비스입니다. 예약을 확정하는 외부 예약 시스템이 평균 0.5초 걸리고 20건에 1건 실패하기 때문에, 접수 완료와 외부 등록 완료를 분리하고 Transactional Outbox · SQS · 세대 재시도로 그 사이를 책임지게 했습니다. 서비스 8개와 배치 2개를 ECS Fargate에 올리고 Terraform · Atlantis로 운영했습니다.",
+      href: "https://github.com/Nova-Grandis",
+      stack: [
+        "Java 25",
+        "Spring Boot 4.1",
+        "MySQL 8.4",
+        "Valkey",
+        "AWS SQS",
+        "ECS Fargate",
+        "Terraform",
+        "k6",
+      ],
+      featured: true,
+    },
+    {
       slug: "coupon-yaho",
       title: "선착순 쿠폰 발급 시스템",
       type: "팀 프로젝트",
       description:
         "통신사 브랜드데이 선착순 쿠폰 발급 시스템(쿠폰 야호~)입니다. 재고 잠금을 FOR UPDATE에서 조건부 원자 UPDATE로 바꿔 500 req/s 성공 응답 p99를 2,240ms → 802ms로 줄였습니다. 발급 결과는 이력 534만 행을 재생하는 검증 배치로 검증합니다.",
       href: "https://github.com/coupon-yaho",
-      stack: ["Java 21", "Spring Boot", "Spring Batch", "MySQL", "Redis", "Kafka", "k6"],
+      stack: [
+        "Java 21",
+        "Spring Boot",
+        "Spring Batch",
+        "MySQL",
+        "Redis",
+        "Kafka",
+        "k6",
+      ],
       featured: true,
     },
     {
@@ -435,7 +476,7 @@ const heogeon: Dictionary = {
         "인증·게시글·댓글·좋아요·팔로우·쪽지·스토리를 갖춘 블로그 플랫폼 백엔드 개인 프로젝트입니다. 인증을 3종 미들웨어로 분리하고 mecab-ya 형태소 분석으로 유사글 추천 키워드를 추출했습니다.",
       href: "https://github.com/HUHGEON/Blog-Platform",
       stack: ["Express", "MongoDB", "JWT", "mecab-ya", "Multer"],
-      featured: true,
+      featured: false,
     },
     {
       slug: "zogakzip",

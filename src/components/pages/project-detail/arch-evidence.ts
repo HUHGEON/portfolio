@@ -5,6 +5,47 @@
 export type ArchEvidence = { note?: string };
 
 export const ARCH_EVIDENCE: Record<string, Record<string, ArchEvidence>> = {
+  nova: {
+    "waitingroom/0": {
+      note: "순서 값을 Lua 안에서 Redis 시계로 매겨 앱 서버 시계가 틀려도 뒤에 온 사람이 앞지르지 못한다",
+    },
+    "waitingroom/1": {
+      note: "리더 하나가 임기 번호와 회차 번호를 걸고 커서를 올려, 옛 리더의 늦은 쓰기는 반영되지 않는다",
+    },
+    "waitingroom/2": {
+      note: "상품과 회원에 묶인 120초 토큰. 한번 발급하면 무를 수 없다",
+    },
+    "preorder/1": {
+      note: "회차 행을 FOR UPDATE 로 잡고 번호를 올려 빈틈이 없다. 모델 단위라 다른 모델과 안 기다린다",
+    },
+    "preorder/2": {
+      note: "예약 · 등록 작업 · 이벤트가 한 트랜잭션. 응답 뒤 서버가 죽어도 릴레이가 보낸다",
+    },
+    "mysql/0": {
+      note: "취소가 아닐 때만 값이 생기는 생성 칼럼으로 1인 1매를 걸어, 취소한 사람만 재신청된다",
+    },
+    "sqs/0": {
+      note: "한 상품 몰림이 같은 큐의 다른 상품을 뒤로 밀지 않게 상품별 묶음으로 보낸다",
+    },
+    "worker/0": {
+      note: "5xx 와 타임아웃은 미등록의 증거가 아니다. 응답을 모른 다음 차례는 등록이 아니라 조회부터 한다",
+    },
+    "worker/1": {
+      note: "시도 횟수를 메시지 속성에 싣고 다녀 worker 에 DB 가 필요 없다",
+    },
+    "batch/0": {
+      note: "be 는 외부 결과를 받은 뒤에만 바뀌므로, 외부 쪽 최근 2분 변경은 판정을 미뤄 정상 건을 어긋남으로 잡지 않는다",
+    },
+    "deploy/1": {
+      note: "최대 대수 × 풀 × 2 + 50 이 RDS max_connections 를 넘으면 plan 이 멈춘다",
+    },
+    "obs/0": {
+      note: "샘플링 전에 요청 수와 오류율을 먼저 집계해 버려진 트레이스까지 센다",
+    },
+    "obs/2": {
+      note: "대기열이 느릴 때 Valkey 를 두 번 의심했지만 원인은 앱 CPU 의 55% 를 쓰던 JIT 였다",
+    },
+  },
   "coupon-yaho": {
     "gateway/0": {
       note: "판정 규칙 11줄을 위에서부터 차례로 적용",
