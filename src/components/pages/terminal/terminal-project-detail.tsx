@@ -50,6 +50,7 @@ import type { ArchSpec } from "@/components/pages/project-detail/ArchitectureDia
 import type { Project } from "@/types/project";
 import { defaultLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import Image from "next/image";
 import { assetPath } from "@/lib/asset-path";
 
 const branchName = (slug: string) => (slug === "media-inference" ? "intern" : slug);
@@ -1087,6 +1088,25 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--faint)]">
                   {b.footnote}
                 </p>
+              ) : null}
+              {d.shots && d.shots.length > 0 ? (
+                <div className="mt-6 grid gap-4">
+                  {d.shots.map((shot) => (
+                    <figure key={shot.src} className="m-0">
+                      <Image
+                        src={assetPath(shot.src)}
+                        alt={shot.alt}
+                        width={shot.width}
+                        height={shot.height}
+                        unoptimized
+                        className="block h-auto w-full rounded-lg border border-[var(--border)]"
+                      />
+                      <figcaption className="mt-2 text-[13px] leading-relaxed text-[var(--faint)]">
+                        {shot.caption}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
               ) : null}
             </>
           ),

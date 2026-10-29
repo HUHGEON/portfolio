@@ -88,6 +88,13 @@ export type HeoProjectDetail = {
     bar?: { column: number; max: number; label: string }; // inline magnitude bar
     footnote?: string;
   }; // 측정 결과 표
+  shots?: {
+    src: string;
+    alt: string;
+    caption: string;
+    width: number;
+    height: number;
+  }[]; // 측정 결과 아래에 붙는 관측 화면 캡처
   architecture: Architecture;
   problemTitle: string;
   problems: string[];
@@ -916,6 +923,24 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       footnote:
         "부하 발생기 k6 태스크 6대(4 vCPU) · 대기열 8대 · 접수 5대(촬영 전 수동 상향) · RDS db.t4g.large 단일 AZ · Valkey cache.t4g.small 1노드. 같은 10분 구간을 Grafana 로 보면 요청 12만 8천 건, 5xx 0건, 0.5초 초과 0.0102% 입니다. 이 회차의 외부 Mock 은 정상 조건(지연 200ms · 실패 0)이었고, 외부 지연과 실패는 따로 걸어 재처리를 확인했습니다.",
     },
+    shots: [
+      {
+        src: "/shots/nova-grafana-summary.png",
+        alt: "Grafana nova 개요 — 몰림 10분 구간 요약 수치",
+        caption:
+          "위 표의 근거. 몰림이 지난 10분(11:02~11:12)을 Grafana 에서 다시 본 것이다. 요청 128K, 5xx 건수 0 · 비율 0%, 0.5초를 넘긴 요청 0.0102%, 지금 5xx 를 내는 서비스 0.",
+        width: 1800,
+        height: 241,
+      },
+      {
+        src: "/shots/nova-grafana-5xx-p95.png",
+        alt: "서비스별 5xx 와 p95 응답 시간",
+        caption:
+          "같은 구간을 서비스별로 쪼갠 것. 5xx 는 전 구간 0 이고, p95 는 외부 예약 Mock 이 약 450ms 로 가장 높다 — 외부가 느린 것이지 우리가 느린 것이 아니라는 뜻이다. 접수(preorder)는 200ms 아래, 대기열은 입장이 끝나는 11:09 에 한 번 솟았다가 내려온다. 점선은 0.5초 기준선.",
+        width: 1800,
+        height: 552,
+      },
+    ],
     results: [],
     lessons:
       "가장 많이 배운 것은 계기를 먼저 의심해야 한다는 것입니다. 대기열이 느릴 때 공용 저장소를 두 번 의심했지만 두 번 다 측정으로 배제됐고 원인은 앱의 CPU 포화였습니다. 대시보드가 CPU 50% 라고 하던 태스크는 실제로는 포화 상태였고, '1만 명 중 0명 처리'라는 결과는 시스템이 아니라 수집 설정이 라벨을 잘라낸 탓이었습니다. 숫자가 이상하면 시스템보다 재는 쪽을 먼저 보는 습관이 생겼고, 그래서 이 페이지의 수치에도 측정 조건을 같이 적었습니다. 반대로 동시성 결함은 운영에서 터지기 전에 재현 시험으로 먼저 잡을 수 있었는데, 멈춤을 주입해 경합을 결정적으로 재현하는 시험을 먼저 쓰고 고치는 순서가 효과적이었습니다.",
