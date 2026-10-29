@@ -375,6 +375,8 @@ function CouponSheets({
   total: number;
   startPage: number;
 }) {
+  // 분량이 많은 프로젝트(NOVA)는 줄이지 않고 장을 하나 더 쓴다
+  const wide = Boolean(d.infraDiagramKey);
   return (
     <>
       <Sheet footer={String(startPage)}>
@@ -406,12 +408,12 @@ function CouponSheets({
         <div className="mt-3 grid grid-cols-2 gap-5">
           <div>
             <Heading>동작 흐름</Heading>
-            <Bullets items={d.architecture.steps} />
+            <Bullets items={d.architecture.steps.slice(0, 4)} />
           </div>
           <div>
             <Heading>주요 기능</Heading>
             <ul className="space-y-1">
-              {d.features?.map((f) => (
+              {d.features?.slice(0, 4).map((f) => (
                 <li key={f.title} className="text-[11.5px] leading-[1.6]">
                   <span className="font-semibold text-[var(--text)]">{f.title}</span>{" "}
                   <span className="text-[var(--dim)]">{emphasize(f.desc)}</span>
@@ -420,17 +422,42 @@ function CouponSheets({
             </ul>
           </div>
         </div>
-        <div className="mt-3">
-          <DemoStrip d={d} slug={project.slug} />
-        </div>
+        {wide ? null : (
+          <div className="mt-3">
+            <DemoStrip d={d} slug={project.slug} />
+          </div>
+        )}
       </Sheet>
 
-      <Sheet footer={String(startPage + 1)}>
+      {wide ? (
+        <Sheet footer={String(startPage + 1)}>
+          <p className="mb-3 text-[10.5px] text-[var(--faint)]">
+            {project.title} · 인프라와 나머지 기능
+          </p>
+          {d.infraDiagramKey ? <Arch diagramKey={d.infraDiagramKey} /> : null}
+          <div className="mt-3">
+            <Heading>주요 기능 (이어서)</Heading>
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-1">
+              {d.features?.slice(4).map((f) => (
+                <li key={f.title} className="text-[11.5px] leading-[1.6]">
+                  <span className="font-semibold text-[var(--text)]">{f.title}</span>{" "}
+                  <span className="text-[var(--dim)]">{emphasize(f.desc)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-3">
+            <DemoStrip d={d} slug={project.slug} />
+          </div>
+        </Sheet>
+      ) : null}
+
+      <Sheet footer={String(startPage + (wide ? 2 : 1))}>
         <p className="mb-3 text-[10.5px] text-[var(--faint)]">
           {project.title} · 문제 해결 사례
         </p>
         <ol className="space-y-3">
-          {d.cases?.map((c, ci) => (
+          {d.cases?.slice(0, wide ? 4 : 3).map((c, ci) => (
             <li
               key={c.title}
               className="avoid-break rounded-md border border-[var(--border)] p-3"
@@ -462,7 +489,7 @@ function CouponSheets({
         </ol>
       </Sheet>
 
-      <Sheet footer={String(startPage + 2)}>
+      <Sheet footer={String(startPage + (wide ? 3 : 2))}>
         <p className="mb-3 text-[10.5px] text-[var(--faint)]">
           {project.title} · 버전별 발전 과정 · 측정 결과
         </p>
@@ -508,7 +535,7 @@ function CouponSheets({
 
         {d.benchmark ? (
           <div className="avoid-break mt-5">
-            <Heading note="ms">잠금 방식별 부하 측정</Heading>
+            <Heading note="ms">{d.benchmarkTitle ?? "잠금 방식별 부하 측정"}</Heading>
             <p className="mb-2 text-[10.5px] leading-[1.6] text-[var(--dim)]">
               {d.benchmark.caption}
             </p>
@@ -643,12 +670,13 @@ export function PrintPortfolio({ dictionary }: { dictionary: Dictionary }) {
 
   const { theme } = useTheme();
 
-  // page 1 is the profile; coupon-yaho (the only project with cases) takes three sheets
+  // page 1 is the profile; a project with cases takes three sheets, four when it also
+  // carries an infra diagram (NOVA)
+  const sheetCount = (x?: HeoProjectDetail) =>
+    x?.cases ? (x.infraDiagramKey ? 4 : 3) : 1;
   const startPages = featured.reduce<number[]>((acc, _project, i) => {
     const prev =
-      i === 0
-        ? 2
-        : acc[i - 1] + (HEO_PROJECT_DETAILS[featured[i - 1].slug]?.cases ? 3 : 1);
+      i === 0 ? 2 : acc[i - 1] + sheetCount(HEO_PROJECT_DETAILS[featured[i - 1].slug]);
     return [...acc, prev];
   }, []);
 

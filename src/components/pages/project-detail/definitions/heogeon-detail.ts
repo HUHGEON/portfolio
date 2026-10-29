@@ -56,6 +56,7 @@ export type HeoProjectDetail = {
   award?: string;
   repoNote?: string;
   diagramKey?: string; // when set, render the rich ArchitectureDiagram instead of the grid
+  benchmarkTitle?: string; // 측정 결과 표 제목 (PDF)
   infraDiagramKey?: string; // 두 번째 다이어그램 — 서비스 구조와 따로 보여 줄 인프라 구성
   infraSteps?: string[]; // 인프라 다이어그램 아래에 붙는 설명
   works?: { title: string; desc: string; stack: string[] }[]; // résumé-style experience page
@@ -919,6 +920,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     problemTitle: "",
     problems: [],
     solutions: [],
+    benchmarkTitle: "오픈 몰림 부하 측정",
     benchmark: {
       caption:
         "5,000명을 10초에 밀어 넣은 시험(k6, 도착률 고정 초당 500명)의 1분 단위 진행 값입니다. 대기열 입장 속도를 운영 설정과 같은 초당 20명으로 두고 처리 기한을 7분 16초로 계산했습니다.",
