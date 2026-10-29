@@ -33,7 +33,9 @@ function ProjectCard({ project }: { project: ProjectItem }) {
           </span>
         ) : null}
       </div>
-      <p className="mt-2 line-clamp-2 text-[var(--dim)]">{emphasize(project.description)}</p>
+      <p className="mt-2 line-clamp-2 text-[var(--dim)]">
+        {emphasize(project.description)}
+      </p>
       <StackList items={project.stack} className="mt-3" />
       <span className="mt-2 text-[12px] text-[var(--faint)] transition group-hover:text-[var(--accent)]">
         자세히 보기 →

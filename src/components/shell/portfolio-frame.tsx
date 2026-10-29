@@ -73,11 +73,7 @@ export function PortfolioFrame({
             onToggle={() => setIsSidebarCollapsed((value) => !value)}
           />
         </aside>
-        <div
-          id="main-content"
-          tabIndex={-1}
-          className="min-w-0 focus:outline-none"
-        >
+        <div id="main-content" tabIndex={-1} className="min-w-0 focus:outline-none">
           {children}
         </div>
       </section>
@@ -295,16 +291,16 @@ function PortfolioSidebar({
                       : "text-[var(--dim)] hover:bg-[var(--card-2)] hover:text-[var(--text)]",
                   ].join(" ")}
                 >
-                  <span data-graph="line"
+                  <span
+                    data-graph="line"
                     className="pointer-events-none absolute left-[11px] w-px bg-[var(--accent)]"
                     style={{ top: si === 0 ? "50%" : 0, bottom: 0 }}
                   />
-                  <span data-graph="node"
+                  <span
+                    data-graph="node"
                     className={[
                       "pointer-events-none absolute left-[11px] top-1/2 z-10 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--accent)] transition",
-                      active
-                        ? "bg-[var(--accent)]"
-                        : "bg-[var(--surface)]",
+                      active ? "bg-[var(--accent)]" : "bg-[var(--surface)]",
                     ].join(" ")}
                   />
                   <Icon size={14} className="shrink-0" />
@@ -328,13 +324,18 @@ function PortfolioSidebar({
                     <div key={group.id} className="relative">
                       {/* branch tip: forks right off the main trunk */}
                       <div className="relative flex h-8 min-w-0 items-center pl-[46px] pr-2">
-                        <span data-graph="line"
+                        <span
+                          data-graph="line"
                           className="pointer-events-none absolute left-[11px] top-0 w-px bg-[var(--accent)]"
                           style={{ bottom: lastGroup ? "50%" : "0" }}
                         />
                         <span className="pointer-events-none absolute left-[11px] top-0 h-1/2 w-[17px] rounded-bl-[9px] border-b border-l border-[var(--c-cat)]" />
-                        <span data-graph="line" className="pointer-events-none absolute left-[28px] top-1/2 bottom-0 w-px bg-[var(--c-cat)]" />
-                        <span data-graph="node"
+                        <span
+                          data-graph="line"
+                          className="pointer-events-none absolute left-[28px] top-1/2 bottom-0 w-px bg-[var(--c-cat)]"
+                        />
+                        <span
+                          data-graph="node"
                           className={[
                             "pointer-events-none absolute left-[28px] top-1/2 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--c-cat)]",
                             groupActive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",
@@ -370,15 +371,20 @@ function PortfolioSidebar({
                           >
                             {/* main trunk keeps going past this branch */}
                             {!lastGroup ? (
-                              <span data-graph="line" className="pointer-events-none absolute inset-y-0 left-[11px] w-px bg-[var(--accent)]" />
+                              <span
+                                data-graph="line"
+                                className="pointer-events-none absolute inset-y-0 left-[11px] w-px bg-[var(--accent)]"
+                              />
                             ) : null}
                             {/* topic branch line */}
-                            <span data-graph="line"
+                            <span
+                              data-graph="line"
                               className="pointer-events-none absolute left-[28px] top-0 w-px bg-[var(--c-cat)]"
                               style={{ bottom: lastChild ? "50%" : "0" }}
                             />
                             <span className="pointer-events-none absolute left-[28px] top-1/2 h-px w-[16px] bg-[var(--c-cat)]" />
-                            <span data-graph="node"
+                            <span
+                              data-graph="node"
                               className={[
                                 "pointer-events-none absolute left-[48px] top-1/2 z-10 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[var(--c-cat)] transition",
                                 cactive ? "bg-[var(--c-cat)]" : "bg-[var(--surface)]",

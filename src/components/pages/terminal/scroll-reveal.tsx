@@ -93,7 +93,9 @@ function typeOut(el: HTMLElement, start = 0) {
  */
 export function ScrollReveal() {
   useEffect(() => {
-    const els = Array.from(document.querySelectorAll<HTMLElement>(".reveal:not(.is-in)"));
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>(".reveal:not(.is-in)"),
+    );
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduced) {
@@ -103,12 +105,16 @@ export function ScrollReveal() {
 
     // shell prompts type out first, then the hero name rises in after them
     let typed = 0;
-    document.querySelectorAll<HTMLElement>("[data-type]:not([data-typed])").forEach((el) => {
-      el.dataset.typed = "true";
-      typed = Math.max(typed, typeOut(el, 150));
-    });
+    document
+      .querySelectorAll<HTMLElement>("[data-type]:not([data-typed])")
+      .forEach((el) => {
+        el.dataset.typed = "true";
+        typed = Math.max(typed, typeOut(el, 150));
+      });
 
-    const heroName = document.querySelector<HTMLElement>("[data-split]:not([data-split-done])");
+    const heroName = document.querySelector<HTMLElement>(
+      "[data-split]:not([data-split-done])",
+    );
     if (heroName) {
       heroName.dataset.splitDone = "true";
       const { chars } = splitText(heroName, { chars: true });
@@ -147,7 +153,9 @@ export function ScrollReveal() {
     check();
 
     const onMove = (event: PointerEvent) => {
-      const card = (event.target as HTMLElement | null)?.closest<HTMLElement>(".spotlight");
+      const card = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+        ".spotlight",
+      );
       if (!card) return;
       const rect = card.getBoundingClientRect();
       card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
