@@ -648,13 +648,13 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     metrics: [
       {
         value: "113ms",
-        label: "몰림 중 접수 응답",
-        note: "7건 중앙값(64~319ms) · 5,000명 진입 중 · 클라이언트 왕복 측정",
+        label: "몰릴 때 접수 응답",
+        note: "7건 중앙값(64~319ms) · 5,000명이 들어오는 중 · 클라이언트 왕복 측정",
       },
       {
-        value: "5xx 0건",
-        label: "5,000명 10초 몰림",
-        note: "10분 구간 요청 12만 8천 건 · 0.5초 초과 0.0102%",
+        value: "0건",
+        label: "10초에 5,000명, 서버 오류",
+        note: "10분 동안 요청 12만 8천 건 · 0.5초를 넘긴 요청 0.0102%",
       },
       {
         value: "4/4 → 0/4",
@@ -837,7 +837,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         tradeoff:
           "입장 속도가 접수 서버의 자기 보고에 기대므로, 보고값이 실제 처리량과 어긋나면 입장 속도도 같이 어긋난다",
         metric:
-          "입장 속도 20 기준 5,000명 10초 몰림에서 5xx 0.00% · 분 단위 p95 29~61ms (1회)",
+          "입장 속도 20 으로 10초에 5,000명을 넣어 서버 오류 0건 · 분 단위 p95 29~61ms (1회)",
       },
     ],
     goals: [
