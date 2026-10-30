@@ -1269,7 +1269,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         value: "507개",
         label: "채팅 관련 시험 전부 통과",
-        note: "채팅 모듈 351 · WebSocket 전송 137 · 아키텍처 규칙 19 · 실패 0건",
+        note: "채팅 모듈 351 · WebSocket 전송 137 · 아키텍처 규칙 19(그중 채팅 경계 4) · 실패 0건",
       },
       {
         value: "159커밋",
@@ -1499,7 +1499,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     results: [
       "어느 Pod에 접속해도 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 테스트로 Pod 간 전달 확인 (Pub/Sub 특성상 전달은 best-effort이고 재접속 시 누락 복구는 미구현)",
       "Redis 장애(fail-open)·poison-message(개별 skip)·재전송(멱등 처리) 세 상황 모두에서 전송 파이프라인이 멈추지 않도록 구성",
-      "채팅 관련 시험 507개 전부 통과(채팅 모듈 351 · WebSocket 전송 137 · 아키텍처 규칙 19), 공개 커밋 시점에서 실패 0건",
+      "채팅 관련 시험 507개 전부 통과(채팅 모듈 351 · WebSocket 전송 137 · 저장소 전체 아키텍처 규칙 19, 그중 채팅 경계를 지키는 것이 4개), 공개 커밋 시점에서 실패 0건",
       "JPA 시험 스키마를 실제 Flyway 파일 전체에서 버전 순으로 적용하게 하고 마이그레이션 디렉터리를 시험 입력으로 선언. 그 전에는 유니크 인덱스를 지워도 시험이 832ms 만에 통과했음",
     ],
     lessons:
