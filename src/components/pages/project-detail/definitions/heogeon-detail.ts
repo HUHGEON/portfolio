@@ -57,6 +57,7 @@ export type HeoProjectDetail = {
   repoNote?: string;
   diagramKey?: string; // when set, render the rich ArchitectureDiagram instead of the grid
   benchmarkTitle?: string; // 측정 결과 표 제목 (PDF)
+  benchmarkUnit?: string; // 측정 표 단위 꼬리표 (PDF). 기본 "ms", 단위가 섞이면 "" 로 끈다
   infraDiagramKey?: string; // 두 번째 다이어그램 — 서비스 구조와 따로 보여 줄 인프라 구성
   infraSteps?: string[]; // 인프라 다이어그램 아래에 붙는 설명
   works?: { title: string; desc: string; stack: string[] }[]; // résumé-style experience page
@@ -1070,6 +1071,28 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
     ],
     award: "명지대 캡스톤디자인 금상",
+    metrics: [
+      {
+        value: "9종",
+        label: "LLM 출력을 가둔 의도 스키마",
+        note: "recommend · order 4종 · confirm · exit · help · error, 이 밖의 값은 나올 수 없음",
+      },
+      {
+        value: "1,087줄",
+        label: "자유발화를 좁히는 시스템 프롬프트",
+        note: "변환 규칙 99개와 예시 JSON 35개로 샷 표현 · 온도 수식어 · 메뉴 교체까지 정규화",
+      },
+      {
+        value: "42 / 47",
+        label: "NLP 서버 커밋 중 본인",
+        note: "설계와 구현을 단독으로 맡음. API 서버(추천 · 주문 · 장바구니 · Swagger)는 팀원이 구현",
+      },
+      {
+        value: "금상",
+        label: "명지대 캡스톤디자인",
+        note: "음성 주문부터 추천 · 옵션 선택 · 결제까지 한 대화로 이어지는 키오스크 백엔드",
+      },
+    ],
     goals: [
       "자유발화 한 문장에 담긴 여러 요청을 순서대로 처리하는 음성 주문 백엔드 구현",
       "LLM 출력을 intents·filters 스키마로 제한해 자연어 요청을 실행 가능한 형태로 안전하게 변환",
@@ -1182,10 +1205,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "menus·​query·​recommend·​order·​cart API를 Swagger(swagger-jsdoc)로 문서화해 프론트·NLP와 연동 규격 공유 (팀 API 서버)",
     ],
     results: [
-      "복합 요청 처리: 한 문장에 담긴 여러 의도를 순서대로 실행",
-      "멀티턴 처리: 빠진 옵션을 후속 발화로 채우며 주문 진행",
-      "추천부터 장바구니 수정·결제까지 이어지는 키오스크 백엔드를 팀 프로젝트로 완성",
-      "결제 시 메뉴별 수량을 그룹핑해 Orders 컬렉션(MongoDB Atlas)에 실제 저장, API는 Swagger로 문서화 (팀 API 서버)",
+      "‘카페라떼 빼고 아메리카노 추가하고 결제’ 같은 한 문장을 intents 배열로 나눠 순서대로 실행, 중첩된 응답은 results만 펼쳐 하나로 병합",
+      "메뉴 이름을 바꾸는 요청은 삭제와 추가 두 의도로 분해하고, 옵션만 바꾸는 요청은 변경 전후를 한 항목 안에 담아 처리",
+      "필수 옵션이 빠지면 실패로 끝내지 않고 보류 항목으로 세션에 두었다가 옵션만 담긴 다음 발화로 채워 장바구니에 담음",
+      "추천 · 주문 · 장바구니 · 결제 엔드포인트 14개를 하나의 디스패처(/api/handle) 뒤로 모으고 Swagger로 명세를 자동 생성해 프론트 · NLP와 규격 공유 (팀 API 서버)",
+      "결제 시 메뉴별 수량을 그룹핑해 Orders 컬렉션(MongoDB Atlas)에 실제 저장 (팀 API 서버)",
     ],
     lessons:
       "자연어 같은 비정형 입력을 백엔드에서 안전하게 실행하려면 LLM 출력 스키마(intents·filters)를 엄격하게 정의하고 대화 상태(pending·세션)는 서버가 관리해야 한다는 것을 배웠습니다.",
@@ -1218,25 +1242,145 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
 
   "live-chat": {
     diagramKey: "live-chat",
-    hook: "여러 Pod에 흩어진 시청자에게 메시지를 실시간으로 전달하는 라이브 채팅 서버입니다.",
+    hook: "여러 Pod에 흩어진 시청자에게 메시지를 실시간으로 전달하고, 누가 누구를 왜 내보냈는지까지 서버가 책임지는 라이브 채팅 서버입니다.",
     description:
-      "대규모 라이브 스트리밍·커머스 플랫폼 sapari에서 개발 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 WebSocket으로 연결을 받고 Redis Pub/Sub 패턴 구독으로 Pod 간 메시지를 중계합니다. 그 위에 권한 확인·레이트리밋·욕설 필터링과 멱등 처리·fail-open을 하나의 전송 파이프라인으로 묶었습니다. 채팅 서버를 시작으로 다른 도메인까지 맡아 계속 업데이트할 예정입니다.",
-    role: "sapari(라이브 스트리밍·커머스) 채팅 서버 담당 · 진행 중 · 도메인 확장 예정",
+      "대규모 라이브 스트리밍·커머스 플랫폼 sapari에서 개발 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 WebSocket으로 연결을 받고 Redis Pub/Sub 패턴 구독으로 Pod 간 메시지를 중계합니다. 그 위에 권한 확인·레이트리밋·욕설 필터링과 멱등 처리·fail-open을 하나의 전송 파이프라인으로 묶고, 강퇴와 자동 밴 승급까지 같은 모듈에서 처리합니다. 채팅 모듈과 WebSocket 전송 계층은 전부 혼자 작성했고, 채팅을 시작으로 다른 도메인까지 맡아 계속 업데이트할 예정입니다.",
+    role: "sapari(라이브 스트리밍·커머스) 채팅 서버 단독 담당 · 진행 중 · 도메인 확장 예정",
     period: "2026.06 ~ 진행 중",
     evidence: [
+      {
+        label: "채팅 모듈 설계 노트 (전달 보장 수준 · 실패 정책)",
+        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md",
+      },
       {
         label: "크로스 Pod 전달 통합 테스트",
         href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/apps/streaming-app/src/test/java/com/sapari/streamingapp/websocket/CrossPodBroadcastTest.java",
       },
       {
-        label: "채팅 모듈 설계 노트 (전달 보장 수준)",
-        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md",
+        label: "강퇴 기록 트랜잭션 경계",
+        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/chat-core/src/main/java/com/sapari/chat/application/service/ChatKickRecorder.java",
+      },
+      {
+        label: "두 스택을 가르는 아키텍처 규칙",
+        href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/architecture-test/src/test/java/com/sapari/architecture/ArchitectureTest.java",
+      },
+    ],
+    metrics: [
+      {
+        value: "507개",
+        label: "채팅 관련 시험 전부 통과",
+        note: "채팅 모듈 351 · WebSocket 전송 137 · 아키텍처 규칙 19 · 실패 0건",
+      },
+      {
+        value: "159커밋",
+        label: "채팅 단독 담당",
+        note: "2026-06-05 ~ 09-07 공개 브랜치, 채팅 모듈과 전송 계층 커밋 전부 본인",
+      },
+      {
+        value: "5곳",
+        label: "조회가 실패해도 채팅은 열어 둔다",
+        note: "방 종료 표식 · 강퇴 · 밴 · 레이트리밋 · 세션 조회 어느 것도 막지 않음",
+      },
+      {
+        value: "4개",
+        label: "두 스택을 가르는 빌드 규칙",
+        note: "WebFlux 앱이 블로킹 경로를 부르면 아키텍처 시험이 깨짐",
+      },
+    ],
+    cases: [
+      {
+        title:
+          "강퇴 판단에 쓰이는 값을 요청 본문에서 전부 걷어내고, 검사 순서로 존재 여부가 새는 것까지 막았습니다",
+        links: [
+          {
+            label: "권한 정책 (등급 × 방 소유)",
+            href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/chat-core/src/main/java/com/sapari/chat/domain/rule/ChatPermissionPolicy.java",
+          },
+        ],
+        causes: [
+          "신고 사유와 본문을 요청으로 같이 받으면 강퇴하는 쪽이 자기 근거를 직접 써서 보내게 됨",
+          "근거를 먼저 찾고 권한을 나중에 보면, 권한 없는 사람도 응답 차이로 그 messageId가 있는지 알아냄",
+          "방 생존 여부를 권한보다 먼저 보면 같은 방식으로 어느 방이 지금 방송 중인지가 샘",
+        ],
+        solutions: [
+          "명령은 messageId만 받고 본문·작성자·등급은 서버가 저장된 메시지에서 읽음. 등급은 보낼 때 룸 토큰에서 꺼내 함께 저장해 둔 값",
+          "검사 순서를 권한 → 근거 조회 → 방 생존으로 고정하고, 모르는 방과 모르는 사용자는 권한 없음 하나로 합침",
+          "중복 강퇴는 UNIQUE(user_id, live_room_id)와 ON CONFLICT DO NOTHING으로 DB가 막고, 바뀐 행 수는 승급 판단에만 씀",
+          "원문을 볼 수 있는지(방 소유자 또는 ADMIN)를 함수 하나로 모아 fan-out과 감사 로그가 같은 질문을 같은 곳에 묻게 함",
+        ],
+        checks: [
+          "등급을 메시지 저장 시점 값으로 쓰면 글을 쓴 뒤 승급한 사용자는 옛 등급으로 판단됨. 판단 대상이 사람이 아니라 메시지라서 받아들인 트레이드오프",
+          "권한 판정 표를 정책 코드에서 끌어오지 않고 따로 적은 파라미터 시험으로 검증. 정책에서 기대값을 끌어오면 원문을 전원에게 열어도 시험이 통과함",
+        ],
+        results: [
+          "강퇴 권한 판정에 들어가는 입력 중 요청 본문에서 오는 값 0개",
+          "권한 없는 요청은 messageId와 방 상태에 관계없이 같은 응답",
+          "원문을 볼 수 있는 역할이 늘어나면 감사 기록도 같이 늘어남. 한 함수를 함께 쓰므로 둘이 어긋날 수 없음",
+        ],
+      },
+      {
+        title:
+          "반환됐으면 커밋됐다는 전제가 거짓이던 것을 찾아, 강퇴가 전부 500이던 경로와 재시도가 승급을 건너뛰던 구멍을 닫았습니다",
+        links: [
+          {
+            label: "트랜잭션 경계 전용 빈 · 시험",
+            href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/chat-core/src/test/java/com/sapari/chat/application/service/ChatKickRecorderTest.java",
+          },
+        ],
+        causes: [
+          "@Modifying 네이티브 INSERT에는 Spring Data가 트랜잭션을 붙여 주지 않음. 그대로 부르면 No active transaction 으로 강퇴가 전부 500",
+          "단위 시험은 못 봄. mock은 쿼리를 실행하지 않고 @DataJpaTest는 트랜잭션을 대신 열어 줌",
+          "REQUIRED로 두면 커밋 보장이 위에서 아무도 트랜잭션을 열지 않았을 때만 성립. 누가 열면 Redis 반영과 발행이 커밋보다 먼저 돎",
+          "밴 쓰기가 실패했는데 강퇴 기록만 남으면, 재시도가 중복 경로로 빠져 밴 승급을 건너뜀",
+        ],
+        solutions: [
+          "두 DB 쓰기만 감싸는 기록 전용 빈을 따로 둠. 같은 클래스에서 부르면 프록시를 거치지 않아 애너테이션이 무시됨",
+          "전파를 REQUIRES_NEW로 고정해 호출자가 트랜잭션을 열어도 커밋 시점이 밀리지 않게 함",
+          "Redis 미러와 발행은 경계 밖에 둬 커밋이 확정된 뒤에만 돌게 함",
+          "밴 쓰기가 실패하면 강퇴 기록까지 같이 롤백되게 해, 재시도가 깨끗한 상태에서 다시 시작하도록 함",
+        ],
+        checks: [
+          "시험이 트랜잭션을 대신 열어 주지 못하도록 Propagation.NOT_SUPPORTED로 호출해 실제 실패를 재현",
+          "REQUIRES_NEW는 바깥 트랜잭션을 연 뒤 그 안에서 부르고 바깥을 롤백해도 기록이 남는지로 확인. 시험이 경계를 직접 주면 REQUIRED여도 통과하므로 그 방법으로는 구분되지 않음",
+          "밴 저장소를 예외만 던지는 것으로 바꿔 끼우고 강퇴 횟수가 그대로인지 확인",
+        ],
+        results: [
+          "강퇴 요청이 전부 500이던 것이 정상 동작",
+          "커밋이 끝난 뒤에만 Redis와 발행이 도는 순서를 시험으로 고정",
+          "재시도가 중복으로 판정돼 승급을 건너뛰던 경로가 닫힘",
+        ],
+      },
+      {
+        title:
+          "동시 강퇴에서 밴 만료를 마지막에 쓴 쪽이 이기던 것을, 순서에 의존하지 않는 쓰기로 바꿔 해결했습니다",
+        causes: [
+          "다른 방에서 동시에 강퇴가 일어나면 각자 밴을 만들고 각자 Redis 미러를 씀. 그냥 SET하면 마지막에 도착한 쪽이 이김",
+          "집행하는 것은 DB 행이 아니라 미러라서, 짧은 만료가 마지막에 도착하면 사용자가 몇 주 일찍 풀림",
+          "사용자당 한 행도 보장되지 않았음. READ COMMITTED에서는 서로의 미확정 행이 안 보여 트랜잭션으로 못 막음",
+          "두 행이 생기면 해제가 반만 동작함. 하나를 지워도 남은 하나가 계속 차단하는데 화면은 해제됐다고 표시",
+        ],
+        solutions: [
+          "미러 쓰기를 남은 TTL 비교부터 SET까지 한 번의 EVAL로 끝내는 늘리기 전용 연산으로 바꿈. 순서 문제는 순서에 의존하지 않는 쓰기로 푼다",
+          "기록 쪽도 ON CONFLICT DO UPDATE에 더 긴 만료 조건을 걸어 같은 방향으로 맞춤. 규칙은 다르지만 어긋날 때 미러가 더 짧아지지는 않음",
+          "사용자당 한 행은 UNIQUE 제약으로 DB가 보장하게 함",
+          "밴 승급은 강퇴 횟수가 아니라 서로 다른 강퇴자 수를 2년 창으로 셈. 행을 세면 방이 다른 한 명의 판매자가 혼자 기준선에 닿음",
+        ],
+        checks: [
+          "기록에서 가장 긴 밴을 다시 읽어 쓰는 방법도 시도했지만, 무엇을 쓸지만 고치고 누가 마지막에 쓰는지는 고치지 못해 폐기",
+          "해제는 기록을 먼저 지우고 미러를 지우는 순서로 고정. 미러부터 지우면 남은 행이 다음 강퇴 때 다시 미러로 올라와 밴이 되살아남",
+        ],
+        results: [
+          "도착 순서와 무관하게 더 긴 만료가 남음",
+          "대신 이 경로로는 밴을 줄일 수 없음. 관리자 사면은 키 삭제 후 재설정이 필요하고 그 기능을 넣는 변경의 몫",
+          "같은 판매자가 자기 방 열 곳에서 같은 사람을 내보내도 한 번으로 셈. 돌아다니는 사용자를 잡기 위해 사람 단위를 고른 대가",
+        ],
       },
     ],
     goals: [
       "여러 Pod에 흩어진 시청자에게 메시지를 중계하는, 수평 확장 가능한 stateless 채팅 서버",
       "논블로킹 리액티브 파이프라인에서 권한·레이트리밋·욕설 필터링을 올바른 순서로 처리",
       "Redis 장애·중복 재전송·처리할 수 없는 메시지가 있어도 채팅이 멈추지 않도록 멱등·fail-open 전송 파이프라인 구성",
+      "강퇴와 자동 밴을 요청자가 근거를 만들 수 없는 구조로 설계하고 집행 상태를 Redis·DB 양쪽에서 같은 방향으로 수렴시키기",
     ],
     features: [
       {
@@ -1268,6 +1412,16 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         emoji: "🔑",
         title: "RS256 룸 토큰",
         desc: "chat은 공개키로 검증만 해 구조상 소유자 토큰을 위조할 수 없음",
+      },
+      {
+        emoji: "🚫",
+        title: "강퇴 · 자동 밴 승급",
+        desc: "근거는 서버가 저장된 메시지에서 읽고, 서로 다른 강퇴자 수를 2년 창으로 세어 밴 기간을 올림",
+      },
+      {
+        emoji: "🕶️",
+        title: "원문 열람 통제",
+        desc: "마스킹본이 기본이고 방 소유자와 ADMIN만 원문 열람, 남의 방을 본 ADMIN은 접속 1건당 1줄 기록",
       },
     ],
     architecture: {
@@ -1321,6 +1475,8 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         "메시지를 받으면 전송 파이프라인이 비용이 낮은 검사부터(권한 → 강퇴 → 레이트리밋 → 욕설 마스킹) 순서대로 처리",
         "통과한 메시지는 MongoDB에 먼저 저장(원문+마스킹본)한 뒤 Redis로 발행(persist-then-publish)",
         "chat:pubsub:* 패턴을 상시 구독하는 Redis Pub/Sub 스트림이 다른 Pod의 시청자에게 fan-out",
+        "fan-out 시점에 마스킹본을 기본으로 내보내고, 방 소유자와 ADMIN에게만 원문을 내보냄",
+        "강퇴는 저장된 메시지를 근거로 판정해 기록을 먼저 커밋한 뒤 Redis 집행 상태와 알림을 갱신",
         "clientMsgId + Mongo 유니크 인덱스로 중복 발행 차단, Redis 장애 시 fail-open으로 채팅 유지",
       ],
     },
@@ -1329,6 +1485,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "WebSocket은 stateful이라 시청자가 여러 Pod에 나뉘고, A Pod에서 보낸 메시지를 B Pod 시청자에게도 실시간으로 전달해야 함",
       "단일 이벤트 루프를 블로킹하지 않으면서 재전송·중복 프레임·파이프라이닝을 이용한 레이트리밋 회피를 막아야 함",
       "채팅 본문·clientMsgId·프레임 같은 신뢰할 수 없는 입력을 이용한 욕설 우회·로그 위조를 막아야 함",
+      "리액티브 WebFlux 앱과 블로킹 MVC 앱이 같은 채팅 모듈을 함께 쓰므로, 한쪽 스택이 다른 쪽 경로를 부르면 이벤트 루프가 막히거나 부팅이 깨짐",
     ],
     solutions: [
       "비용 0인 검사는 앞에, Redis I/O는 뒤에 두는 순서(방 생존 → 검증 → 권한 → 강퇴 → 레이트리밋 → 욕설 마스킹 → 저장 → 발행)로 전송 파이프라인 구성",
@@ -1336,14 +1493,17 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "Aho-Corasick 1-패스 욕설 탐지로 특수문자 삽입·인접 토큰 결합 우회까지 잡고, ‘시발점’ 같은 일반 단어는 화이트리스트로 보존",
       "clientMsgId + Mongo partial unique index로 멱등 처리(persist-then-publish)해 재전송 시 중복 발행을 막고 기존 메시지로 ack",
       "Redis 장애로 강퇴·레이트리밋 조회가 실패해도 채팅 허용(fail-open), onErrorResume 람다 안 throw 금지와 시간 기반 로그 스로틀로 fail-open 정책이 뒤집히지 않게 함",
+      "리액티브 어댑터에만 스테레오타입을 달고 블로킹 어댑터는 호스트 앱이 직접 등록하게 해 두 앱이 서로의 절반을 스캔하지 않게 하고, 호출 방향은 아키텍처 시험 4개로 빌드에서 강제",
       "chat-api(계약) ↔ chat-core(도메인·인프라)를 헥사고날 구조로 분리하고 ArchUnit으로 강제, 인바운드는 concatMap으로 순차 처리",
     ],
     results: [
       "어느 Pod에 접속해도 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 테스트로 Pod 간 전달 확인 (Pub/Sub 특성상 전달은 best-effort이고 재접속 시 누락 복구는 미구현)",
       "Redis 장애(fail-open)·poison-message(개별 skip)·재전송(멱등 처리) 세 상황 모두에서 전송 파이프라인이 멈추지 않도록 구성",
+      "채팅 관련 시험 507개 전부 통과(채팅 모듈 351 · WebSocket 전송 137 · 아키텍처 규칙 19), 공개 커밋 시점에서 실패 0건",
+      "JPA 시험 스키마를 실제 Flyway 파일 전체에서 버전 순으로 적용하게 하고 마이그레이션 디렉터리를 시험 입력으로 선언. 그 전에는 유니크 인덱스를 지워도 시험이 832ms 만에 통과했음",
     ],
     lessons:
-      "논블로킹 리액티브 파이프라인에서는 무엇을 검사하느냐만큼 어떤 순서로, 어느 에러 경계에서 검사하느냐가 정확성을 좌우합니다. fail-open 람다 안 throw 금지나 concatMap 강제 같은 불변식을 코드 레벨에서 보장하지 않으면 가용성 정책이 조용히 뒤집힌다는 것을 직접 겪으며 배웠습니다.",
+      "논블로킹 파이프라인에서는 무엇을 검사하느냐만큼 어떤 순서로, 어느 에러 경계에서 검사하느냐가 정확성을 좌우합니다. fail-open 람다 안 throw 금지 같은 불변식을 코드로 보장하지 않으면 가용성 정책이 조용히 뒤집힌다는 것을 직접 겪었습니다. 통과하는 시험과 잡아내는 시험이 다르다는 것도 함께 배웠습니다. 트랜잭션을 대신 열어 주는 시험, 기대값을 정책에서 끌어오는 시험, 스키마 변경을 입력으로 보지 않는 시험은 전부 초록불이면서 아무것도 지키지 않았습니다.",
     techChoices: [
       {
         name: "Spring WebFlux",
@@ -1366,6 +1526,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
           "세션·강퇴·레이트리밋 등 Pod 간 공유 상태를 외부화, SET NX EX 단일 원자 연산으로 레이트리밋 TOCTOU 레이스 제거",
       },
       {
+        name: "Redis Lua (밴 미러)",
+        reason:
+          "남은 TTL 비교와 SET을 한 번의 EVAL로 묶어, 동시 강퇴에서 도착 순서와 무관하게 더 긴 만료가 남게 함",
+      },
+      {
         name: "MongoDB (reactive)",
         reason:
           "append 위주인 채팅 메시지를 _id 커서 페이징 + TTL 인덱스로 저장·조회하기에 적합",
@@ -1374,6 +1539,11 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         name: "RS256 룸 토큰",
         reason:
           "발급은 개인키(live)로 하고 chat은 공개키 검증만 해, 구조상 chat에서 소유자 토큰을 위조할 수 없는 PII 게이트",
+      },
+      {
+        name: "ArchUnit",
+        reason:
+          "리액티브 앱과 MVC 앱이 같은 모듈의 서로 다른 절반만 쓰도록 호출 방향을 빌드에서 강제, 규칙이 없으면 한 줄로 이벤트 루프가 막힘",
       },
     ],
   },
@@ -1423,6 +1593,86 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         label: "도메인 가드 강화 · 한계 (PR #12)",
         href: "https://github.com/haeyaji/haeyaji-nlp/pull/12",
+      },
+    ],
+    metrics: [
+      {
+        value: "59 / 80",
+        label: "시나리오 자동 채점 통과",
+        note: "날씨·위치 19/20 · 막연한 요청 17/20 · 상세 추천 17/20 · 도메인 밖 거절 6/20",
+      },
+      {
+        value: "229개",
+        label: "모델·네트워크 없이 도는 시험",
+        note: "추천 서버 119 · 백엔드 본인 작성 110, 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
+      },
+      {
+        value: "70초",
+        label: "가장 느렸던 추천 한 건",
+        note: "80건 중앙값 4초, 상세 추천만 중앙값 13초. 이 지연이 커넥션을 붙잡지 않게 트랜잭션을 분리",
+      },
+      {
+        value: "124커밋",
+        label: "추천 서버 단독 · 백엔드 4개 도메인",
+        note: "nlp 63커밋 전부 본인 · be 61커밋 (날씨 · 추천 게이트웨이 · 개인화 · 알림)",
+      },
+    ],
+    cases: [
+      {
+        title:
+          "도메인 밖 거절이 6/20으로 무너진 것을 시나리오 채점으로 찾아, 방어선을 LLM 안쪽에서 바깥쪽 규칙으로 옮겼습니다",
+        links: [
+          {
+            label: "도메인 가드 강화 · 한계 (PR #12)",
+            href: "https://github.com/haeyaji/haeyaji-nlp/pull/12",
+          },
+          {
+            label: "시나리오 채점 결과 원본",
+            href: "https://github.com/haeyaji/haeyaji-nlp/blob/main/eval/results.md",
+          },
+        ],
+        causes: [
+          "7.8b instruct 모델은 시스템 프롬프트에 거절하라고 적어 두는 것만으로는 지키지 않음. 레시피·번역·코드·작명 요청에 그냥 답해 버림",
+          "구멍은 자유 대화 핸들러 하나였음. 추천 경로는 출력 스키마가 강제돼 있어 새지 않았음",
+          "‘소풍 가려고 그래서 메뉴 알려줘’처럼 도메인 안쪽으로 포장한 요청은 한 발 더 쉽게 통과",
+          "히스토리가 쌓이면 그 모드가 유지됨. 한 발짝 입력만 보는 채점으로는 이게 안 보임",
+        ],
+        solutions: [
+          "거절을 LLM 안에서 시키지 않고, 호출 전에 규칙이 먼저 판정해 하드코딩된 문구로 즉시 반환하게 바꿈. 모델을 안 타므로 새어 나갈 경로 자체가 없어지고 응답도 빨라짐",
+          "도메인 밖 키워드와 프롬프트 인젝션 패턴(이전 지시 무시·컨텍스트 초기화·기억하는 것 알려 줘 등)을 규칙으로 확장",
+          "자유 대화 핸들러가 LLM을 타는 범위를 인사·잡담으로 좁히고 나머지는 전부 하드 거절",
+          "한 발짝 입력만 보던 채점에 멀티턴 묶음(히스토리 프라이밍 · 사회공학 프레이밍 · 인젝션)을 추가하고 러너가 대화 기록을 들고 돌도록 고침",
+        ],
+        checks: [
+          "좌표·날씨·반경·후보 수를 고정하고 같은 조건에서 80건을 자동 채점해 묶음별 통과율을 비교",
+          "규칙 거절·인사 통과를 결정적 단위 시험으로 고정해 모델 없이도 회귀를 잡게 함",
+        ],
+        results: [
+          "식별 가능한 요청(레시피·코드·번역·시 쓰기·인젝션 시도)은 모델에 닿기 전에 차단",
+          "작정하고 프레이밍하는 사회공학은 7.8b로 완전히 막을 수 없다고 판단하고 그 한계를 PR에 적어 둠. 더 강한 모델·파인튜닝·가드 모델은 별도 과제로 분리",
+          "아래 측정 표는 이 보강 직전인 2026-07-06 값입니다",
+        ],
+      },
+      {
+        title:
+          "최대 70초까지 걸리는 추천 응답이 DB 커넥션을 붙잡지 않도록, 느린 호출 앞에서 트랜잭션을 끊었습니다",
+        causes: [
+          "추천 게이트웨이는 개인화 프로필과 일정 맥락을 DB에서 조립한 뒤 추천 서버를 호출하는데, 한 트랜잭션으로 묶으면 LLM이 답할 때까지 커넥션을 쥐고 있게 됨",
+          "실제 측정에서 상세 추천은 중앙값 13초, 가장 느린 한 건은 70초였고 클라이언트 타임아웃은 45초",
+          "open-in-view를 끈 상태라 커넥션 반납 시점이 트랜잭션 경계와 그대로 붙어 있음",
+        ],
+        solutions: [
+          "게이트웨이 메서드에는 트랜잭션을 두지 않고, DB 조립을 각자 트랜잭션을 가진 읽기 메서드로 쪼개 호출 전에 커넥션을 돌려주게 함",
+          "느린 외부 호출은 트랜잭션 밖에서만 돌게 하고, 왜 여기에 트랜잭션을 걸면 안 되는지를 코드 주석으로 남겨 다음 사람이 되돌리지 못하게 함",
+          "추천 서버 호출에 45초 타임아웃을 두고, 실패·타임아웃·깨진 JSON에도 500 대신 규칙 폴백을 반환",
+        ],
+        checks: [
+          "응답 시간은 시나리오 80건 전체를 재서 분포로 확인. 평균 한 숫자만 보면 70초짜리가 묻힘",
+        ],
+        results: [
+          "LLM이 답하는 동안 Hikari 커넥션을 점유하지 않음",
+          "추천 서버가 느리거나 죽어도 규칙 폴백으로 응답이 끊기지 않음",
+        ],
       },
     ],
     goals: [
@@ -1525,10 +1775,26 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "고른 것 +2 / 함께 노출됐지만 안 고른 것 -0.05를 (날씨×시간대) 맥락별로 원자적으로 누적하고 주간 decay를 적용하는 개인화 가중치 학습",
       "위경도→격자·중기 지역코드·최근접 측정소 변환, 발표시각 자동 계산, Redis 캐시, 외부 API 장애 때도 응답을 유지하는 기상청·에어코리아 날씨 중계 파이프라인 구축",
     ],
+    benchmarkTitle: "시나리오 자동 채점",
+    benchmarkUnit: "",
+    benchmark: {
+      caption:
+        "추천 서버만 띄우고 시나리오 80건을 자동 채점했습니다. 좌표는 강남역(37.4979, 127.0276), 날씨는 ‘맑음, 22도’로 고정하고 반경 1,500m · 후보 5개 조건에서 exaone3.5:7.8b로 측정했습니다.",
+      headers: ["시나리오 묶음", "건수", "통과", "응답 중앙값", "최대"],
+      rows: [
+        { cells: ["날씨 · 위치", "20", "19", "4초", "18초"] },
+        { cells: ["막연한 요청", "20", "17", "3초", "15초"] },
+        { cells: ["상세 추천", "20", "17", "13초", "70초"] },
+        { cells: ["도메인 밖 거절", "20", "6", "3초", "10초"] },
+        { cells: ["합계", "80", "59", "4초", "70초"], highlight: true },
+      ],
+      footnote:
+        "2026-07-06 측정, 규칙 라우팅을 보강하기 직전 값입니다. 할 일 주입이 필요한 묶음 20건과 수동 확인용 엣지 20건은 자동 채점에서 제외해 표에도 넣지 않았습니다. 도메인 밖 거절 6/20이 LLM 호출 전 규칙 라우팅으로 방어선을 옮기게 된 근거입니다.",
+    },
     results: [
       "nlp 시나리오 자동 채점 59/80 통과 (2026-07-06 기준: 날씨·위치 19/20, 막연한 요청 17/20, 상세 추천 17/20, 도메인 밖 거절 6/20)",
       "도메인 밖 거절 실패 14건(요리법·번역·운세 등에서 거절이 동작하지 않음)을 확인해 LLM 호출 전 규칙 라우팅을 보강했고, 7.8b 모델로는 작정하고 시도하는 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시 (보강 후 동일 평가셋 재측정 결과는 기록 없음)",
-      "LLM·네트워크 없이 도는 결정적 테스트(nlp 119개·be 36개)로 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
+      "LLM·네트워크 없이 도는 결정적 테스트 229개(추천 서버 119 · 백엔드 본인 작성 110)로 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
     ],
     lessons:
       "작은 로컬 LLM을 실서비스에 쓰려면 모델을 키우기보다 결과가 자주 바뀌는 부분(라우팅·검색어·환각)을 규칙·스키마 강제·RAG로 감싸 LLM이 판단하는 범위를 좁혀야 한다는 걸 배웠습니다. 그래야 품질·지연·장애 내성을 함께 챙길 수 있었습니다.",
@@ -1601,6 +1867,28 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         href: "https://github.com/HUHGEON/Blog-Platform/blob/main/README.md",
       },
     ],
+    metrics: [
+      {
+        value: "36개",
+        label: "혼자 설계·구현한 엔드포인트",
+        note: "인증 · 게시글 · 댓글 · 좋아요 · 팔로우 · 쪽지 · 스토리 8개 도메인, 99커밋 전부 본인",
+      },
+      {
+        value: "7개",
+        label: "정합성을 코드가 아닌 인덱스로",
+        note: "text 1 · 유니크 3 · 복합 2 · TTL 1. 좋아요 중복과 스토리 만료를 DB가 보장",
+      },
+      {
+        value: "3종",
+        label: "엔드포인트별 인증 미들웨어",
+        note: "필수 · 선택(비로그인 허용) · refresh 전용을 라우트마다 골라 붙임",
+      },
+      {
+        value: "×3",
+        label: "유사글 추천의 제목 가중치",
+        note: "제목 키워드를 세 번 반복해 저장한 뒤 textScore로 정렬",
+      },
+    ],
     goals: [
       "엔드포인트마다 다른 인증 요구 수준을 미들웨어 분리로 해결",
       "조사·어미가 붙는 한국어 글도 형태소 분석으로 유사글을 추천하도록 구현",
@@ -1615,7 +1903,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       {
         emoji: "🔤",
         title: "형태소 유사글 추천",
-        desc: "mecab-ya로 명사를 추출하고 제목에 3배 가중치를 준 뒤 text 인덱스 $text 유사도로 추천",
+        desc: "mecab-ya로 한국어 명사를, 정규식으로 영어 단어를 뽑아 제목에 3배 가중치를 준 뒤 text 인덱스 $text 유사도로 추천",
       },
       {
         emoji: "🔎",
@@ -1701,8 +1989,9 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "스토리는 TTL 인덱스로 24시간 뒤 자동 삭제",
     ],
     results: [
-      "인증(3종)·게시글·댓글·좋아요·팔로우·쪽지·스토리 8개 도메인 REST API 백엔드 완성",
+      "인증(3종)·게시글·댓글·좋아요·팔로우·쪽지·스토리 8개 도메인에 걸쳐 엔드포인트 36개를 혼자 설계·구현 (99커밋 전부 본인)",
       "형태소 기반 유사글 추천·조회수+좋아요+댓글 합산 인기순 정렬·24시간 TTL 스토리 등 기본 CRUD를 넘어서는 기능을 인덱스·aggregate로 구현",
+      "정합성을 애플리케이션 코드가 아니라 인덱스에 맡김: 좋아요 중복은 (user_id, post_id) 유니크 복합 인덱스, 스토리 만료는 TTL 인덱스 86,400초, 쪽지 목록은 보낸·받은 양방향 복합 인덱스",
     ],
     lessons:
       "한글에서 의미 단위(명사)를 뽑으려면 형태소 분석기가 필요했습니다. MongoDB text 인덱스 제약(컬렉션당 1개)에 부딪히면서 같은 데이터라도 목적에 따라 검색 전략(추천은 형태소+text, 검색은 regex)을 나눠야 한다는 것도 체감했습니다.",
@@ -1758,6 +2047,18 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
     ],
     award: "코드잇 데모데이 대상",
+    metrics: [
+      {
+        value: "21개",
+        label: "그룹 · 게시글 · 댓글 · 이미지 엔드포인트",
+        note: "2인 팀 공동 구현, 본인은 게시글 API · 이미지 업로드 · KST 처리 담당",
+      },
+      {
+        value: "대상",
+        label: "코드잇 데모데이",
+        note: "2024.08 ~ 09, 백엔드 2인 팀",
+      },
+    ],
     goals: [
       "그룹 > 게시글 > 이미지 계층의 추억 기록 서비스 백엔드 구현",
       "2인 팀에서 게시글 API·이미지 업로드·KST 시간대 처리 도메인 담당",
@@ -1838,7 +2139,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         "이미지는 Multer로 고유 파일명 생성·MIME 이중 검사 후 저장하고 절대 URL로 서빙",
         "게시글·댓글 등록 시 상위 문서의 카운터(postCount·commentCount)를 $inc로 동기화",
         "moment-timezone으로 저장·응답 시각을 KST로 맞춰 시간대 오차 제거",
-        "활동 조건 충족 시 이벤트 훅(즉시)·24시간 배치(시간 경과형)로 배지 갱신 — 팀 공동 구현",
+        "활동 조건 충족 시 이벤트 훅(즉시)·24시간 배치(시간 경과형)로 배지 갱신 (팀 공동 구현)",
       ],
     },
     problemTitle: "문제",
@@ -1854,8 +2155,9 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "활동 조건(연속 게시·누적 공감 등)을 채우면 배지를 자동 부여하는 시스템 팀 공동 구축, 이벤트 훅·24시간 배치로 갱신",
     ],
     results: [
-      "그룹·게시글·댓글·이미지 CRUD와 공감·공개 여부 조회 등 REST API 백엔드를 팀으로 완성",
-      "담당한 게시글 API·이미지 업로드·KST 시간대 처리를 안정적으로 구현·통합",
+      "그룹·게시글·댓글·이미지 CRUD와 공감·공개 여부 조회 등 엔드포인트 21개를 2인 팀으로 완성",
+      "담당한 게시글 API·이미지 업로드·KST 시간대 처리를 구현해 머지, 게시글 검색은 제목과 태그를 한 번에 찾도록 확장",
+      "저장은 UTC, 응답은 KST로 갈려 있던 것을 한 기준으로 모아 도메인마다 다르게 보이던 시각을 맞춤",
     ],
     lessons:
       "팀 개발에서는 도메인 경계를 나누고 각자 맡은 API와 데이터 규칙(참조 계층·카운터·시간대)을 일관되게 지켜야 전체 통합 속도가 빨라진다는 것을 배웠습니다.",
@@ -2182,12 +2484,61 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       },
     ],
     qa: "- 백엔드: Jest·supertest로 테스트 케이스 194개 작성(DB·캐시·외부 호출은 mock으로 격리), 테스트하기 쉽도록 핸들러와 비즈니스 로직을 분리하는 리팩터링 진행\n- 타사 앱 QA: 사내에서 다른 회사 앱을 직접 테스트하고 결과를 테스트 보고서로 정리·보고하는 업무를 자주 담당",
+    goals: [
+      "원본 데이터를 받아 외부 서버 2곳과 연동하고 결과를 저장·조회하는 백엔드 프로토타입 구현",
+      "기획팀이 반복하던 조사용 엑셀 작업을 대시보드로 옮겨 수작업 없이 돌게 만들기",
+      "핸들러와 비즈니스 로직을 갈라 외부 연동·DB·캐시를 섞지 않고 시험할 수 있는 구조 만들기",
+    ],
     problemTitle: "문제",
     problems: [],
     solutions: [],
     results: [],
     lessons: "",
-    techChoices: [],
-    architecture: { nodes: [], edges: [], steps: [] },
+    techChoices: [
+      {
+        name: "Node.js · Express",
+        reason:
+          "외부 호출 대기가 긴 파이프라인이라 논블로킹 I/O가 맞았고, 라우터와 서비스 레이어를 갈라 처리·조회·캐시·외부 연동을 따로 두기 쉬움",
+      },
+      {
+        name: "MongoDB",
+        reason:
+          "결과 문서 형태가 아직 바뀌는 프로토타입이라 스키마 변경 부담 없이 저장",
+      },
+      {
+        name: "Redis",
+        reason:
+          "반복 조회되는 목록을 캐시하고 쓰기 때 무효화해 같은 질의가 DB까지 가지 않게 함",
+      },
+      {
+        name: "FFmpeg",
+        reason: "외부 서버로 넘기기 전 원본을 압축해 전송량과 저장량을 줄임",
+      },
+      {
+        name: "Jest · supertest",
+        reason:
+          "DB·캐시·외부 호출을 mock으로 끊어 네트워크 없이 도는 테스트를 만들고, 그러려고 핸들러와 로직을 분리",
+      },
+      {
+        name: "Python · Streamlit",
+        reason:
+          "분석 로직과 화면을 한 파일에서 돌릴 수 있어 반복 엑셀 작업을 가장 짧은 경로로 자동화",
+      },
+      {
+        name: "Docker",
+        reason: "백엔드와 외부 연동 구성을 컨테이너로 묶어 같은 환경에서 띄움",
+      },
+    ],
+    architecture: {
+      nodes: [],
+      edges: [],
+      steps: [
+        "웹 프런트가 처리 요청·목록·검색을 백엔드 REST API로 보냄",
+        "단말·원본 서버에서 들어온 원본 데이터를 전처리에서 파일명 파싱 결과와 외부 조회 결과로 교차 검증",
+        "외부 처리 서버와 외부 조회 서버를 한 핸들러에서 동시에 호출해 두 번 기다리지 않게 함",
+        "넘기기 전 FFmpeg으로 압축해 전송량과 저장량을 줄임",
+        "결과는 테넌트별 MongoDB에 저장하고 목록은 Redis 캐시로 응답, 쓰기가 일어나면 해당 캐시를 무효화",
+      ],
+    },
   },
 };
