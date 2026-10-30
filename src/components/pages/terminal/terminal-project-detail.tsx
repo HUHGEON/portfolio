@@ -1032,7 +1032,7 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
               {d.problems.length > 0 ? (
                 <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
                   <p className="font-semibold text-[var(--text)]">
-                    # 문제 — {d.problemTitle}
+                    # {d.problemTitle || "문제"}
                   </p>
                   <Bullets items={d.problems} />
                 </div>
@@ -1178,26 +1178,26 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
           ),
         });
       }
-      if (d.techChoices.length > 0) {
-        sections.push({
-          id: "tech",
-          label: "기술 선택 이유",
-          cmd: "cat TECH_CHOICES.md",
-          node: (
-            <ul
-              data-stagger
-              className="divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)]"
-            >
-              {d.techChoices.map((t) => (
-                <li key={t.name} className="px-4 py-3 leading-[1.75] text-[var(--dim)]">
-                  <TechChip name={t.name} className="mr-2" />
-                  {emphasize(t.reason)}
-                </li>
-              ))}
-            </ul>
-          ),
-        });
-      }
+    }
+    if (d.techChoices.length > 0) {
+      sections.push({
+        id: "tech",
+        label: "기술 선택 이유",
+        cmd: "cat TECH_CHOICES.md",
+        node: (
+          <ul
+            data-stagger
+            className="divide-y divide-[var(--border-soft)] rounded-lg border border-[var(--border)]"
+          >
+            {d.techChoices.map((t) => (
+              <li key={t.name} className="px-4 py-3 leading-[1.75] text-[var(--dim)]">
+                <TechChip name={t.name} className="mr-2" />
+                {emphasize(t.reason)}
+              </li>
+            ))}
+          </ul>
+        ),
+      });
     }
   }
 
@@ -1206,12 +1206,15 @@ export function TerminalProjectDetail({ project }: { project: Project }) {
     const order = [
       "architecture",
       "infra",
+      "flow",
       "demo",
       "shots",
       "cases",
       "versions",
       "benchmark",
+      "problem",
       "features",
+      "results",
       "lessons",
       "tech",
     ];

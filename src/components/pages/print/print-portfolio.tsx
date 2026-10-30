@@ -377,6 +377,58 @@ function CouponSheets({
 }) {
   // 분량이 많은 프로젝트(NOVA)는 줄이지 않고 장을 하나 더 쓴다
   const wide = Boolean(d.infraDiagramKey);
+  const bench = d.benchmark ? (
+    <div className="avoid-break mt-5">
+      <Heading note={d.benchmarkUnit ?? "ms"}>
+        {d.benchmarkTitle ?? "잠금 방식별 부하 측정"}
+      </Heading>
+      <p className="mb-2 text-[10.5px] leading-[1.6] text-[var(--dim)]">
+        {d.benchmark.caption}
+      </p>
+      <table className="w-full border-collapse text-[10.5px] tabular-nums">
+        <thead>
+          <tr className="border-b border-[var(--border)] text-[var(--faint)]">
+            {d.benchmark.headers.map((h, hi) => (
+              <th
+                key={h}
+                className={`py-1 font-semibold ${hi < 2 ? "text-left" : "text-right"}`}
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {d.benchmark.rows.map((row, ri) => (
+            <tr
+              key={ri}
+              className={`border-b border-[var(--border-soft)] ${row.highlight ? "bg-[var(--accent-soft)] font-semibold text-[var(--heading)]" : "text-[var(--dim)]"}`}
+            >
+              {row.cells.map((cell, ci) => (
+                <td
+                  key={ci}
+                  className={`px-1 py-1 ${ci < 2 ? "text-left" : "text-right"}`}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {d.benchmark.footnote ? (
+        <p className="mt-2 text-[9.5px] leading-[1.6] text-[var(--faint)]">
+          {d.benchmark.footnote}
+        </p>
+      ) : null}
+    </div>
+  ) : null;
+  const learned = (
+    <div className="avoid-break mt-4">
+      <Heading>배운 점</Heading>
+      <p className="text-[11.5px] leading-[1.7] text-[var(--dim)]">{d.lessons}</p>
+    </div>
+  );
   return (
     <>
       <Sheet footer={String(startPage)}>
@@ -456,7 +508,7 @@ function CouponSheets({
         <p className="mb-3 text-[10.5px] text-[var(--faint)]">
           {project.title} · 문제 해결 사례
         </p>
-        <ol className="space-y-3">
+        <ol className="space-y-2">
           {d.cases?.slice(0, wide ? 4 : 3).map((c, ci) => (
             <li
               key={c.title}
@@ -471,9 +523,9 @@ function CouponSheets({
               <div className="mt-2 grid grid-cols-[64px_1fr] gap-x-2 gap-y-1.5">
                 {(
                   [
-                    ["문제 원인", c.causes],
-                    ["해결 과정", c.solutions],
-                    ["결과", c.results],
+                    ["문제 원인", c.causes.slice(0, 3)],
+                    ["해결 과정", c.solutions.slice(0, 3)],
+                    ["결과", c.results.slice(0, 3)],
                   ] as const
                 ).map(([label, items]) => (
                   <div key={label} className="contents">
@@ -487,102 +539,64 @@ function CouponSheets({
             </li>
           ))}
         </ol>
+        {d.versions ? null : (
+          <>
+            {bench}
+            {learned}
+          </>
+        )}
       </Sheet>
 
-      <Sheet footer={String(startPage + (wide ? 3 : 2))}>
-        <p className="mb-3 text-[10.5px] text-[var(--faint)]">
-          {project.title} · 버전별 발전 과정 · 측정 결과
-        </p>
-        <table className="w-full border-collapse text-[10.5px] leading-[1.5]">
-          <thead>
-            <tr className="border-b border-[var(--border)] text-left text-[var(--faint)]">
-              <th className="w-[92px] py-1 pr-2 font-semibold">버전</th>
-              <th className="py-1 pr-2 font-semibold">선택 이유</th>
-              <th className="py-1 pr-2 font-semibold">트레이드오프</th>
-              <th className="w-[150px] py-1 font-semibold">수치</th>
-            </tr>
-          </thead>
-          <tbody>
-            {d.versions?.map((v) => (
-              <tr
-                key={v.version}
-                className="avoid-break border-b border-[var(--border-soft)] align-top"
-              >
-                <td className="py-1.5 pr-2">
-                  <p className="font-mono font-bold text-[var(--accent)]">
-                    {v.version}
-                  </p>
-                  <p className="font-semibold text-[var(--text)]">{v.title}</p>
-                  <p className="text-[9.5px] text-[var(--faint)]">{v.status}</p>
-                </td>
-                <td className="py-1.5 pr-2 text-[var(--dim)]">
-                  <p className="text-[var(--text)]">{v.problem}</p>
-                  <p className="mt-1">{v.choice}</p>
-                </td>
-                <td className="py-1.5 pr-2 text-[var(--dim)]">
-                  {v.tradeoff}
-                  {v.next ? (
-                    <p className="mt-1 text-[var(--faint)]">→ {v.next}</p>
-                  ) : null}
-                </td>
-                <td className="py-1.5 text-[10px] tabular-nums text-[var(--text)]">
-                  {emphasize(v.metric ?? "")}
-                </td>
+      {d.versions ? (
+        <Sheet footer={String(startPage + (wide ? 3 : 2))}>
+          <p className="mb-3 text-[10.5px] text-[var(--faint)]">
+            {project.title} · 버전별 발전 과정 · 측정 결과
+          </p>
+          <table className="w-full border-collapse text-[10.5px] leading-[1.5]">
+            <thead>
+              <tr className="border-b border-[var(--border)] text-left text-[var(--faint)]">
+                <th className="w-[92px] py-1 pr-2 font-semibold">버전</th>
+                <th className="py-1 pr-2 font-semibold">선택 이유</th>
+                <th className="py-1 pr-2 font-semibold">트레이드오프</th>
+                <th className="w-[150px] py-1 font-semibold">수치</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {d.benchmark ? (
-          <div className="avoid-break mt-5">
-            <Heading note="ms">{d.benchmarkTitle ?? "잠금 방식별 부하 측정"}</Heading>
-            <p className="mb-2 text-[10.5px] leading-[1.6] text-[var(--dim)]">
-              {d.benchmark.caption}
-            </p>
-            <table className="w-full border-collapse text-[10.5px] tabular-nums">
-              <thead>
-                <tr className="border-b border-[var(--border)] text-[var(--faint)]">
-                  {d.benchmark.headers.map((h, hi) => (
-                    <th
-                      key={h}
-                      className={`py-1 font-semibold ${hi < 2 ? "text-left" : "text-right"}`}
-                    >
-                      {h}
-                    </th>
-                  ))}
+            </thead>
+            <tbody>
+              {d.versions?.map((v) => (
+                <tr
+                  key={v.version}
+                  className="avoid-break border-b border-[var(--border-soft)] align-top"
+                >
+                  <td className="py-1.5 pr-2">
+                    <p className="font-mono font-bold text-[var(--accent)]">
+                      {v.version}
+                    </p>
+                    <p className="font-semibold text-[var(--text)]">{v.title}</p>
+                    <p className="text-[9.5px] text-[var(--faint)]">{v.status}</p>
+                  </td>
+                  <td className="py-1.5 pr-2 text-[var(--dim)]">
+                    <p className="text-[var(--text)]">{v.problem}</p>
+                    <p className="mt-1">{v.choice}</p>
+                  </td>
+                  <td className="py-1.5 pr-2 text-[var(--dim)]">
+                    {v.tradeoff}
+                    {v.next ? (
+                      <p className="mt-1 text-[var(--faint)]">→ {v.next}</p>
+                    ) : null}
+                  </td>
+                  <td className="py-1.5 text-[10px] tabular-nums text-[var(--text)]">
+                    {emphasize(v.metric ?? "")}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {d.benchmark.rows.map((row, ri) => (
-                  <tr
-                    key={ri}
-                    className={`border-b border-[var(--border-soft)] ${row.highlight ? "bg-[var(--accent-soft)] font-semibold text-[var(--heading)]" : "text-[var(--dim)]"}`}
-                  >
-                    {row.cells.map((cell, ci) => (
-                      <td
-                        key={ci}
-                        className={`px-1 py-1 ${ci < 2 ? "text-left" : "text-right"}`}
-                      >
-                        {cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {d.benchmark.footnote ? (
-              <p className="mt-2 text-[9.5px] leading-[1.6] text-[var(--faint)]">
-                {d.benchmark.footnote}
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+              ))}
+            </tbody>
+          </table>
 
-        <div className="avoid-break mt-5">
-          <Heading>배운 점</Heading>
-          <p className="text-[11.5px] leading-[1.7] text-[var(--dim)]">{d.lessons}</p>
-        </div>
-      </Sheet>
+          {bench}
+
+          {learned}
+        </Sheet>
+      ) : null}
     </>
   );
 }
@@ -672,8 +686,10 @@ export function PrintPortfolio({ dictionary }: { dictionary: Dictionary }) {
 
   // page 1 is the profile; a project with cases takes three sheets, four when it also
   // carries an infra diagram (NOVA)
-  const sheetCount = (x?: HeoProjectDetail) =>
-    x?.cases ? (x.infraDiagramKey ? 4 : 3) : 1;
+  const sheetCount = (x?: HeoProjectDetail) => {
+    if (!x?.cases) return 1;
+    return 2 + (x.infraDiagramKey ? 1 : 0) + (x.versions ? 1 : 0);
+  };
   const startPages = featured.reduce<number[]>((acc, _project, i) => {
     const prev =
       i === 0 ? 2 : acc[i - 1] + sheetCount(HEO_PROJECT_DETAILS[featured[i - 1].slug]);
