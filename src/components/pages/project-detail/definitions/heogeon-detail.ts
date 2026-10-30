@@ -1088,9 +1088,9 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         note: "설계와 구현을 단독으로 맡음. API 서버(추천 · 주문 · 장바구니 · Swagger)는 팀원이 구현",
       },
       {
-        value: "금상",
-        label: "명지대 캡스톤디자인",
-        note: "음성 주문부터 추천 · 옵션 선택 · 결제까지 한 대화로 이어지는 키오스크 백엔드",
+        value: "2단",
+        label: "오케스트레이터 구조",
+        note: "클라이언트는 NLP 서버 한 곳만 부르고, 의도 해석과 API 서버 호출 · 응답 병합은 서버가 맡음",
       },
     ],
     goals: [
@@ -1244,8 +1244,8 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     diagramKey: "live-chat",
     hook: "여러 Pod에 흩어진 시청자에게 메시지를 실시간으로 전달하고, 누가 누구를 왜 내보냈는지까지 서버가 책임지는 라이브 채팅 서버입니다.",
     description:
-      "대규모 라이브 스트리밍·커머스 플랫폼 sapari에서 개발 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 WebSocket으로 연결을 받고 Redis Pub/Sub 패턴 구독으로 Pod 간 메시지를 중계합니다. 그 위에 권한 확인·레이트리밋·욕설 필터링과 멱등 처리·fail-open을 하나의 전송 파이프라인으로 묶고, 강퇴와 자동 밴 승급까지 같은 모듈에서 처리합니다. 채팅 모듈과 WebSocket 전송 계층은 전부 혼자 작성했고, 채팅을 시작으로 다른 도메인까지 맡아 계속 업데이트할 예정입니다.",
-    role: "sapari(라이브 스트리밍·커머스) 채팅 서버 단독 담당 · 진행 중 · 도메인 확장 예정",
+      "대규모 라이브 스트리밍·커머스 플랫폼 sapari에서 개발 중인 실시간 채팅 서버입니다. Spring WebFlux 논블로킹 WebSocket으로 연결을 받고 Redis Pub/Sub 패턴 구독으로 Pod 간 메시지를 중계합니다. 그 위에 권한 확인·레이트리밋·욕설 필터링과 멱등 처리·fail-open을 하나의 전송 파이프라인으로 묶고, 강퇴와 자동 밴 승급까지 같은 모듈에서 처리합니다. 채팅 모듈과 WebSocket 전송 계층은 전부 혼자 작성했고, 지금도 범위를 넓혀 가며 맡고 있습니다.",
+    role: "sapari(라이브 스트리밍·커머스) 채팅 서버 단독 담당 (진행 중)",
     period: "2026.06 ~ 진행 중",
     evidence: [
       {
@@ -1253,7 +1253,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
         href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/modules/chat/AGENTS.md",
       },
       {
-        label: "크로스 Pod 전달 통합 테스트",
+        label: "크로스 Pod 전달 통합 시험",
         href: "https://github.com/sago-panda/sapari-be/blob/87ac3cd5067cb30c739ee1147e188a88f63c1f75/apps/streaming-app/src/test/java/com/sapari/streamingapp/websocket/CrossPodBroadcastTest.java",
       },
       {
@@ -1497,7 +1497,8 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
       "chat-api(계약) ↔ chat-core(도메인·인프라)를 헥사고날 구조로 분리하고 ArchUnit으로 강제, 인바운드는 concatMap으로 순차 처리",
     ],
     results: [
-      "어느 Pod에 접속해도 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 테스트로 Pod 간 전달 확인 (Pub/Sub 특성상 전달은 best-effort이고 재접속 시 누락 복구는 미구현)",
+      "어느 Pod에 접속해도 같은 방 메시지를 받는 stateless 수평 확장 구조, 한 JVM에서 Pod 2개를 모사한 TestContainers(Redis) 통합 시험으로 Pod 간 전달 확인",
+      "전달 보장 수준을 best-effort로 정하고 그 선을 설계 노트에 적어 둠. 저장과 ACK까지가 성공이고 Pod 간 전달 실패는 채팅을 멈추지 않음. 지난 메시지 복구는 저장된 메시지를 커서로 읽는 이력 조회가 맡을 몫으로 분리",
       "Redis 장애(fail-open)·poison-message(개별 skip)·재전송(멱등 처리) 세 상황 모두에서 전송 파이프라인이 멈추지 않도록 구성",
       "채팅 관련 시험 507개 전부 통과(채팅 모듈 351 · WebSocket 전송 137 · 저장소 전체 아키텍처 규칙 19, 그중 채팅 경계를 지키는 것이 4개), 공개 커밋 시점에서 실패 0건",
       "JPA 시험 스키마를 실제 Flyway 파일 전체에서 버전 순으로 적용하게 하고 마이그레이션 디렉터리를 시험 입력으로 선언. 그 전에는 유니크 인덱스를 지워도 시험이 832ms 만에 통과했음",
@@ -1793,8 +1794,7 @@ export const HEO_PROJECT_DETAILS: Record<string, HeoProjectDetail> = {
     },
     results: [
       "nlp 시나리오 자동 채점 59/80 통과 (2026-07-06 기준: 날씨·위치 19/20, 막연한 요청 17/20, 상세 추천 17/20, 도메인 밖 거절 6/20)",
-      "도메인 밖 거절 실패 14건(요리법·번역·운세 등에서 거절이 동작하지 않음)을 확인해 LLM 호출 전 규칙 라우팅을 보강했고, 7.8b 모델로는 작정하고 시도하는 사회공학을 완전히 막을 수 없다는 한계를 PR에 명시 (보강 후 동일 평가셋 재측정 결과는 기록 없음)",
-      "LLM·네트워크 없이 도는 결정적 테스트 229개(추천 서버 119 · 백엔드 본인 작성 110)로 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
+      "LLM·네트워크 없이 도는 결정적 시험 229개(추천 서버 119 · 백엔드 본인 작성 110)로 규칙·라우팅·폴백·날씨 변환·알림 멱등성 회귀 검증",
     ],
     lessons:
       "작은 로컬 LLM을 실서비스에 쓰려면 모델을 키우기보다 결과가 자주 바뀌는 부분(라우팅·검색어·환각)을 규칙·스키마 강제·RAG로 감싸 LLM이 판단하는 범위를 좁혀야 한다는 걸 배웠습니다. 그래야 품질·지연·장애 내성을 함께 챙길 수 있었습니다.",

@@ -21,6 +21,7 @@ import {
 } from "@/components/pages/terminal/terminal-ui";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { assetPath } from "@/lib/asset-path";
+import { printSheetCount } from "@/lib/print-pages";
 import type { Project } from "@/types/project";
 import { useTheme } from "@/components/shell/theme-context";
 
@@ -619,6 +620,26 @@ function ProjectSheet({
   return (
     <Sheet footer={String(page)}>
       <ProjectHeader index={index} total={total} project={project} d={d} />
+      {d.metrics ? (
+        <dl className="mb-3 grid grid-cols-4 gap-2">
+          {d.metrics.map((m) => (
+            <div
+              key={m.label}
+              className="rounded-md border border-[var(--border)] px-2.5 py-2"
+            >
+              <dt className="text-[10.5px] text-[var(--faint)]">{m.label}</dt>
+              <dd className="mt-0.5 font-mono text-[15px] font-bold text-[var(--heading)]">
+                {m.value}
+              </dd>
+              {m.note ? (
+                <dd className="mt-0.5 text-[9.5px] leading-snug text-[var(--dim)]">
+                  {m.note}
+                </dd>
+              ) : null}
+            </div>
+          ))}
+        </dl>
+      ) : null}
       {d.diagramKey ? <Arch diagramKey={d.diagramKey} /> : null}
 
       {d.works ? (
@@ -684,12 +705,7 @@ export function PrintPortfolio({ dictionary }: { dictionary: Dictionary }) {
 
   const { theme } = useTheme();
 
-  // page 1 is the profile; a project with cases takes three sheets, four when it also
-  // carries an infra diagram (NOVA)
-  const sheetCount = (x?: HeoProjectDetail) => {
-    if (!x?.cases) return 1;
-    return 2 + (x.infraDiagramKey ? 1 : 0) + (x.versions ? 1 : 0);
-  };
+  const sheetCount = printSheetCount;
   const startPages = featured.reduce<number[]>((acc, _project, i) => {
     const prev =
       i === 0 ? 2 : acc[i - 1] + sheetCount(HEO_PROJECT_DETAILS[featured[i - 1].slug]);

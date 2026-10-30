@@ -14,6 +14,7 @@ import {
   TermWindow,
 } from "@/components/pages/terminal/terminal-ui";
 import { assetPath } from "@/lib/asset-path";
+import { printPageTotal } from "@/lib/print-pages";
 import type { Dictionary } from "@/i18n/dictionaries";
 
 const HUES = [
@@ -168,7 +169,8 @@ export function TerminalHome({ dictionary }: { dictionary: Dictionary }) {
             href={assetPath("/heo-geon-portfolio.pdf")}
             className="inline-flex items-center gap-1 text-[14px] text-[var(--dim)] transition hover:text-[var(--accent)]"
           >
-            <FileDown size={14} className="text-[var(--accent)]" /> 요약 PDF (A4 12쪽)
+            <FileDown size={14} className="text-[var(--accent)]" /> 요약 PDF (A4{" "}
+            {printPageTotal(dictionary)}쪽)
           </a>
         </div>
       </section>
